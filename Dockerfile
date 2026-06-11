@@ -82,3 +82,25 @@ CMD ["zsh", "-l"]
 FROM modules AS final
 WORKDIR /work
 CMD ["perl", "-v"]
+
+FROM final AS codex
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      bubblewrap \
+      curl \
+      gawk \
+ && mkdir -p /opt/codex \
+ && curl -fsSL https://chatgpt.com/codex/install.sh \
+      | CODEX_HOME=/opt/codex \
+        CODEX_INSTALL_DIR=/usr/local/bin \
+        CODEX_NON_INTERACTIVE=1 \
+        sh \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV CODEX_HOME=/codex
+
+RUN mkdir -p "${CODEX_HOME}"
+
+WORKDIR /work
+CMD ["codex"]

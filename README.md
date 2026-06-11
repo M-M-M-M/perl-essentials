@@ -1,8 +1,8 @@
 # perl-essentials
 
-`perl-essentials` is a threaded Perl image with a curated set of CPAN modules
-for scripting, automation, data processing, databases, profiling, testing, and
-web clients.
+`perl-essentials` is a Docker image with threaded Perl and a curated set of
+CPAN modules for scripting, automation, data processing, databases, profiling,
+testing, and web clients.
 
 The image deliberately favors current modules over byte-for-byte reproducible
 builds:
@@ -85,6 +85,72 @@ Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
 host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 `c` are configured globally.
 
+## Optional Codex target
+
+Codex CLI is available in a separate development target. GitHub Actions and
+Bitbucket build and validate this target with the default Perl version, but it
+is not part of the default image or Docker Hub publication. Build without the
+cache to retrieve the latest Codex version available from the official
+installer:
+
+```sh
+docker build --target codex --no-cache -t perl-essentials:codex .
+mkdir -p codex-auth
+```
+
+Authenticate on the first run with device authorization:
+
+```sh
+docker run --rm -it \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex codex login --device-auth
+```
+
+On subsequent runs, reuse the same local state directory:
+
+```sh
+docker run --rm -it \
+  --security-opt seccomp=unconfined \
+  --security-opt no-new-privileges=true \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex
+```
+
+To run Perl commands before starting Codex, open Zsh with the same mounts and
+security options:
+
+```sh
+docker run --rm -it \
+  --security-opt seccomp=unconfined \
+  --security-opt no-new-privileges=true \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex zsh -l
+```
+
+Then run commands such as `perl -v`, `prove -lr test`, and finally `codex`
+inside the container. The shell starts in `/work`, so these commands operate on
+the mounted project.
+
+Codex uses the distribution `bubblewrap` package to sandbox commands on Linux.
+Docker's default seccomp profile blocks the namespace-related system calls that
+`bubblewrap` needs inside a container, so the interactive run disables that
+outer seccomp filter. This increases the container's access to Linux kernel
+system calls. Use this target only with trusted images and projects, do not add
+`--privileged`, and do not mount the Docker socket. The
+`no-new-privileges=true` option remains enabled to prevent processes from
+gaining additional privileges.
+
+`codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
+and the Docker build context. It can contain sensitive access tokens,
+configuration, sessions, history, logs, and caches. Run `codex logout` with
+the same mounts before deleting the directory when possible. Deleting the
+directory removes only this local copy of the stored state.
+
+See [DOCUMENTATION.md](DOCUMENTATION.md) for validation and cleanup details.
+
 ## Perl development tools
 
 The image includes `perltidy`, `perlcritic`, `prove`, `cpanm`, `rg`, and the
@@ -145,6 +211,9 @@ Check repository Perl formatting without modifying files:
 ```sh
 test/check-perl-format.sh
 ```
+
+CI runs this check in the image with the checkout owner's UID and GID so Git
+can inspect the read-only `/work` mount without weakening its ownership checks.
 
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |

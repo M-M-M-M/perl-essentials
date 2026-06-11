@@ -6,8 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-11
+
+### Added
+
+- Optional local Codex CLI target with repository-local, ignored
+  authentication and session state.
+
+### Changed
+
+- GitHub Actions and Bitbucket validate the optional Codex target without cache,
+  including manual Zsh use and the Bubblewrap sandbox.
+- The Codex documentation explains how to run Perl commands in Zsh before
+  starting Codex manually.
+
 ### Fixed
 
+- CI formatting checks run with the checkout owner's UID and GID so Git accepts
+  the read-only repository mount without disabling ownership protection.
+- The optional Codex target installs the distribution `bubblewrap` package and
+  documents the Docker security options required by its Linux sandbox.
 - Tag pipelines validate all supported Perl versions without attempting the
   deferred Docker Hub publication.
 - Legacy Debian images derive GNU command aliases from the commands available
@@ -28,5 +46,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/M-M-M-M/perl-essentials/releases/tag/v0.1.0

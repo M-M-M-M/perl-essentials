@@ -78,6 +78,11 @@ test/check-perl-format.sh
 perlcritic path/to/script.pl
 ```
 
+The CI build mounts the checkout read-only at `/work` and runs the formatting
+check with `--user "$(id -u):$(id -g)"`. This keeps the container process
+aligned with the checkout owner, allowing `git ls-files` to run without adding
+`/work` as a globally trusted `safe.directory`.
+
 The bundled `/opt/perl-essentials/AGENTS.md` is not automatically active for a
 project mounted at `/work`, because it is outside that project's directory
 hierarchy. Copy it into the project only after reviewing its instructions:
@@ -89,6 +94,114 @@ cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc
 
 The image also provides `rg` and GNU-prefixed aliases `gcat`, `gfind`, `ggrep`,
 and `gsed`.
+
+## Use the optional Codex target
+
+The `codex` target derives from the complete `final` image. Normal image builds
+stop at `final`; GitHub Actions and Bitbucket validate the Codex target
+separately with Perl 5.43.9, while Docker Hub publication remains disabled.
+
+The target runs the official standalone installer. Its package files remain
+under `/opt/codex`, while runtime state uses `CODEX_HOME=/codex`. Keeping these
+locations separate prevents the authentication mount from hiding the installed
+CLI. A no-cache build deliberately resolves the latest available Codex version,
+so this target is not reproducible at the Codex version level:
+
+```sh
+docker build --target codex --no-cache -t perl-essentials:codex .
+mkdir -p codex-auth
+```
+
+The first login uses device authorization because a container cannot reliably
+receive the browser callback:
+
+```sh
+docker run --rm -it \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex codex login --device-auth
+```
+
+Start Codex later with the same writable project and state mounts:
+
+```sh
+docker run --rm -it \
+  --security-opt seccomp=unconfined \
+  --security-opt no-new-privileges=true \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex
+```
+
+Open an interactive Zsh shell when Perl commands or project checks should run
+before Codex:
+
+```sh
+docker run --rm -it \
+  --security-opt seccomp=unconfined \
+  --security-opt no-new-privileges=true \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex zsh -l
+```
+
+The shell starts in `/work`. Run commands such as `perl -v`, `prove -lr test`,
+or project-specific scripts, then start Codex manually with `codex`. Keeping
+the same `codex-auth/` mount makes the existing container-specific login
+available to the manually started CLI.
+
+The target installs Debian's `bubblewrap` package because Codex uses `bwrap`
+for its Linux command sandbox. Docker applies its own seccomp syscall filter
+outside that sandbox. The default Docker profile blocks the namespace-related
+system calls that `bubblewrap` needs, so Codex cannot initialize its sandbox in
+a normal container even when `bwrap` is installed.
+
+`--security-opt seccomp=unconfined` disables Docker's outer syscall filter for
+this container. It does not disable the sandbox that Codex creates with
+`bubblewrap`, but it does expose more Linux kernel system calls to every process
+in the container. Use this mode only with the trusted `perl-essentials:codex`
+image and trusted projects. Do not combine it with `--privileged`, do not mount
+`/var/run/docker.sock`, and do not weaken the host Docker daemon globally.
+
+`--security-opt no-new-privileges=true` remains compatible with the Codex
+sandbox and prevents processes from gaining additional privileges through
+set-user-ID binaries or file capabilities. It reduces risk but does not replace
+Docker's disabled seccomp filter.
+
+Do not mount the host's complete home directory or `~/.codex`. The repository
+root's `codex-auth/` directory is ignored by Git and Docker, but it still
+contains sensitive local state such as access tokens, configuration, sessions,
+history, logs, and caches. To remove the container-specific login:
+
+```sh
+docker run --rm -it \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex codex logout
+rm -rf codex-auth
+```
+
+`codex logout` removes credentials stored in this Codex home. Deleting
+`codex-auth/` removes only the local copy and must not be treated as
+server-side token revocation.
+
+Validate a fresh unauthenticated state without performing a real login:
+
+```sh
+tmp="$(mktemp -d)"
+test -z "$(docker run --rm -v "$tmp":/codex \
+  perl-essentials:codex find /codex -mindepth 1 -print -quit)"
+docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
+docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
+docker run --rm \
+  --security-opt seccomp=unconfined \
+  --security-opt no-new-privileges=true \
+  -v "$tmp":/codex \
+  perl-essentials:codex codex sandbox -- sh -c 'printf sandbox-ok'
+rm -rf "$tmp"
+```
+
+The standalone CLI may create runtime files under `/codex/tmp` even for
+`codex --version`; the empty-state check must therefore run first.
 
 ## Create a temporary test exception
 

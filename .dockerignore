@@ -8,4 +8,5 @@ oracle
 data
 local
 module-versions.txt
+codex-auth/
 TODO.md

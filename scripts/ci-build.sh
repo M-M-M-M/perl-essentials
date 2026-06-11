@@ -33,6 +33,7 @@ docker run --rm "${image}" \
     /opt/perl-essentials/cpanfile \
     /opt/perl-essentials/cpanfile-notest
 docker run --rm \
+    --user "$(id -u):$(id -g)" \
     --volume "${PWD}:/work:ro" \
     "${image}" \
     /work/test/check-perl-format.sh
