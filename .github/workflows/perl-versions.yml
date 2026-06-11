@@ -1,0 +1,16 @@
+name: Check Perl versions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * 1'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test detector
+        run: test/check-perl-versions.sh
+      - name: Check official threaded tags
+        run: perl scripts/check-perl-versions.pl --check

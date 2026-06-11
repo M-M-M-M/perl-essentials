@@ -1,0 +1,11 @@
+.git
+.gitignore
+.DS_Store
+Oracle_Instant_Client_Downloads_for_Linux_AMD64
+Oracle_Instant_Client_Downloads_for_Linux_ARM_(aarch64)
+Oracle_Instant_Client_Downloads_for_Linux_x86-64_(64-bit)
+oracle
+data
+local
+module-versions.txt
+TODO.md

@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - 5.26.3
+          - 5.32.1
+          - 5.36.3
+          - 5.38.5
+          - 5.40.4
+          - 5.42.2
+          - 5.43.9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and validate image
+        env:
+          PERL_VERSION: ${{ matrix.perl-version }}
+        run: scripts/ci-build.sh

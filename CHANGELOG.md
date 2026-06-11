@@ -1,0 +1,32 @@
+# Changelog
+
+All notable public changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Fixed
+
+- Tag pipelines validate all supported Perl versions without attempting the
+  deferred Docker Hub publication.
+- Legacy Debian images derive GNU command aliases from the commands available
+  on `PATH` and report precise runtime-tool or default-perltidy-profile
+  failures.
+- Runtime checks validate the system Perl::Tidy profile from a neutral
+  directory, while project-local profiles retain precedence during normal use.
+
+## [0.1.0] - 2026-06-11
+
+### Added
+
+- Multi-version Perl container images with curated tested and no-test CPAN
+  manifests.
+- CI validation across legacy, stable, and development Perl versions.
+- Module inventory, manifest validation, smoke-test, integration-test, and
+  Perl-version maintenance tooling.
+- Shell configuration for interactive container use.
+- MIT licensing and third-party notices.
+
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/M-M-M-M/perl-essentials/releases/tag/v0.1.0

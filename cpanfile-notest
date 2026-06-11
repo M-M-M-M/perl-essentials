@@ -1,0 +1,13 @@
+# Temporary exceptions for modules whose upstream CPAN tests are broken.
+#
+# Before adding an entry, follow DOCUMENTATION.md. Each exception must include:
+# - the reason and failing test;
+# - an upstream issue URL when available;
+# - affected Perl/module versions;
+# - the date on which the exception must be reviewed.
+#
+# Example:
+# requires 'Example::Module'; # ISSUE-URL; Perl 5.x; review YYYY-MM-DD
+
+requires 'REST::Client'; # IO::Socket::SSL dependency tests fail; https://metacpan.org/dist/REST-Client; Perl 5.26.3/module 281; review 2026-09-09
+requires 'XML::XML2JSON'; # Intermittent backend/root-element test failure; https://metacpan.org/dist/XML-XML2JSON; Perl 5.43.9/module 0.05; review 2026-09-09
