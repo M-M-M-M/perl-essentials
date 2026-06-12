@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-06-12
+
+### Changed
+
+- GitHub workflows use Checkout v6 and its Node.js 24 runtime.
+
 ## [0.2.2] - 2026-06-12
 
 ### Fixed
@@ -60,7 +66,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.1.0...v0.2.0

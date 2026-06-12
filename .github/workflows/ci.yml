@@ -19,7 +19,7 @@ jobs:
           - 5.42.2
           - 5.43.9
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build and validate image
         env:
           PERL_VERSION: ${{ matrix.perl-version }}
@@ -28,7 +28,7 @@ jobs:
   codex:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build and validate Codex image
         env:
           PERL_VERSION: 5.43.9

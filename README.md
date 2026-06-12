@@ -220,6 +220,7 @@ test/check-perl-format.sh
 
 CI runs this check in the image with the checkout owner's UID and GID so Git
 can inspect the read-only `/work` mount without weakening its ownership checks.
+GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24.
 
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |

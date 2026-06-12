@@ -348,6 +348,9 @@ CI validates all configured Perl versions. The matrix deliberately keeps legacy
 versions in addition to the newest stable and development versions so software
 can be tested before distribution to older systems.
 
+GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24 and avoids
+the deprecated Node.js 20 action runtime.
+
 `perl-versions.conf` records the exact versions and their roles. Check Docker
 Hub for newer official threaded tags:
 
