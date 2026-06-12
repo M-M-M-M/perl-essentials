@@ -18,6 +18,8 @@ for my $path (@workflows) {
 }
 
 my $perl_versions = _read_text('.github/workflows/perl-versions.yml') ;
+like $perl_versions, qr{run: test/check-perl-versions\.sh public},
+  'Perl version workflow tests the public drift profile' ;
 like $perl_versions,
   qr{scripts/check-perl-versions\.pl --check --drift-profile public},
   'Perl version workflow uses the public drift profile' ;

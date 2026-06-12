@@ -11,6 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Test detector
-        run: test/check-perl-versions.sh
+        run: test/check-perl-versions.sh public
       - name: Check official threaded tags
         run: perl scripts/check-perl-versions.pl --check --drift-profile public

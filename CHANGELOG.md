@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- The deterministic Perl version test now receives the public drift profile in
+  GitHub while retaining private repository validation by default.
+
 ## [0.2.4] - 2026-06-12
 
 ### Fixed

@@ -340,6 +340,7 @@ scripts/smoke-test.pl cpanfile cpanfile-notest
 scripts/module-versions.pl cpanfile cpanfile-notest
 perl -c test/integration-postgres.pl
 test/check-perl-versions.sh
+test/check-perl-versions.sh public
 ```
 
 ## CI and releases
@@ -374,9 +375,13 @@ The drift profile controls which provider files are required:
 
 `test/check-perl-versions.sh` is deterministic: it uses repository fixtures to
 test current versions, available updates, a new Perl series, repository drift,
-and both drift profiles without accessing the network. After that test passes,
-the provider job runs `scripts/check-perl-versions.pl --check` against Docker
-Hub's live official `perl` tags.
+and both drift profiles without accessing the network. Its optional argument is
+`public` or `private`; omitting it selects `private`. GitHub passes `public`
+because its snapshot intentionally excludes `bitbucket-pipelines.yml`.
+Bitbucket and local checks omit the argument and therefore validate the complete
+private repository. After that test passes, the provider job runs
+`scripts/check-perl-versions.pl --check` against Docker Hub's live official
+`perl` tags.
 
 GitHub's `Check Perl versions` workflow runs every Monday at 06:17 UTC and can
 also be started manually. The private Bitbucket `check-perl-versions` custom

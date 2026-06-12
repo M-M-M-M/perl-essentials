@@ -224,7 +224,9 @@ GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24.
 
 The separate `Check Perl versions` workflow runs every Monday and can also be
 started manually. It reports newer official threaded Perl images and drift in
-the public version matrix without rebuilding the Docker images.
+the public version matrix without rebuilding the Docker images. Its
+deterministic test runs as `test/check-perl-versions.sh public`; local and
+Bitbucket checks omit the argument and validate the complete private repository.
 
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |
