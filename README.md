@@ -222,6 +222,10 @@ CI runs this check in the image with the checkout owner's UID and GID so Git
 can inspect the read-only `/work` mount without weakening its ownership checks.
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24.
 
+The separate `Check Perl versions` workflow runs every Monday and can also be
+started manually. It reports newer official threaded Perl images and drift in
+the public version matrix without rebuilding the Docker images.
+
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |
 | --- | --- |

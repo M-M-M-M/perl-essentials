@@ -13,4 +13,4 @@ jobs:
       - name: Test detector
         run: test/check-perl-versions.sh
       - name: Check official threaded tags
-        run: perl scripts/check-perl-versions.pl --check
+        run: perl scripts/check-perl-versions.pl --check --drift-profile public

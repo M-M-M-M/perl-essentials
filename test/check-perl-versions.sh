@@ -3,6 +3,7 @@
 set -eu
 
 script=scripts/check-perl-versions.pl
+root=$(pwd)
 
 perl "$script" --check \
     --tags-file test/perl-tags-current.txt
@@ -37,5 +38,41 @@ fi
 
 grep -q 'DRIFT: 9.99.1 is missing from README.md' "$output"
 grep -q 'DRIFT: Dockerfile default is not 9.99.1' "$output"
+
+public_dir="${temp_dir}/public"
+mkdir -p "${public_dir}/.github/workflows"
+cp "${root}/Dockerfile" "${public_dir}/Dockerfile"
+cp "${root}/README.md" "${public_dir}/README.md"
+cp "${root}/.github/workflows/ci.yml" \
+    "${public_dir}/.github/workflows/ci.yml"
+
+(
+    cd "$public_dir"
+    perl "${root}/${script}" --check \
+        --drift-profile public \
+        --config "${root}/perl-versions.conf" \
+        --tags-file "${root}/test/perl-tags-current.txt"
+)
+
+if (
+    cd "$public_dir"
+    perl "${root}/${script}" --check \
+        --drift-profile private \
+        --config "${root}/perl-versions.conf" \
+        --tags-file "${root}/test/perl-tags-current.txt" > "$output"
+); then
+    echo "ERROR: private drift profile should require Bitbucket config." >&2
+    exit 1
+fi
+
+grep -q 'DRIFT: cannot read bitbucket-pipelines.yml' "$output"
+
+if perl "$script" --drift-profile unknown \
+    --tags-file test/perl-tags-current.txt > "$output" 2>&1; then
+    echo "ERROR: unknown drift profile should be rejected." >&2
+    exit 1
+fi
+
+grep -q 'Unknown drift profile: unknown' "$output"
 
 echo "Perl version detector tests passed."

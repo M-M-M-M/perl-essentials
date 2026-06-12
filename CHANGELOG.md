@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-06-12
+
+### Fixed
+
+- The public Perl version maintenance workflow ignores the intentionally
+  private Bitbucket pipeline while private checks continue to require it.
+
+### Documentation
+
+- The Perl version detector, GitHub workflow, and Bitbucket custom pipeline now
+  document their distinct maintenance roles and failure signals.
+
 ## [0.2.3] - 2026-06-12
 
 ### Changed
@@ -66,7 +78,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.0...v0.2.1

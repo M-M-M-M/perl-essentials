@@ -17,6 +17,11 @@ for my $path (@workflows) {
     "$path does not use Checkout v4" ;
 }
 
+my $perl_versions = _read_text('.github/workflows/perl-versions.yml') ;
+like $perl_versions,
+  qr{scripts/check-perl-versions\.pl --check --drift-profile public},
+  'Perl version workflow uses the public drift profile' ;
+
 done_testing ;
 
 sub _read_text {

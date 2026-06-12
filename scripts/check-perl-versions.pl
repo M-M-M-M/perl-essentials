@@ -9,15 +9,20 @@ use JSON::PP qw(decode_json) ;
 
 my $check ;
 my $tags_file ;
-my $config      = 'perl-versions.conf' ;
-my $check_drift = 1 ;
+my $config        = 'perl-versions.conf' ;
+my $check_drift   = 1 ;
+my $drift_profile = 'private' ;
 
 GetOptions(
-  'check'       => \$check,
-  'tags-file=s' => \$tags_file,
-  'config=s'    => \$config,
-  'no-drift'    => sub { $check_drift = 0  },
+  'check'           => \$check,
+  'tags-file=s'     => \$tags_file,
+  'config=s'        => \$config,
+  'drift-profile=s' => \$drift_profile,
+  'no-drift'        => sub { $check_drift = 0  },
 ) or die usage() ;
+
+die "Unknown drift profile: $drift_profile\n"
+  unless $drift_profile eq 'public' || $drift_profile eq 'private' ;
 
 my @configured = read_config($config) ;
 my @tags       = defined $tags_file
@@ -57,7 +62,7 @@ if ( my $next = $available{$next_series} ) {
 }
 
 if ($check_drift) {
-  my @drift = check_repository_drift(@configured) ;
+  my @drift = check_repository_drift( $drift_profile, @configured ) ;
   push @proposals, map {"DRIFT: $_"} @drift ;
 }
 
@@ -126,12 +131,12 @@ sub fetch_tags {
 }
 
 sub check_repository_drift {
-  my (@entries) = @_ ;
+  my ( $profile, @entries ) = @_ ;
   my @files = (
     'README.md',
-    'bitbucket-pipelines.yml',
     '.github/workflows/ci.yml',
   ) ;
+  push @files, 'bitbucket-pipelines.yml' if $profile eq 'private' ;
   my @errors ;
 
   for my $entry (@entries) {
@@ -169,5 +174,6 @@ sub version_cmp {
 }
 
 sub usage {
-  return "Usage: $0 [--check] [--no-drift] [--tags-file FILE] [--config FILE]\n" ;
+  return "Usage: $0 [--check] [--no-drift] [--drift-profile public|private]"
+    . " [--tags-file FILE] [--config FILE]\n" ;
 }

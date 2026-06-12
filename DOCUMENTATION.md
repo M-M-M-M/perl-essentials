@@ -357,14 +357,40 @@ Hub for newer official threaded tags:
 ```sh
 perl scripts/check-perl-versions.pl
 perl scripts/check-perl-versions.pl --check
+perl scripts/check-perl-versions.pl --check --drift-profile public
 ```
 
 The script proposes newer patch releases for configured series and only the
 immediately following series, such as 5.44 after 5.43. It also reports drift
 between the configuration, Dockerfile, CI files, and README. It never edits
-files. The scheduled workflow runs it every Monday. Keeping this maintenance
-check separate from normal branch builds means a newly published upstream
-image creates a maintenance action without blocking unrelated changes.
+files.
+
+The drift profile controls which provider files are required:
+
+- `private`, the default, also checks `bitbucket-pipelines.yml` and is used by
+  local validation and the private Bitbucket pipeline.
+- `public` checks only files exported to GitHub and is selected explicitly by
+  the public workflow.
+
+`test/check-perl-versions.sh` is deterministic: it uses repository fixtures to
+test current versions, available updates, a new Perl series, repository drift,
+and both drift profiles without accessing the network. After that test passes,
+the provider job runs `scripts/check-perl-versions.pl --check` against Docker
+Hub's live official `perl` tags.
+
+GitHub's `Check Perl versions` workflow runs every Monday at 06:17 UTC and can
+also be started manually. The private Bitbucket `check-perl-versions` custom
+pipeline provides the equivalent live check for the complete private
+repository; it is run manually unless a Bitbucket schedule invokes it. The two
+jobs are independent and neither triggers the other.
+
+A failure reporting `UPDATE` or `ADD` is an expected maintenance signal: review
+the proposed Perl versions, update the configuration and matrices deliberately,
+then run the full image validation. A `DRIFT` failure means repository files
+disagree and should be corrected. Network or Docker Hub failures should be
+retried before changing repository data. Keeping this maintenance check
+separate from normal branch builds means a newly published upstream image does
+not block unrelated changes.
 
 Release publication is intentionally separate from validation workflows.
 Public release notes are recorded in `CHANGELOG.md`.
