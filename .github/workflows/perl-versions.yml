@@ -12,5 +12,10 @@ jobs:
       - uses: actions/checkout@v6
       - name: Test detector
         run: test/check-perl-versions.sh public
+      - name: Install Perl HTTPS support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libio-socket-ssl-perl
       - name: Check official threaded tags
         run: perl scripts/check-perl-versions.pl --check --drift-profile public

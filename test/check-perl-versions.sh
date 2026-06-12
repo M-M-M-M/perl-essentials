@@ -93,6 +93,33 @@ fi
 
 grep -q 'Unknown drift profile: unknown' "$output"
 
+fake_http="${temp_dir}/lib/HTTP"
+mkdir -p "$fake_http"
+cat > "${fake_http}/Tiny.pm" <<'EOF'
+package HTTP::Tiny;
+use strict;
+use warnings;
+sub new { return bless {}, shift }
+sub get {
+    return {
+        success => 0,
+        status  => 599,
+        reason  => 'Internal Exception',
+        content => 'TLS support is unavailable',
+    };
+}
+1;
+EOF
+
+if PERL5LIB="${temp_dir}/lib" perl "$script" --check \
+    --no-drift > "$output" 2>&1; then
+    echo "ERROR: simulated Docker Hub failure should be reported." >&2
+    exit 1
+fi
+
+grep -q 'Docker Hub request failed (599 Internal Exception)' "$output"
+grep -q 'TLS support is unavailable' "$output"
+
 if test/check-perl-versions.sh unknown > "$output" 2>&1; then
     echo "ERROR: unknown wrapper profile should be rejected." >&2
     exit 1

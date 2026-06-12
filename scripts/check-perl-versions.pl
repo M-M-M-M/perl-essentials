@@ -119,8 +119,12 @@ sub fetch_tags {
 
     while ( defined $url && length $url ) {
       my $response = $http->get($url) ;
-      die "Docker Hub request failed ($response->{status}): $url\n"
-        unless $response->{success} ;
+      if ( !$response->{success} ) {
+        my $reason  = $response->{reason}  // 'Unknown error' ;
+        my $content = $response->{content} // '' ;
+        die "Docker Hub request failed ($response->{status} $reason): $url"
+          . ( length $content ? "\n$content" : '' ) . "\n" ;
+      }
       my $data = decode_json( $response->{content} ) ;
       push @tags, map { $_->{name} } @{ $data->{results} || [] } ;
       $url = $data->{next} ;

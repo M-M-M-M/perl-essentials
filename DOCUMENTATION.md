@@ -389,6 +389,11 @@ pipeline provides the equivalent live check for the complete private
 repository; it is run manually unless a Bitbucket schedule invokes it. The two
 jobs are independent and neither triggers the other.
 
+Ubuntu's system Perl does not include the HTTPS modules used by `HTTP::Tiny`.
+The GitHub workflow therefore installs `libio-socket-ssl-perl`, which also
+provides the required `Net::SSLeay` dependency, before contacting Docker Hub.
+The official Perl image used by Bitbucket already includes this TLS support.
+
 A failure reporting `UPDATE` or `ADD` is an expected maintenance signal: review
 the proposed Perl versions, update the configuration and matrices deliberately,
 then run the full image validation. A `DRIFT` failure means repository files

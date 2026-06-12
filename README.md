@@ -227,6 +227,8 @@ started manually. It reports newer official threaded Perl images and drift in
 the public version matrix without rebuilding the Docker images. Its
 deterministic test runs as `test/check-perl-versions.sh public`; local and
 Bitbucket checks omit the argument and validate the complete private repository.
+Before the live Docker Hub query, GitHub installs the TLS modules required by
+Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |

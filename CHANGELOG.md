@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - The deterministic Perl version test now receives the public drift profile in
   GitHub while retaining private repository validation by default.
+- The GitHub Perl version workflow installs the TLS modules required by
+  `HTTP::Tiny`, and Docker Hub failures now include their underlying reason.
 
 ## [0.2.4] - 2026-06-12
 
