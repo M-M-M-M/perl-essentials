@@ -52,6 +52,8 @@ like $codex_ci, qr/codex sandbox/,
   'Codex CI exercises the command sandbox' ;
 like $codex_ci, qr/seccomp=unconfined/,
   'Codex CI enables the syscalls required by bubblewrap' ;
+like $codex_ci, qr/--cap-add SYS_ADMIN/,
+  'Codex CI grants the mount capability required by bubblewrap' ;
 like $codex_ci, qr/no-new-privileges=true/,
   'Codex CI prevents privilege escalation' ;
 like $codex_ci, qr/zsh -lic/,

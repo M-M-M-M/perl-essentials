@@ -111,6 +111,7 @@ On subsequent runs, reuse the same local state directory:
 
 ```sh
 docker run --rm -it \
+  --cap-add SYS_ADMIN \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -123,6 +124,7 @@ security options:
 
 ```sh
 docker run --rm -it \
+  --cap-add SYS_ADMIN \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -136,12 +138,12 @@ the mounted project.
 
 Codex uses the distribution `bubblewrap` package to sandbox commands on Linux.
 Docker's default seccomp profile blocks the namespace-related system calls that
-`bubblewrap` needs inside a container, so the interactive run disables that
-outer seccomp filter. This increases the container's access to Linux kernel
-system calls. Use this target only with trusted images and projects, do not add
-`--privileged`, and do not mount the Docker socket. The
-`no-new-privileges=true` option remains enabled to prevent processes from
-gaining additional privileges.
+`bubblewrap` needs inside a container, and Bubblewrap also needs the `SYS_ADMIN`
+capability to create its mount namespace. These options increase the
+container's access to Linux kernel system calls and mount operations. Use this
+target only with trusted images and projects, do not add `--privileged`, and do
+not mount the Docker socket. The `no-new-privileges=true` option remains enabled
+to prevent processes from gaining additional privileges.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,

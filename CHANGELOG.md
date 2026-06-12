@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-11
+
+### Fixed
+
+- Codex sandbox validation grants Bubblewrap the mount capability required by
+  GitHub-hosted Docker runners.
+
 ## [0.2.0] - 2026-06-11
 
 ### Added
@@ -46,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/M-M-M-M/perl-essentials/releases/tag/v0.1.0

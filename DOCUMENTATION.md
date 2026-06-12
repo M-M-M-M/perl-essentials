@@ -126,6 +126,7 @@ Start Codex later with the same writable project and state mounts:
 
 ```sh
 docker run --rm -it \
+  --cap-add SYS_ADMIN \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -138,6 +139,7 @@ before Codex:
 
 ```sh
 docker run --rm -it \
+  --cap-add SYS_ADMIN \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -162,6 +164,10 @@ this container. It does not disable the sandbox that Codex creates with
 in the container. Use this mode only with the trusted `perl-essentials:codex`
 image and trusted projects. Do not combine it with `--privileged`, do not mount
 `/var/run/docker.sock`, and do not weaken the host Docker daemon globally.
+
+`--cap-add SYS_ADMIN` permits the mount namespace operations that Bubblewrap
+uses. This is a broad Linux capability, although narrower than `--privileged`,
+and must be granted only to the Codex container while it runs trusted projects.
 
 `--security-opt no-new-privileges=true` remains compatible with the Codex
 sandbox and prevents processes from gaining additional privileges through
@@ -193,6 +199,7 @@ test -z "$(docker run --rm -v "$tmp":/codex \
 docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
 docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
 docker run --rm \
+  --cap-add SYS_ADMIN \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$tmp":/codex \

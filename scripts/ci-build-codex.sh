@@ -38,6 +38,7 @@ docker run --rm "${image}" sh -c 'test "$PWD" = /work'
 docker run --rm "${image}" zsh -lic \
     'command -v perl >/dev/null && command -v codex >/dev/null'
 docker run --rm \
+    --cap-add SYS_ADMIN \
     --security-opt seccomp=unconfined \
     --security-opt no-new-privileges=true \
     "${image}" codex sandbox -- sh -c 'printf sandbox-ok'
