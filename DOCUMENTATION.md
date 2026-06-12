@@ -127,6 +127,7 @@ Start Codex later with the same writable project and state mounts:
 ```sh
 docker run --rm -it \
   --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -140,6 +141,7 @@ before Codex:
 ```sh
 docker run --rm -it \
   --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -168,6 +170,11 @@ image and trusted projects. Do not combine it with `--privileged`, do not mount
 `--cap-add SYS_ADMIN` permits the mount namespace operations that Bubblewrap
 uses. This is a broad Linux capability, although narrower than `--privileged`,
 and must be granted only to the Codex container while it runs trusted projects.
+
+`--security-opt apparmor=unconfined` prevents the host's Docker AppArmor profile
+from rejecting Bubblewrap's mount propagation setup. It weakens the outer
+container confinement and therefore has the same trusted-image and
+trusted-project restrictions.
 
 `--security-opt no-new-privileges=true` remains compatible with the Codex
 sandbox and prevents processes from gaining additional privileges through
@@ -200,6 +207,7 @@ docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
 docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
 docker run --rm \
   --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$tmp":/codex \

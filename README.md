@@ -112,6 +112,7 @@ On subsequent runs, reuse the same local state directory:
 ```sh
 docker run --rm -it \
   --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -125,6 +126,7 @@ security options:
 ```sh
 docker run --rm -it \
   --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
   --security-opt no-new-privileges=true \
   -v "$PWD":/work \
@@ -142,8 +144,10 @@ Docker's default seccomp profile blocks the namespace-related system calls that
 capability to create its mount namespace. These options increase the
 container's access to Linux kernel system calls and mount operations. Use this
 target only with trusted images and projects, do not add `--privileged`, and do
-not mount the Docker socket. The `no-new-privileges=true` option remains enabled
-to prevent processes from gaining additional privileges.
+not mount the Docker socket. `apparmor=unconfined` is also required on hosts
+whose Docker AppArmor profile blocks mount propagation. The
+`no-new-privileges=true` option remains enabled to prevent processes from
+gaining additional privileges.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
