@@ -3,10 +3,13 @@ use warnings ;
 
 use Test::More ;
 
-my $dockerfile = _read_text('Dockerfile') ;
+my $dockerfile     = _read_text('Dockerfile') ;
+my ($perl_targets) = $dockerfile =~ /\A(.*)FROM final AS codex/s ;
 my ($codex_target) = $dockerfile =~ /(FROM final AS codex.*)\z/s ;
 
 ok defined $codex_target, 'Codex target derives from the final image' ;
+unlike $perl_targets, qr{\brtk\b|RTK_},
+  'Perl image targets do not install or configure RTK' ;
 
 SKIP: {
   skip 'Codex target is not available yet', 15 if !defined $codex_target ;
@@ -81,6 +84,8 @@ like $codex_ci, qr/bwrap --version/,
   'Codex CI checks the bubblewrap version' ;
 like $codex_ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
   'Codex CI checks state before the entrypoint initializes RTK' ;
+like $codex_ci, qr/chmod 0777 "\$\{state\}"/,
+  'Codex CI makes its temporary bind mount writable through user remapping' ;
 like $codex_ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
 like $codex_ci, qr/codex sandbox/,

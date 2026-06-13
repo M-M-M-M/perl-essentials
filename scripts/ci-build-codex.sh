@@ -33,6 +33,10 @@ docker buildx build \
 state="$(mktemp -d)"
 trap 'rm -rf "${state}"; cleanup' EXIT HUP INT TERM
 
+# Docker user-namespace remapping can prevent container root from writing to
+# the runner-owned 0700 directory. This state is temporary and has no tokens.
+chmod 0777 "${state}"
+
 test -z "$(docker run --rm --entrypoint find "${image}" \
     /codex -mindepth 1 -print -quit)"
 docker run --rm -v "${state}:/codex" "${image}" true

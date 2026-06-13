@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Documentation records the observed Codex and RTK versions separately from
   the published Perl image matrix, while CI logs both floating versions.
 
+### Fixed
+
+- Codex CI permits RTK initialization in its temporary `/codex` bind mount
+  when the Docker daemon remaps container users.
+
 ## [0.2.5] - 2026-06-12
 
 ### Fixed
