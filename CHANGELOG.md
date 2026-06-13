@@ -19,7 +19,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - Codex CI permits RTK initialization in its temporary `/codex` bind mount
-  when the Docker daemon remaps container users.
+  when the Docker daemon remaps container users, and creates that state with
+  the runner UID so subsequent assertions can read it.
+- Default builds, Perl CI, and Docker publication select the Perl-only final
+  image instead of accidentally building the optional Codex target.
 
 ## [0.2.5] - 2026-06-12
 

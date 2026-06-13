@@ -99,6 +99,8 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 Codex CLI and RTK are available in a separate development target. GitHub
 Actions and Bitbucket build and validate this target with the default Perl
 version, but it is not part of the default image or Docker Hub publication.
+Unqualified builds and published Perl images select the Perl-only `final`
+stage; RTK is installed only by the explicit `codex` target.
 Build without the cache to retrieve the latest versions available from their
 official installers:
 

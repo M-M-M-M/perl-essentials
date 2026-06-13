@@ -110,3 +110,6 @@ RUN mkdir -p "${CODEX_HOME}"
 WORKDIR /work
 ENTRYPOINT ["/opt/perl-essentials/scripts/codex-entrypoint.sh"]
 CMD ["codex"]
+
+# Keep unqualified builds equivalent to the Perl-only final image.
+FROM final AS default

@@ -5,11 +5,13 @@ use Test::More ;
 
 my $dockerfile     = _read_text('Dockerfile') ;
 my ($perl_targets) = $dockerfile =~ /\A(.*)FROM final AS codex/s ;
-my ($codex_target) = $dockerfile =~ /(FROM final AS codex.*)\z/s ;
+my ($codex_target) = $dockerfile =~ /(FROM final AS codex.*?)FROM final AS default/s ;
 
 ok defined $codex_target, 'Codex target derives from the final image' ;
 unlike $perl_targets, qr{\brtk\b|RTK_},
   'Perl image targets do not install or configure RTK' ;
+like $dockerfile, qr/FROM final AS default\s*\z/,
+  'Default image inherits the final Perl image without Codex or RTK' ;
 
 SKIP: {
   skip 'Codex target is not available yet', 15 if !defined $codex_target ;
@@ -86,6 +88,8 @@ like $codex_ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
   'Codex CI checks state before the entrypoint initializes RTK' ;
 like $codex_ci, qr/chmod 0777 "\$\{state\}"/,
   'Codex CI makes its temporary bind mount writable through user remapping' ;
+like $codex_ci, qr/--user "\$\{runner_user\}".*"\$\{state\}:\/codex"/s,
+  'Codex CI creates state with the runner user' ;
 like $codex_ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
 like $codex_ci, qr/codex sandbox/,
@@ -110,8 +114,12 @@ like $bitbucket, qr/PERL_VERSION=5\.43\.9 scripts\/ci-build-codex\.sh/,
   'Bitbucket CI validates Codex with the default Perl version' ;
 
 my $publication = _read_text('scripts/publish.sh') ;
-unlike $publication, qr/--target[=\s]+codex/,
-  'Codex target is absent from Docker publication' ;
+like $publication, qr/--target final/,
+  'Docker publication explicitly selects the final Perl image' ;
+
+my $perl_ci = _read_text('scripts/ci-build.sh') ;
+like $perl_ci, qr/--target final/,
+  'Perl CI explicitly selects the final image' ;
 
 done_testing ;
 

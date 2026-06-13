@@ -31,6 +31,7 @@ docker buildx build \
     .
 
 state="$(mktemp -d)"
+runner_user="$(id -u):$(id -g)"
 trap 'rm -rf "${state}"; cleanup' EXIT HUP INT TERM
 
 # Docker user-namespace remapping can prevent container root from writing to
@@ -39,10 +40,16 @@ chmod 0777 "${state}"
 
 test -z "$(docker run --rm --entrypoint find "${image}" \
     /codex -mindepth 1 -print -quit)"
-docker run --rm -v "${state}:/codex" "${image}" true
+docker run --rm \
+    --user "${runner_user}" \
+    -v "${state}:/codex" \
+    "${image}" true
 test -f "${state}/AGENTS.md"
 test -f "${state}/RTK.md"
-docker run --rm -v "${state}:/codex" "${image}" true
+docker run --rm \
+    --user "${runner_user}" \
+    -v "${state}:/codex" \
+    "${image}" true
 test "$(grep -c '^@/codex/RTK\.md$' "${state}/AGENTS.md")" -eq 1
 docker run --rm "${image}" codex --version
 docker run --rm "${image}" rtk --version

@@ -98,8 +98,10 @@ and `gsed`.
 ## Use the optional Codex target
 
 The `codex` target derives from the complete `final` image. Normal image builds
-stop at `final`; GitHub Actions and Bitbucket validate the Codex target
-separately with Perl 5.43.9, while Docker Hub publication remains disabled.
+use a final `default` alias of the Perl-only `final` stage. CI and publication
+also select `final` explicitly. GitHub Actions and Bitbucket validate the Codex
+target separately with Perl 5.43.9, while Docker Hub publication remains
+disabled. RTK is therefore present only in the explicit `codex` target.
 
 The target runs the official Codex and RTK installers. Codex package files
 remain under `/opt/codex`, while both tools use `/codex` for runtime state.

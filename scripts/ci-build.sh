@@ -20,10 +20,11 @@ docker buildx create \
     --name "${builder}" \
     --use
 docker buildx inspect --bootstrap "${builder}"
-docker buildx build --builder "${builder}" --check .
+docker buildx build --builder "${builder}" --target final --check .
 docker buildx build \
     --builder "${builder}" \
     --platform "${platform}" \
+    --target final \
     --load \
     --build-arg PERL_VERSION="${PERL_VERSION}" \
     --tag "${image}" \
