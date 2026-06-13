@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- The optional Codex target installs RTK and initializes its Codex integration
+  automatically in the repository-local state directory.
+
+### Changed
+
+- Documentation records the observed Codex and RTK versions separately from
+  the published Perl image matrix, while CI logs both floating versions.
+
 ## [0.2.5] - 2026-06-12
 
 ### Fixed

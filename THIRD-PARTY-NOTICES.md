@@ -17,3 +17,12 @@ See:
 
 - https://github.com/yegor256/prompt/blob/master/LICENSE.txt
 - https://github.com/yegor256/prompt/tree/master
+
+The optional, unpublished `codex` Docker target downloads the `rtk-ai/rtk`
+binary during local and CI builds. RTK is licensed under the Apache License
+2.0.
+
+See:
+
+- https://github.com/rtk-ai/rtk/blob/master/LICENSE
+- https://github.com/rtk-ai/rtk

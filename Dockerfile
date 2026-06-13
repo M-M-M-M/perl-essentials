@@ -96,11 +96,17 @@ RUN apt-get update \
         CODEX_INSTALL_DIR=/usr/local/bin \
         CODEX_NON_INTERACTIVE=1 \
         sh \
+ && curl -fsSL \
+      https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh \
+      | RTK_INSTALL_DIR=/usr/local/bin sh \
  && rm -rf /var/lib/apt/lists/*
 
-ENV CODEX_HOME=/codex
+ENV CODEX_HOME=/codex \
+    HOME=/codex \
+    RTK_TELEMETRY_DISABLED=1
 
 RUN mkdir -p "${CODEX_HOME}"
 
 WORKDIR /work
+ENTRYPOINT ["/opt/perl-essentials/scripts/codex-entrypoint.sh"]
 CMD ["codex"]

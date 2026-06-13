@@ -101,11 +101,20 @@ The `codex` target derives from the complete `final` image. Normal image builds
 stop at `final`; GitHub Actions and Bitbucket validate the Codex target
 separately with Perl 5.43.9, while Docker Hub publication remains disabled.
 
-The target runs the official standalone installer. Its package files remain
-under `/opt/codex`, while runtime state uses `CODEX_HOME=/codex`. Keeping these
-locations separate prevents the authentication mount from hiding the installed
-CLI. A no-cache build deliberately resolves the latest available Codex version,
-so this target is not reproducible at the Codex version level:
+The target runs the official Codex and RTK installers. Codex package files
+remain under `/opt/codex`, while both tools use `/codex` for runtime state.
+Keeping these locations separate prevents the authentication mount from hiding
+the installed CLIs. A no-cache build deliberately resolves their latest
+available versions, so this target is not reproducible at the Codex or RTK
+version level:
+
+| Target | Perl base | Codex CLI | RTK | Publication |
+| --- | --- | --- | --- | --- |
+| `codex` | 5.43.9 | Latest; 0.139.0 observed 2026-06-12 | Latest; 0.42.4 observed 2026-06-12 | Not published |
+
+The observed versions document a successful build rather than pinning future
+builds. CI runs `codex --version` and `rtk --version` so each validation log
+records the resolved versions.
 
 ```sh
 docker build --target codex --no-cache -t perl-essentials:codex .
@@ -154,6 +163,13 @@ or project-specific scripts, then start Codex manually with `codex`. Keeping
 the same `codex-auth/` mount makes the existing container-specific login
 available to the manually started CLI.
 
+Before every command, the container entrypoint runs `rtk init -g --codex`.
+The operation is idempotent and creates the RTK global `AGENTS.md` and `RTK.md`
+integration files under `/codex`; no manual initialization is required. RTK
+telemetry is disabled by default. Because `/codex` is mounted from
+`codex-auth/`, the integration and RTK configuration persist with the Codex
+authentication, sessions, and history.
+
 The target installs Debian's `bubblewrap` package because Codex uses `bwrap`
 for its Linux command sandbox. Docker applies its own seccomp syscall filter
 outside that sandbox. The default Docker profile blocks the namespace-related
@@ -201,9 +217,13 @@ Validate a fresh unauthenticated state without performing a real login:
 
 ```sh
 tmp="$(mktemp -d)"
-test -z "$(docker run --rm -v "$tmp":/codex \
-  perl-essentials:codex find /codex -mindepth 1 -print -quit)"
+test -z "$(docker run --rm --entrypoint find \
+  perl-essentials:codex /codex -mindepth 1 -print -quit)"
+docker run --rm -v "$tmp":/codex perl-essentials:codex true
+test -f "$tmp/AGENTS.md"
+test -f "$tmp/RTK.md"
 docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
+docker run --rm -v "$tmp":/codex perl-essentials:codex rtk --version
 docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
 docker run --rm \
   --cap-add SYS_ADMIN \
@@ -215,8 +235,9 @@ docker run --rm \
 rm -rf "$tmp"
 ```
 
-The standalone CLI may create runtime files under `/codex/tmp` even for
-`codex --version`; the empty-state check must therefore run first.
+The raw image contains an empty `/codex`; the empty-state check bypasses the
+entrypoint so it must run first. Normal commands initialize the RTK integration
+and Codex may also create runtime files under `/codex/tmp`.
 
 ## Create a temporary test exception
 

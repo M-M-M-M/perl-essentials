@@ -54,6 +54,15 @@ other machines that cannot immediately adopt the latest Perl. All versions,
 including the development series, are blocking CI jobs and follow the same
 installation and test policy.
 
+The optional development target is validated separately:
+
+| Target | Perl base | Codex CLI | RTK | Publication |
+| --- | --- | --- | --- | --- |
+| `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | Not published |
+
+These Codex and RTK versions are observations, not pins. CI prints both
+versions on every build.
+
 ## Run scripts and data
 
 Mount the current directory and run a script:
@@ -87,11 +96,11 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 
 ## Optional Codex target
 
-Codex CLI is available in a separate development target. GitHub Actions and
-Bitbucket build and validate this target with the default Perl version, but it
-is not part of the default image or Docker Hub publication. Build without the
-cache to retrieve the latest Codex version available from the official
-installer:
+Codex CLI and RTK are available in a separate development target. GitHub
+Actions and Bitbucket build and validate this target with the default Perl
+version, but it is not part of the default image or Docker Hub publication.
+Build without the cache to retrieve the latest versions available from their
+official installers:
 
 ```sh
 docker build --target codex --no-cache -t perl-essentials:codex .
@@ -137,6 +146,12 @@ docker run --rm -it \
 Then run commands such as `perl -v`, `prove -lr test`, and finally `codex`
 inside the container. The shell starts in `/work`, so these commands operate on
 the mounted project.
+
+The container entrypoint runs `rtk init -g --codex` automatically and
+idempotently before every command. It creates the RTK global `AGENTS.md` and
+`RTK.md` integration files in `codex-auth/`; RTK telemetry is disabled by
+default. The same directory therefore stores RTK configuration alongside the
+Codex authentication and session state.
 
 Codex uses the distribution `bubblewrap` package to sandbox commands on Linux.
 Docker's default seccomp profile blocks the namespace-related system calls that

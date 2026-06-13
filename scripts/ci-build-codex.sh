@@ -30,13 +30,24 @@ docker buildx build \
     --tag "${image}" \
     .
 
-test -z "$(docker run --rm "${image}" \
-    find /codex -mindepth 1 -print -quit)"
+state="$(mktemp -d)"
+trap 'rm -rf "${state}"; cleanup' EXIT HUP INT TERM
+
+test -z "$(docker run --rm --entrypoint find "${image}" \
+    /codex -mindepth 1 -print -quit)"
+docker run --rm -v "${state}:/codex" "${image}" true
+test -f "${state}/AGENTS.md"
+test -f "${state}/RTK.md"
+docker run --rm -v "${state}:/codex" "${image}" true
+test "$(grep -c '^@/codex/RTK\.md$' "${state}/AGENTS.md")" -eq 1
 docker run --rm "${image}" codex --version
+docker run --rm "${image}" rtk --version
 docker run --rm "${image}" bwrap --version
 docker run --rm "${image}" sh -c 'test "$PWD" = /work'
 docker run --rm "${image}" zsh -lic \
-    'command -v perl >/dev/null && command -v codex >/dev/null'
+    'command -v perl >/dev/null \
+     && command -v codex >/dev/null \
+     && command -v rtk >/dev/null'
 docker run --rm \
     --cap-add SYS_ADMIN \
     --security-opt apparmor=unconfined \
