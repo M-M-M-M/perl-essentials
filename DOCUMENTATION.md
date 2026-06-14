@@ -119,9 +119,14 @@ builds. CI runs `codex --version` and `rtk --version` so each validation log
 records the resolved versions.
 
 ```sh
-docker build --target codex --no-cache -t perl-essentials:codex .
+PERL_VERSION=5.43.9 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
+
+This command builds, tags, and validates the only Codex flavor,
+`perl-essentials:codex`, replacing any older local image with that tag. Set
+`CI_PLATFORM=linux/arm64` on an ARM64 Docker host when a native build is
+preferred.
 
 The first login uses device authorization because a container cannot reliably
 receive the browser callback:

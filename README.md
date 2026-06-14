@@ -105,9 +105,12 @@ Build without the cache to retrieve the latest versions available from their
 official installers:
 
 ```sh
-docker build --target codex --no-cache -t perl-essentials:codex .
+PERL_VERSION=5.43.9 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
+
+The script builds, tags, and validates the single local Codex flavor as
+`perl-essentials:codex`. It replaces any older image under that tag.
 
 Authenticate on the first run with device authorization:
 

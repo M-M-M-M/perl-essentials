@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Documentation records the observed Codex and RTK versions separately from
   the published Perl image matrix, while CI logs both floating versions.
+- Local and CI Codex builds use the single `perl-essentials:codex` flavor,
+  replacing the previous internal `codex-ci` tag.
+- Perl and Codex CI builds now share `scripts/ci-build.sh`; the `codex` mode
+  selects the Codex target and its dedicated validation suite.
 
 ### Fixed
 

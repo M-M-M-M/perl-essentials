@@ -73,52 +73,65 @@ for my $ignore_file (qw(.gitignore .dockerignore)) {
     "$ignore_file excludes local Codex state" ;
 }
 
-my $codex_ci = _read_text('scripts/ci-build-codex.sh') ;
-ok -x 'scripts/ci-build-codex.sh',
-  'Codex CI script is executable' ;
-like $codex_ci, qr/docker buildx build.*--target codex.*--no-cache/s,
+my $ci = _read_text('scripts/ci-build.sh') ;
+ok -x 'scripts/ci-build.sh',
+  'Unified CI script is executable' ;
+ok !-e 'scripts/ci-build-codex.sh',
+  'Separate Codex CI script is removed' ;
+like $ci, qr/^codex\)$/m,
+  'Unified CI script provides a Codex mode' ;
+like $ci, qr/image="perl-essentials:codex"/,
+  'Codex build uses the single local Codex image tag' ;
+unlike $ci, qr/codex-ci/,
+  'Codex build does not create a separate CI flavor' ;
+like $ci, qr/target="codex".*no_cache="--no-cache"/s,
   'Codex CI builds the target without cache' ;
-like $codex_ci, qr/codex --version/,
+like $ci, qr/codex --version/,
   'Codex CI checks the CLI version' ;
-like $codex_ci, qr/rtk --version/,
+like $ci, qr/rtk --version/,
   'Codex CI checks the RTK version' ;
-like $codex_ci, qr/bwrap --version/,
+like $ci, qr/bwrap --version/,
   'Codex CI checks the bubblewrap version' ;
-like $codex_ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
+like $ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
   'Codex CI checks state before the entrypoint initializes RTK' ;
-like $codex_ci, qr/chmod 0777 "\$\{state\}"/,
+like $ci, qr/chmod 0777 "\$\{state\}"/,
   'Codex CI makes its temporary bind mount writable through user remapping' ;
-like $codex_ci, qr/--user "\$\{runner_user\}".*"\$\{state\}:\/codex"/s,
+like $ci, qr/--user "\$\{runner_user\}".*"\$\{state\}:\/codex"/s,
   'Codex CI creates state with the runner user' ;
-like $codex_ci, qr/RTK\.md/,
+like $ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
-like $codex_ci, qr/codex sandbox/,
+like $ci, qr/codex sandbox/,
   'Codex CI exercises the command sandbox' ;
-like $codex_ci, qr/seccomp=unconfined/,
+like $ci, qr/seccomp=unconfined/,
   'Codex CI enables the syscalls required by bubblewrap' ;
-like $codex_ci, qr/--cap-add SYS_ADMIN/,
+like $ci, qr/--cap-add SYS_ADMIN/,
   'Codex CI grants the mount capability required by bubblewrap' ;
-like $codex_ci, qr/apparmor=unconfined/,
+like $ci, qr/apparmor=unconfined/,
   'Codex CI allows bubblewrap mount operations through AppArmor' ;
-like $codex_ci, qr/no-new-privileges=true/,
+like $ci, qr/no-new-privileges=true/,
   'Codex CI prevents privilege escalation' ;
-like $codex_ci, qr/zsh -lic/,
+like $ci, qr/zsh -lic/,
   'Codex CI checks manual use from an interactive Zsh shell' ;
+like $ci, qr/Unknown build mode/,
+  'Unified CI script rejects unknown modes' ;
 
 my $github = _read_text('.github/workflows/ci.yml') ;
-like $github, qr/PERL_VERSION:\s*5\.43\.9.*scripts\/ci-build-codex\.sh/s,
+like $github, qr/PERL_VERSION:\s*5\.43\.9.*scripts\/ci-build\.sh codex/s,
   'GitHub CI validates Codex with the default Perl version' ;
+unlike $github, qr/ci-build-codex/,
+  'GitHub CI uses only the unified build script' ;
 
 my $bitbucket = _read_text('bitbucket-pipelines.yml') ;
-like $bitbucket, qr/PERL_VERSION=5\.43\.9 scripts\/ci-build-codex\.sh/,
+like $bitbucket, qr/PERL_VERSION=5\.43\.9 scripts\/ci-build\.sh codex/,
   'Bitbucket CI validates Codex with the default Perl version' ;
+unlike $bitbucket, qr/ci-build-codex/,
+  'Bitbucket CI uses only the unified build script' ;
 
 my $publication = _read_text('scripts/publish.sh') ;
 like $publication, qr/--target final/,
   'Docker publication explicitly selects the final Perl image' ;
 
-my $perl_ci = _read_text('scripts/ci-build.sh') ;
-like $perl_ci, qr/--target final/,
+like $ci, qr/target="final"/,
   'Perl CI explicitly selects the final image' ;
 
 done_testing ;
