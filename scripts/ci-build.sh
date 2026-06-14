@@ -6,12 +6,12 @@ set -eu
 
 mode="${1:-perl}"
 platform="${CI_PLATFORM:-linux/amd64}"
-state=""
+codex_state=""
 
 cleanup()
 {
-    if [ -n "${state}" ]; then
-        rm -rf "${state}"
+    if [ -n "${codex_state}" ]; then
+        docker volume rm --force "${codex_state}" >/dev/null 2>&1 || true
     fi
     docker buildx rm --force "${builder}" >/dev/null 2>&1 || true
 }
@@ -64,26 +64,29 @@ validate_perl()
 
 validate_codex()
 {
-    state="$(mktemp -d)"
-    runner_user="$(id -u):$(id -g)"
-
-    # Docker user-namespace remapping can prevent container root from writing
-    # to the runner-owned 0700 directory. This state is temporary and has no tokens.
-    chmod 0777 "${state}"
+    codex_state="perl-essentials-codex-state-$$"
 
     test -z "$(docker run --rm --entrypoint find "${image}" \
         /codex -mindepth 1 -print -quit)"
+    docker volume create "${codex_state}" >/dev/null
     docker run --rm \
-        --user "${runner_user}" \
-        -v "${state}:/codex" \
+        --volume "${codex_state}:/codex" \
         "${image}" true
-    test -f "${state}/AGENTS.md"
-    test -f "${state}/RTK.md"
     docker run --rm \
-        --user "${runner_user}" \
-        -v "${state}:/codex" \
+        --entrypoint test \
+        --volume "${codex_state}:/codex" \
+        "${image}" -f /codex/AGENTS.md
+    docker run --rm \
+        --entrypoint test \
+        --volume "${codex_state}:/codex" \
+        "${image}" -f /codex/RTK.md
+    docker run --rm \
+        --volume "${codex_state}:/codex" \
         "${image}" true
-    test "$(grep -c '^@/codex/RTK\.md$' "${state}/AGENTS.md")" -eq 1
+    test "$(docker run --rm \
+        --entrypoint grep \
+        --volume "${codex_state}:/codex" \
+        "${image}" -c '^@/codex/RTK\.md$' /codex/AGENTS.md)" -eq 1
     docker run --rm "${image}" codex --version
     docker run --rm "${image}" rtk --version
     docker run --rm "${image}" bwrap --version

@@ -12,6 +12,7 @@ my $script = File::Spec->catfile( $root, 'scripts', 'ci-build.sh' ) ;
 my $tmp    = tempdir( CLEANUP => 1 ) ;
 my $bin    = File::Spec->catdir( $tmp, 'bin' ) ;
 my $count  = File::Spec->catfile( $tmp, 'inspect-count' ) ;
+my $log    = File::Spec->catfile( $tmp, 'docker.log' ) ;
 make_path($bin) ;
 
 _write_command(
@@ -19,6 +20,8 @@ _write_command(
   <<'SH',
 #!/bin/sh
 set -eu
+
+printf '%s\n' "$*" >>"${DOCKER_LOG}"
 
 if [ "$1 $2" = "buildx inspect" ]; then
     count=0
@@ -35,7 +38,17 @@ if [ "$1 $2" = "buildx inspect" ]; then
 fi
 
 if [ "$1 $2" = "buildx build" ]; then
-    exit 42
+    exit "${BUILD_STATUS}"
+fi
+
+case "$*" in
+*'--entrypoint grep '*)
+    printf '%s\n' 1
+    ;;
+esac
+
+if [ "$1 $2" = "volume create" ]; then
+    printf '%s\n' "$3"
 fi
 
 exit 0
@@ -47,6 +60,8 @@ _write_command(
 ) ;
 
 local $ENV{PATH}               = "$bin:$ENV{PATH}" ;
+local $ENV{BUILD_STATUS}       = 42 ;
+local $ENV{DOCKER_LOG}         = $log ;
 local $ENV{INSPECT_COUNT}      = $count ;
 local $ENV{INSPECT_SUCCEED_AT} = 3 ;
 local $ENV{PERL_VERSION}       = '5.43.9' ;
@@ -71,6 +86,25 @@ is $status,            1,     'CI rejects a permanently unavailable Buildx build
 is _read_text($count), "3\n", 'CI limits Buildx bootstrap to three attempts' ;
 like $output, qr/Buildx bootstrap failed after 3 attempts/,
   'CI reports a permanent Buildx bootstrap failure' ;
+
+unlink $count or die "Cannot reset '$count': $!" ;
+unlink $log   or die "Cannot reset '$log': $!" ;
+$ENV{BUILD_STATUS}       = 0 ;
+$ENV{INSPECT_SUCCEED_AT} = 1 ;
+
+$output = qx{/bin/sh "$script" codex 2>&1} ;
+$status = $? >> 8 ;
+my $docker_log = _read_text($log) ;
+
+is $status, 0, 'Codex validation succeeds with a Docker-managed fixture' ;
+like $docker_log, qr/^volume create perl-essentials-codex-state-/m,
+  'Codex validation creates a named Docker volume' ;
+like $docker_log, qr/--volume perl-essentials-codex-state-\d+:\/codex/,
+  'Codex validation reuses the named Docker volume' ;
+like $docker_log, qr/^volume rm --force perl-essentials-codex-state-/m,
+  'Codex validation removes the named Docker volume' ;
+unlike $docker_log, qr{--volume /[^ ]+:/codex},
+  'Codex validation does not bind mount a runner path' ;
 
 done_testing ;
 

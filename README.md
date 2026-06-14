@@ -113,6 +113,12 @@ The script builds, tags, and validates the single local Codex flavor as
 `perl-essentials:codex`. It replaces any older image under that tag, reports
 each build phase, and retries transient Buildx bootstrap failures.
 
+CI validates state with an ephemeral Docker volume rather than a runner bind
+mount. GitHub's Docker daemon can see runner paths directly, while Bitbucket's
+Docker-in-Docker service has a separate filesystem. The Docker-managed fixture
+works in both environments and never contains login credentials. Interactive
+use continues to persist credentials and configuration in `codex-auth/`.
+
 Authenticate on the first run with device authorization:
 
 ```sh

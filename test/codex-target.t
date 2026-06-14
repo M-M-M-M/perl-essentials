@@ -94,10 +94,16 @@ like $ci, qr/bwrap --version/,
   'Codex CI checks the bubblewrap version' ;
 like $ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
   'Codex CI checks state before the entrypoint initializes RTK' ;
-like $ci, qr/chmod 0777 "\$\{state\}"/,
-  'Codex CI makes its temporary bind mount writable through user remapping' ;
-like $ci, qr/--user "\$\{runner_user\}".*"\$\{state\}:\/codex"/s,
-  'Codex CI creates state with the runner user' ;
+like $ci, qr/docker volume create "\$\{codex_state\}"/,
+  'Codex CI creates a Docker-managed state fixture' ;
+like $ci, qr/--volume "\$\{codex_state\}:\/codex"/,
+  'Codex CI mounts its Docker-managed state fixture' ;
+like $ci, qr/docker volume rm --force "\$\{codex_state\}"/,
+  'Codex CI removes its Docker-managed state fixture' ;
+unlike $ci, qr/mktemp|chmod 0777|\$\{state\}:\/codex/,
+  'Codex CI does not depend on a runner bind mount' ;
+unlike $ci, qr/runner_user|chown .*\/codex/,
+  'Codex CI keeps fixture ownership inside the Docker daemon' ;
 like $ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
 like $ci, qr/codex sandbox/,

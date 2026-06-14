@@ -129,6 +129,17 @@ This command builds, tags, and validates the only Codex flavor,
 preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
 
+CI state validation uses a uniquely named, ephemeral Docker volume mounted on
+`/codex`. GitHub Actions normally talks to a daemon that shares the runner
+filesystem, so a temporary runner directory can be bind-mounted directly.
+Bitbucket uses a separate Docker-in-Docker service through `DOCKER_HOST`; a
+runner path therefore refers to a different filesystem from the daemon's
+perspective. Keeping fixture creation, inspection, and deletion inside Docker
+makes the same validation portable across both providers. This fixture has no
+credentials, keeps its ownership entirely inside the Docker daemon, and is
+removed when the script exits. It is distinct from the repository-local
+`codex-auth/` directory used to persist interactive logins.
+
 The first login uses device authorization because a container cannot reliably
 receive the browser callback:
 
