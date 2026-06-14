@@ -110,7 +110,8 @@ mkdir -p codex-auth
 ```
 
 The script builds, tags, and validates the single local Codex flavor as
-`perl-essentials:codex`. It replaces any older image under that tag.
+`perl-essentials:codex`. It replaces any older image under that tag, reports
+each build phase, and retries transient Buildx bootstrap failures.
 
 Authenticate on the first run with device authorization:
 

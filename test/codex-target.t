@@ -114,6 +114,12 @@ like $ci, qr/zsh -lic/,
   'Codex CI checks manual use from an interactive Zsh shell' ;
 like $ci, qr/Unknown build mode/,
   'Unified CI script rejects unknown modes' ;
+like $ci, qr/Building target .* for .* as /,
+  'Unified CI script logs the selected build before it starts' ;
+like $ci, qr/Docker image .* loaded successfully/,
+  'Unified CI script logs successful image loading' ;
+like $ci, qr/Validating .* image/,
+  'Unified CI script logs the validation phase' ;
 
 my $github = _read_text('.github/workflows/ci.yml') ;
 like $github, qr/PERL_VERSION:\s*5\.43\.9.*scripts\/ci-build\.sh codex/s,

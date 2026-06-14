@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Bitbucket Codex validation now uses a dedicated 7168 MB Docker service and
+  retries transient Buildx bootstrap failures before starting the build.
 - Codex CI permits RTK initialization in its temporary `/codex` bind mount
   when the Docker daemon remaps container users, and creates that state with
   the runner UID so subsequent assertions can read it.

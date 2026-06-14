@@ -126,7 +126,8 @@ mkdir -p codex-auth
 This command builds, tags, and validates the only Codex flavor,
 `perl-essentials:codex`, replacing any older local image with that tag. Set
 `CI_PLATFORM=linux/arm64` on an ARM64 Docker host when a native build is
-preferred.
+preferred. The script reports build and validation phases and retries a
+transient Buildx bootstrap failure up to three times.
 
 The first login uses device authorization because a container cannot reliably
 receive the browser callback:

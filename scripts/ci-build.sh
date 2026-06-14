@@ -16,6 +16,26 @@ cleanup()
     docker buildx rm --force "${builder}" >/dev/null 2>&1 || true
 }
 
+bootstrap_builder()
+{
+    attempt=1
+
+    while ! docker buildx inspect --bootstrap "${builder}"; do
+        if [ "${attempt}" -ge 3 ]; then
+            printf 'Buildx bootstrap failed after %s attempts\n' \
+                "${attempt}" >&2
+            return 1
+        fi
+
+        printf 'Buildx bootstrap failed (attempt %s/3), retrying\n' \
+            "${attempt}" >&2
+        attempt=$((attempt + 1))
+        sleep 5
+    done
+
+    printf 'Buildx builder is ready\n'
+}
+
 validate_perl()
 {
     docker run --rm "${image}" \
@@ -113,9 +133,11 @@ docker buildx create \
     --driver docker-container \
     --name "${builder}" \
     --use
-docker buildx inspect --bootstrap "${builder}"
+bootstrap_builder
 docker buildx build --builder "${builder}" --target "${target}" --check .
 
+printf 'Building target %s for %s as %s\n' \
+    "${target}" "${platform}" "${image}"
 set -- docker buildx build \
     --builder "${builder}" \
     --platform "${platform}" \
@@ -129,4 +151,6 @@ fi
 set -- "$@" .
 "$@"
 
+printf 'Docker image %s loaded successfully\n' "${image}"
+printf 'Validating %s image\n' "${mode}"
 "${validate}"
