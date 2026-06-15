@@ -350,3 +350,18 @@ Public release notes are maintained in [CHANGELOG.md](CHANGELOG.md).
 This project is distributed under the [MIT License](LICENSE).
 Bundled agent guidance attribution is recorded in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+Each built image also contains a generated license audit under
+`/opt/perl-essentials/licenses`. `inventory.json` is the machine-readable
+component inventory, `SUMMARY.md` is the readable index, and `texts/` contains
+the license or copyright files available during the build. The inventory
+covers installed Debian packages, Perl, CPAN distributions captured during
+installation, and directly downloaded components. The optional Codex image
+adds Codex CLI and RTK to its own inventory; they are absent from Perl-only
+images.
+
+`NOASSERTION` means an upstream package did not provide usable
+machine-readable license metadata. CI reports the count without failing the
+build, while still requiring every referenced license file to exist. The OCI
+`org.opencontainers.image.licenses=MIT` label describes this repository's own
+code, not every bundled component.

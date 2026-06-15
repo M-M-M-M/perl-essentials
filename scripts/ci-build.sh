@@ -36,6 +36,52 @@ bootstrap_builder()
     printf 'Buildx builder is ready\n'
 }
 
+validate_license_audit()
+{
+    expect_codex="${1}"
+
+    docker run --rm "${image}" \
+        test -s /opt/perl-essentials/licenses/SUMMARY.md
+    docker run --rm "${image}" perl -MJSON::PP -e '
+        use strict;
+        use warnings;
+
+        my ($expect_codex) = @ARGV;
+        my $root = "/opt/perl-essentials/licenses";
+        open my $fh, "<:raw", "$root/inventory.json"
+            or die "Cannot read license inventory: $!\n";
+        local $/;
+        my $inventory = decode_json(<$fh>);
+        close $fh or die "Cannot close license inventory: $!\n";
+
+        die "License inventory has no components\n"
+            if !$inventory->{component_count}
+            || $inventory->{component_count} != @{$inventory->{components}};
+
+        my %component = map {
+            ("$_->{ecosystem}:$_->{name}" => $_)
+        } @{$inventory->{components}};
+        for my $component (@{$inventory->{components}}) {
+            for my $file (@{$component->{license_files}}) {
+                die "Missing audited license file: $file\n"
+                    if !-f "$root/$file";
+            }
+        }
+
+        my $unknown = grep {
+            grep { $_ eq "NOASSERTION" } @{$_->{licenses}}
+        } @{$inventory->{components}};
+        print "license-audit NOASSERTION count: $unknown\n";
+
+        for my $name (qw(direct:codex-cli direct:rtk)) {
+            die "Unexpected Codex-only license component: $name\n"
+                if !$expect_codex && $component{$name};
+            die "Missing Codex license component: $name\n"
+                if $expect_codex && !$component{$name};
+        }
+    ' "${expect_codex}"
+}
+
 validate_perl()
 {
     docker run --rm "${image}" \
@@ -60,6 +106,7 @@ validate_perl()
         'test "$PROMPT" = "[%n@%m][%h][%~] #" && test "$(alias ll)" = "ll='\''ls -Fl'\''"'
     docker run --rm --user 12345:12345 "${image}" zsh -lic \
         'test "$PROMPT" = "[%n@%m][%h][%~] >"'
+    validate_license_audit 0
 }
 
 validate_codex()
@@ -95,6 +142,7 @@ validate_codex()
         'command -v perl >/dev/null \
          && command -v codex >/dev/null \
          && command -v rtk >/dev/null'
+    validate_license_audit 1
     docker run --rm \
         --cap-add SYS_ADMIN \
         --security-opt apparmor=unconfined \

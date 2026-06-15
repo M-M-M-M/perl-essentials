@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Every image embeds a generated license inventory and available license texts
+  for Debian, Perl, CPAN, and directly downloaded components; the Codex target
+  adds Codex CLI and RTK to its own audit.
+
+### Changed
+
+- CI validates the embedded license audit and reports upstream components with
+  missing machine-readable license metadata as `NOASSERTION`.
+
 ## [0.3.0] - 2026-06-15
 
 ### Added

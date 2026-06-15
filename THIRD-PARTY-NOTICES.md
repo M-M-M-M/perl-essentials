@@ -26,3 +26,11 @@ See:
 
 - https://github.com/rtk-ai/rtk/blob/master/LICENSE
 - https://github.com/rtk-ai/rtk
+
+The Docker images contain additional software from Debian, Perl, CPAN, Oh My
+Zsh, and, for the optional Codex target, Codex CLI and RTK. Each concrete image
+contains a generated inventory and the available corresponding license texts
+under `/opt/perl-essentials/licenses`. This generated audit is authoritative
+for the versions bundled by that build. Entries marked `NOASSERTION` identify
+upstream metadata that requires manual review; they are reported by CI without
+being treated as a false license declaration.

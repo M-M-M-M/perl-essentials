@@ -445,6 +445,32 @@ not block unrelated changes.
 Release publication is intentionally separate from validation workflows.
 Public release notes are recorded in `CHANGELOG.md`.
 
+## Image license audit
+
+Every `final` image generates `/opt/perl-essentials/licenses/inventory.json`,
+`SUMMARY.md`, and a `texts/` tree during the same layer that installs CPAN
+dependencies. The audit reads the installed Debian package database and its
+`/usr/share/doc/*/copyright` files, retains the Perl Artistic and GPL license
+documents, and analyzes the CPAN archives saved by `cpanm --save-dists` before
+the build cache is removed. Oh My Zsh is recorded with the exact cloned commit
+and its bundled MIT license.
+
+The `codex` target extends that existing inventory after installation. It
+records the observed Codex CLI and RTK versions and downloads their official
+Apache-2.0 license texts. These two entries and texts therefore exist only in
+the Codex image.
+
+CPAN metadata is normalized to SPDX identifiers where a direct mapping is
+known. Missing or ambiguous declarations are recorded as `NOASSERTION`.
+The build and CI print these entries as review warnings but do not reject the
+image. CI does reject malformed inventories, missing component entries for the
+Codex target, and references to absent license files.
+
+The OCI image label remains `org.opencontainers.image.licenses=MIT` because it
+describes the repository-authored image definition and scripts. The generated
+audit describes the separately licensed software bundled in each concrete
+image.
+
 ## Prepare a release
 
 Releases follow semantic versioning:

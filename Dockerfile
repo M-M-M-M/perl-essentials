@@ -59,22 +59,39 @@ FROM debug-base AS modules
 # This image deliberately favors current CPAN modules over reproducible
 # dependency versions. Tests are skipped only for this broad upgrade because
 # unrelated upstream test failures must not prevent the curated test pass.
-RUN cpanm -in App::cpanoutdated \
- && cpan-outdated -p | cpanm -in
+RUN cpanm --save-dists /tmp/cpan-dists -in App::cpanoutdated \
+ && cpan-outdated -p | cpanm --save-dists /tmp/cpan-dists -in
 
 # Curated distributions that need installation run their CPAN test suites.
 # Current core/dual-life modules are not downgraded merely to rerun tests.
 # Documented exceptions are installed separately without upstream tests.
 # Every module in both groups still has to pass the smoke test.
-RUN cpanm --configure-timeout 300 --installdeps --cpanfile cpanfile . \
+RUN cpanm --save-dists /tmp/cpan-dists \
+      --configure-timeout 300 --installdeps --cpanfile cpanfile . \
  && if scripts/list-cpanfile-modules.pl cpanfile-notest | grep -q .; then \
-      cpanm --configure-timeout 300 -in --installdeps --cpanfile cpanfile-notest .; \
+      cpanm --save-dists /tmp/cpan-dists \
+        --configure-timeout 300 -in --installdeps --cpanfile cpanfile-notest .; \
     fi \
  && scripts/check-manifests.pl cpanfile cpanfile-notest \
  && scripts/smoke-test.pl cpanfile cpanfile-notest \
  && scripts/check-runtime-tools.sh \
  && scripts/module-versions.pl cpanfile cpanfile-notest > /opt/perl-essentials/module-versions.txt \
- && rm -rf /root/.cpanm
+ && perl -MJSON::PP -e 'print JSON::PP->new->canonical->encode([{ \
+      name => "ohmyzsh", version => $ARGV[0], license => "MIT", \
+      source => "https://github.com/ohmyzsh/ohmyzsh", \
+      license_file => "/opt/oh-my-zsh/LICENSE.txt" \
+    }])' "$(git -C /opt/oh-my-zsh rev-parse HEAD)" \
+      > /tmp/direct-components.json \
+ && /opt/perl-essentials/scripts/license-audit.pl \
+      --output /opt/perl-essentials/licenses \
+      --dpkg-status /var/lib/dpkg/status \
+      --debian-copyright-root /usr/share/doc \
+      --cpan-dists /tmp/cpan-dists \
+      --direct-components /tmp/direct-components.json \
+      --perl-version "$(perl -MConfig -e 'print $Config{version}')" \
+      --perl-license "$(perl -MConfig -e 'print "$Config{privlib}/pod/perlartistic.pod"')" \
+      --perl-license "$(perl -MConfig -e 'print "$Config{privlib}/pod/perlgpl.pod"')" \
+ && rm -rf /root/.cpanm /tmp/cpan-dists /tmp/direct-components.json
 
 FROM modules AS debug
 CMD ["zsh", "-l"]
@@ -99,6 +116,30 @@ RUN apt-get update \
  && curl -fsSL \
       https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh \
       | RTK_INSTALL_DIR=/usr/local/bin sh \
+ && curl -fsSL \
+      https://raw.githubusercontent.com/openai/codex/main/LICENSE \
+      -o /tmp/LICENSE-CODEX \
+ && curl -fsSL \
+      https://raw.githubusercontent.com/rtk-ai/rtk/master/LICENSE \
+      -o /tmp/LICENSE-RTK \
+ && perl -MJSON::PP -e 'print JSON::PP->new->canonical->encode([ \
+      { name => "codex-cli", version => $ARGV[0], license => "Apache-2.0", \
+        source => "https://github.com/openai/codex", \
+        license_file => "/tmp/LICENSE-CODEX" }, \
+      { name => "rtk", version => $ARGV[1], license => "Apache-2.0", \
+        source => "https://github.com/rtk-ai/rtk", \
+        license_file => "/tmp/LICENSE-RTK" } \
+    ])' \
+      "$(codex --version | awk '{ print $2 }')" \
+      "$(rtk --version | awk '{ print $2 }')" \
+      > /tmp/codex-components.json \
+ && /opt/perl-essentials/scripts/license-audit.pl \
+      --output /tmp/licenses-codex \
+      --base-inventory /opt/perl-essentials/licenses/inventory.json \
+      --direct-components /tmp/codex-components.json \
+ && rm -rf /opt/perl-essentials/licenses \
+ && mv /tmp/licenses-codex /opt/perl-essentials/licenses \
+ && rm -f /tmp/LICENSE-CODEX /tmp/LICENSE-RTK /tmp/codex-components.json \
  && rm -rf /var/lib/apt/lists/*
 
 ENV CODEX_HOME=/codex \
