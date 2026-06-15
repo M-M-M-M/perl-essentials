@@ -98,10 +98,11 @@ and `gsed`.
 ## Use the optional Codex target
 
 The `codex` target derives from the complete `final` image. Normal image builds
-use a final `default` alias of the Perl-only `final` stage. CI and publication
-also select `final` explicitly. GitHub Actions and Bitbucket validate the Codex
-target separately with Perl 5.43.9, while Docker Hub publication remains
-disabled. RTK is therefore present only in the explicit `codex` target.
+use a final `default` alias of the Perl-only `final` stage. Perl publication
+selects `final` explicitly. GitHub Actions and Bitbucket validate the Codex
+target separately with Perl 5.43.9, and release pipelines publish it under
+Codex-specific tags. RTK is therefore present only in the explicit `codex`
+target.
 
 The target runs the official Codex and RTK installers. Codex package files
 remain under `/opt/codex`, while both tools use `/codex` for runtime state.
@@ -112,7 +113,7 @@ version level:
 
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.43.9 | Latest; 0.139.0 observed 2026-06-12 | Latest; 0.42.4 observed 2026-06-12 | Not published |
+| `codex` | 5.43.9 | Latest; 0.139.0 observed 2026-06-12 | Latest; 0.42.4 observed 2026-06-12 | Docker Hub Codex tags |
 
 The observed versions document a successful build rather than pinning future
 builds. CI runs `codex --version` and `rtk --version` so each validation log
@@ -444,6 +445,32 @@ not block unrelated changes.
 
 Release publication is intentionally separate from validation workflows.
 Public release notes are recorded in `CHANGELOG.md`.
+
+### Docker Hub image tags
+
+Private Bitbucket tag pipelines publish every configured Perl version and the
+Codex flavor only after the complete validation matrix succeeds. Every image is
+a manifest for `linux/amd64` and `linux/arm64`. One UTC timestamp in
+`YYYY-MM-DD_HHmmss` format is shared by all publication jobs in that run.
+
+For a release such as `v0.4.0`, Perl 5.42.2 receives:
+
+- `5.42.2-YYYY-MM-DD_HHmmss`, identifying the publication run;
+- `5.42.2`, the exact-version alias;
+- `5.42`, the series alias;
+- `v0.4.0-5.42.2`, the release-specific alias.
+
+The configured development Perl version also updates `latest`. Codex, built on
+Perl 5.43.9 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
+`v0.4.0-codex`. It never updates `latest`. A rerun creates a new timestamp and
+updates the mutable aliases.
+
+Inspect either manifest before use:
+
+```sh
+docker buildx imagetools inspect perlessentials/perl-essentials:5.42.2
+docker buildx imagetools inspect perlessentials/perl-essentials:codex
+```
 
 ## Image license audit
 

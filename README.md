@@ -48,6 +48,20 @@ Supported CI matrix:
 | 5.42 | 5.42.2 | Latest stable series |
 | 5.43 | 5.43.9 | Development compatibility |
 
+Release tags publish multi-architecture images to Docker Hub:
+
+```sh
+docker pull perlessentials/perl-essentials:5.42.2
+docker pull perlessentials/perl-essentials:5.42
+docker pull perlessentials/perl-essentials:latest
+docker pull perlessentials/perl-essentials:v0.4.0-5.42.2
+docker pull perlessentials/perl-essentials:5.42.2-2026-06-15_142233
+```
+
+Exact-version, series, release, and `latest` tags are mutable aliases.
+Timestamped tags identify one publication run. `latest` follows the configured
+development Perl release, currently 5.43.9.
+
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and
 other machines that cannot immediately adopt the latest Perl. All versions,
@@ -58,7 +72,7 @@ The optional development target is validated separately:
 
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | Not published |
+| `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
 
 These Codex and RTK versions are observations, not pins. CI prints both
 versions on every build.
@@ -98,9 +112,10 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 
 Codex CLI and RTK are available in a separate development target. GitHub
 Actions and Bitbucket build and validate this target with the default Perl
-version, but it is not part of the default image or Docker Hub publication.
-Unqualified builds and published Perl images select the Perl-only `final`
-stage; RTK is installed only by the explicit `codex` target.
+version. Release pipelines also publish it separately as `codex`,
+`vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
+and `latest` select the Perl-only `final` stage; RTK is installed only by the
+explicit `codex` target.
 Build without the cache to retrieve the latest versions available from their
 official installers:
 
@@ -112,6 +127,16 @@ mkdir -p codex-auth
 The script builds, tags, and validates the single local Codex flavor as
 `perl-essentials:codex`. It replaces any older image under that tag, reports
 each build phase, and retries transient Buildx bootstrap failures.
+
+Pull the published Codex flavor with:
+
+```sh
+docker pull perlessentials/perl-essentials:codex
+```
+
+Codex publication always builds without cache. A timestamp identifies the
+publication run, but Codex CLI and RTK still resolve to the latest versions
+available from their official installers during that run.
 
 CI validates state with an ephemeral Docker volume rather than a runner bind
 mount. GitHub's Docker daemon can see runner paths directly, while Bitbucket's

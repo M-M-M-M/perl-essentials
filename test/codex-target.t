@@ -140,8 +140,10 @@ unlike $bitbucket, qr/ci-build-codex/,
   'Bitbucket CI uses only the unified build script' ;
 
 my $publication = _read_text('scripts/publish.sh') ;
-like $publication, qr/--target final/,
+like $publication, qr/target="final"/,
   'Docker publication explicitly selects the final Perl image' ;
+like $publication, qr/target="codex".*no_cache="--no-cache"/s,
+  'Docker publication includes a no-cache Codex flavor' ;
 
 like $ci, qr/target="final"/,
   'Perl CI explicitly selects the final image' ;

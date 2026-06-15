@@ -6,16 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-15
+
 ### Added
 
 - Every image embeds a generated license inventory and available license texts
   for Debian, Perl, CPAN, and directly downloaded components; the Codex target
   adds Codex CLI and RTK to its own audit.
+- Bitbucket release pipelines publish AMD64/ARM64 Perl and Codex manifests to
+  Docker Hub with exact, release, rolling, and timestamped tags.
+- Docker Hub credentials are maintained from 1Password in a committed
+  SOPS/age-encrypted document and decrypted only inside publication jobs.
+- The reusable SOPS/age scripts are vendored from `sops-age-op-framework`, so
+  Docker Hub secret rotation does not require another repository checkout.
 
 ### Changed
 
 - CI validates the embedded license audit and reports upstream components with
   missing machine-readable license metadata as `NOASSERTION`.
+- The development Perl image owns `latest`; Codex uses separate `codex` tags
+  and continues to resolve Codex CLI and RTK without cache.
 
 ## [0.3.0] - 2026-06-15
 
@@ -124,7 +134,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.5...v0.3.0
 [0.2.5]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.3...v0.2.4
