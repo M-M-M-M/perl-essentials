@@ -28,8 +28,10 @@ like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub image validation covers both Docker platforms' ;
 like $ci, qr/CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}/,
   'GitHub image validation passes the selected Docker platform' ;
-like $ci, qr/docker\/setup-qemu-action\@v3/,
-  'GitHub image validation installs QEMU for emulated platforms' ;
+like $ci, qr/docker\/setup-qemu-action\@v4/,
+  'GitHub image validation installs QEMU with the current action version' ;
+unlike $ci, qr/docker\/setup-qemu-action\@v3/,
+  'GitHub image validation does not use the deprecated Node.js 20 QEMU action' ;
 like $ci, qr/if:\s*matrix\.platform == 'linux\/arm64'/,
   'GitHub image validation limits QEMU setup to ARM64 jobs' ;
 like $ci, qr/platforms:\s+arm64/,

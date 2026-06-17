@@ -27,7 +27,7 @@ my $ci = _read_text('scripts/ci-build.sh') ;
 like $ci, qr{/opt/perl-essentials/scripts/check-runtime-tools\.sh},
   'CI invokes the image runtime tool checker' ;
 like $ci,
-  qr{docker run --rm \\\n\s+--user "\$\(id -u\):\$\(id -g\)" \\\n\s+--volume "\$\{PWD\}:/work:ro" \\\n\s+"\$\{image\}" \\\n\s+/work/test/check-perl-format\.sh},
+  qr{docker_run \\\n\s+--user "\$\(id -u\):\$\(id -g\)" \\\n\s+--volume "\$\{PWD\}:/work:ro" \\\n\s+"\$\{image\}" \\\n\s+/work/test/check-perl-format\.sh},
   'CI runs the repository format check as the checkout owner' ;
 
 SKIP: {

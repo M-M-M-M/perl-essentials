@@ -169,7 +169,6 @@ docker run --rm -it \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
-  --security-opt no-new-privileges=true \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
@@ -183,7 +182,6 @@ docker run --rm -it \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
-  --security-opt no-new-privileges=true \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -200,15 +198,16 @@ default. The same directory therefore stores RTK configuration alongside the
 Codex authentication and session state.
 
 Codex uses the distribution `bubblewrap` package to sandbox commands on Linux.
-Docker's default seccomp profile blocks the namespace-related system calls that
-`bubblewrap` needs inside a container, and Bubblewrap also needs the `SYS_ADMIN`
-capability to create its mount namespace. These options increase the
-container's access to Linux kernel system calls and mount operations. Use this
-target only with trusted images and projects, do not add `--privileged`, and do
-not mount the Docker socket. `apparmor=unconfined` is also required on hosts
-whose Docker AppArmor profile blocks mount propagation. The
-`no-new-privileges=true` option remains enabled to prevent processes from
-gaining additional privileges.
+The Codex target keeps `/usr/bin/bwrap` setuid root so the sandbox also works
+when user namespaces are unavailable, including Bitbucket ARM64 validation
+under QEMU. Docker's default seccomp profile blocks namespace-related system
+calls, and Bubblewrap also needs the `SYS_ADMIN` capability to create its mount
+namespace. These options increase the container's access to Linux kernel system
+calls and mount operations. Use this target only with trusted images and
+projects, do not add `--privileged`, and do not mount the Docker socket.
+`apparmor=unconfined` is also required on hosts whose Docker AppArmor profile
+blocks mount propagation. Do not add `no-new-privileges=true`; it disables the
+setuid fallback that Bubblewrap needs on hosts without user namespaces.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,

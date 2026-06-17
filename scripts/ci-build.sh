@@ -40,9 +40,9 @@ validate_license_audit()
 {
     expect_codex="${1}"
 
-    docker run --rm "${image}" \
+    docker_run "${image}" \
         test -s /opt/perl-essentials/licenses/SUMMARY.md
-    docker run --rm "${image}" perl -MJSON::PP -e '
+    docker_run "${image}" perl -MJSON::PP -e '
         use strict;
         use warnings;
 
@@ -82,30 +82,35 @@ validate_license_audit()
     ' "${expect_codex}"
 }
 
+docker_run()
+{
+    docker run --rm --platform "${platform}" "$@"
+}
+
 validate_perl()
 {
-    docker run --rm "${image}" \
+    docker_run "${image}" \
         /opt/perl-essentials/scripts/smoke-test.pl \
         /opt/perl-essentials/cpanfile \
         /opt/perl-essentials/cpanfile-bootstrap-notest \
         /opt/perl-essentials/cpanfile-notest
-    docker run --rm \
+    docker_run \
         --user "$(id -u):$(id -g)" \
         --volume "${PWD}:/work:ro" \
         "${image}" \
         /work/test/check-perl-format.sh
-    docker run --rm "${image}" \
+    docker_run "${image}" \
         /opt/perl-essentials/scripts/check-runtime-tools.sh
-    docker run --rm \
+    docker_run \
         --volume "${PWD}:/work:ro" \
         "${image}" sh -c \
         'set -eu
          perltidy -dpro | grep -q "Dump of file: '\''.perltidyrc'\''"
          cmp /work/AGENTS.md /opt/perl-essentials/AGENTS.md
          cmp /work/.perltidyrc /opt/perl-essentials/.perltidyrc'
-    docker run --rm "${image}" zsh -lic \
+    docker_run "${image}" zsh -lic \
         'test "$PROMPT" = "[%n@%m][%h][%~] #" && test "$(alias ll)" = "ll='\''ls -Fl'\''"'
-    docker run --rm --user 12345:12345 "${image}" zsh -lic \
+    docker_run --user 12345:12345 "${image}" zsh -lic \
         'test "$PROMPT" = "[%n@%m][%h][%~] >"'
     validate_license_audit 0
 }
@@ -114,41 +119,43 @@ validate_codex()
 {
     codex_state="perl-essentials-codex-state-$$"
 
-    test -z "$(docker run --rm --entrypoint find "${image}" \
+    test -z "$(docker_run --entrypoint find "${image}" \
         /codex -mindepth 1 -print -quit)"
     docker volume create "${codex_state}" >/dev/null
-    docker run --rm \
+    docker_run \
         --volume "${codex_state}:/codex" \
         "${image}" true
-    docker run --rm \
+    docker_run \
         --entrypoint test \
         --volume "${codex_state}:/codex" \
         "${image}" -f /codex/AGENTS.md
-    docker run --rm \
+    docker_run \
         --entrypoint test \
         --volume "${codex_state}:/codex" \
         "${image}" -f /codex/RTK.md
-    docker run --rm \
+    docker_run \
         --volume "${codex_state}:/codex" \
         "${image}" true
-    test "$(docker run --rm \
+    test "$(docker_run \
         --entrypoint grep \
         --volume "${codex_state}:/codex" \
         "${image}" -c '^@/codex/RTK\.md$' /codex/AGENTS.md)" -eq 1
-    docker run --rm "${image}" codex --version
-    docker run --rm "${image}" rtk --version
-    docker run --rm "${image}" bwrap --version
-    docker run --rm "${image}" sh -c 'test "$PWD" = /work'
-    docker run --rm "${image}" zsh -lic \
+    docker_run "${image}" codex --version
+    docker_run "${image}" rtk --version
+    docker_run "${image}" bwrap --version
+    test "$(docker_run \
+        --entrypoint stat \
+        "${image}" -c '%a:%U:%G' /usr/bin/bwrap)" = "4755:root:root"
+    docker_run "${image}" sh -c 'test "$PWD" = /work'
+    docker_run "${image}" zsh -lic \
         'command -v perl >/dev/null \
          && command -v codex >/dev/null \
          && command -v rtk >/dev/null'
     validate_license_audit 1
-    docker run --rm \
+    docker_run \
         --cap-add SYS_ADMIN \
         --security-opt apparmor=unconfined \
         --security-opt seccomp=unconfined \
-        --security-opt no-new-privileges=true \
         "${image}" codex sandbox -- sh -c 'printf sandbox-ok'
 }
 

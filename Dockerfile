@@ -120,6 +120,9 @@ RUN apt-get update \
       bubblewrap \
       curl \
       gawk \
+ && chown root:root /usr/bin/bwrap \
+ && chmod 4755 /usr/bin/bwrap \
+ && test "$(stat -c '%a:%U:%G' /usr/bin/bwrap)" = "4755:root:root" \
  && mkdir -p /opt/codex \
  && curl -fsSL https://chatgpt.com/codex/install.sh \
       | CODEX_HOME=/opt/codex \

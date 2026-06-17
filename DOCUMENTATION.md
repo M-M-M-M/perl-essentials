@@ -163,7 +163,6 @@ docker run --rm -it \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
-  --security-opt no-new-privileges=true \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
@@ -177,7 +176,6 @@ docker run --rm -it \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
-  --security-opt no-new-privileges=true \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -196,10 +194,15 @@ telemetry is disabled by default. Because `/codex` is mounted from
 authentication, sessions, and history.
 
 The target installs Debian's `bubblewrap` package because Codex uses `bwrap`
-for its Linux command sandbox. Docker applies its own seccomp syscall filter
-outside that sandbox. The default Docker profile blocks the namespace-related
-system calls that `bubblewrap` needs, so Codex cannot initialize its sandbox in
-a normal container even when `bwrap` is installed.
+for its Linux command sandbox. The image keeps `/usr/bin/bwrap` owned by
+`root:root` with mode `4755` so Bubblewrap can fall back to its setuid mode
+when user namespaces are unavailable, including Bitbucket ARM64 validation
+under QEMU.
+
+Docker applies its own seccomp syscall filter outside that sandbox. The default
+Docker profile blocks the namespace-related system calls that `bubblewrap`
+needs, so Codex cannot initialize its sandbox in a normal container even when
+`bwrap` is installed.
 
 `--security-opt seccomp=unconfined` disables Docker's outer syscall filter for
 this container. It does not disable the sandbox that Codex creates with
@@ -217,10 +220,9 @@ from rejecting Bubblewrap's mount propagation setup. It weakens the outer
 container confinement and therefore has the same trusted-image and
 trusted-project restrictions.
 
-`--security-opt no-new-privileges=true` remains compatible with the Codex
-sandbox and prevents processes from gaining additional privileges through
-set-user-ID binaries or file capabilities. It reduces risk but does not replace
-Docker's disabled seccomp filter.
+Do not add `--security-opt no-new-privileges=true` to the Codex container. It
+prevents the setuid fallback that Bubblewrap needs on hosts where unprivileged
+user namespaces are unavailable.
 
 Do not mount the host's complete home directory or `~/.codex`. The repository
 root's `codex-auth/` directory is ignored by Git and Docker, but it still
@@ -254,7 +256,6 @@ docker run --rm \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
-  --security-opt no-new-privileges=true \
   -v "$tmp":/codex \
   perl-essentials:codex codex sandbox -- sh -c 'printf sandbox-ok'
 rm -rf "$tmp"
@@ -400,7 +401,8 @@ can be tested before distribution to older systems.
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24 and avoids
 the deprecated Node.js 20 action runtime. The main GitHub CI matrix validates
 both `linux/amd64` and `linux/arm64`; ARM64 jobs install QEMU on the hosted
-runner and pass the selected platform through `CI_PLATFORM`.
+runner with `docker/setup-qemu-action@v4` and pass the selected platform
+through `CI_PLATFORM`.
 
 `perl-versions.conf` records the exact versions and their roles. Check Docker
 Hub for newer official threaded tags:

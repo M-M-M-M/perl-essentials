@@ -14,10 +14,17 @@ like $dockerfile, qr/FROM final AS default\s*\z/,
   'Default image inherits the final Perl image without Codex or RTK' ;
 
 SKIP: {
-  skip 'Codex target is not available yet', 15 if !defined $codex_target ;
+  skip 'Codex target is not available yet', 18 if !defined $codex_target ;
 
   like $codex_target, qr/apt-get install.*\bbubblewrap\b/s,
     'Codex target installs the distribution bubblewrap package' ;
+  like $codex_target, qr/chown root:root \/usr\/bin\/bwrap/,
+    'Codex target keeps bubblewrap owned by root' ;
+  like $codex_target, qr/chmod 4755 \/usr\/bin\/bwrap/,
+    'Codex target enables the bubblewrap setuid fallback' ;
+  like $codex_target,
+    qr/stat -c '%a:%U:%G' \/usr\/bin\/bwrap.*4755:root:root/s,
+    'Codex target verifies the bubblewrap setuid mode while building' ;
   like $codex_target, qr{https://chatgpt\.com/codex/install\.sh},
     'Codex target uses the official standalone installer' ;
   like $codex_target, qr/CODEX_NON_INTERACTIVE=1/,
@@ -92,6 +99,10 @@ like $ci, qr/rtk --version/,
   'Codex CI checks the RTK version' ;
 like $ci, qr/bwrap --version/,
   'Codex CI checks the bubblewrap version' ;
+like $ci, qr/stat.*\/usr\/bin\/bwrap.*4755:root:root/s,
+  'Codex CI checks the bubblewrap setuid mode' ;
+like $ci, qr/docker run --rm --platform "\$\{platform\}"/,
+  'Codex CI runs validation containers for the selected platform' ;
 like $ci, qr/--entrypoint find.*\/codex -mindepth 1/s,
   'Codex CI checks state before the entrypoint initializes RTK' ;
 like $ci, qr/docker volume create "\$\{codex_state\}"/,
@@ -114,8 +125,8 @@ like $ci, qr/--cap-add SYS_ADMIN/,
   'Codex CI grants the mount capability required by bubblewrap' ;
 like $ci, qr/apparmor=unconfined/,
   'Codex CI allows bubblewrap mount operations through AppArmor' ;
-like $ci, qr/no-new-privileges=true/,
-  'Codex CI prevents privilege escalation' ;
+unlike $ci, qr/no-new-privileges=true/,
+  'Codex CI allows the bubblewrap setuid fallback when user namespaces are unavailable' ;
 like $ci, qr/zsh -lic/,
   'Codex CI checks manual use from an interactive Zsh shell' ;
 like $ci, qr/Unknown build mode/,
@@ -133,6 +144,8 @@ like $github,
   'GitHub CI validates Codex with the default Perl version on each platform' ;
 like $github, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub CI validates Codex on both Docker platforms' ;
+like $github, qr/docker\/setup-qemu-action\@v4/,
+  'GitHub CI uses the Node.js 24-compatible QEMU setup action' ;
 unlike $github, qr/ci-build-codex/,
   'GitHub CI uses only the unified build script' ;
 

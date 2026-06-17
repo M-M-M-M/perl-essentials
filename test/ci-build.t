@@ -45,6 +45,9 @@ case "$*" in
 *'--entrypoint grep '*)
     printf '%s\n' 1
     ;;
+*'--entrypoint stat '*)
+    printf '%s\n' '4755:root:root'
+    ;;
 esac
 
 if [ "$1 $2" = "volume create" ]; then
@@ -101,6 +104,10 @@ like $docker_log, qr/^volume create perl-essentials-codex-state-/m,
   'Codex validation creates a named Docker volume' ;
 like $docker_log, qr/--volume perl-essentials-codex-state-\d+:\/codex/,
   'Codex validation reuses the named Docker volume' ;
+like $docker_log, qr/^run --rm --platform linux\/amd64 /m,
+  'Codex validation runs containers for the selected platform' ;
+like $docker_log, qr/--entrypoint stat .* \/usr\/bin\/bwrap/,
+  'Codex validation checks the bubblewrap setuid mode' ;
 like $docker_log, qr/^volume rm --force perl-essentials-codex-state-/m,
   'Codex validation removes the named Docker volume' ;
 unlike $docker_log, qr{--volume /[^ ]+:/codex},

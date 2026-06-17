@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- GitHub CI now uses `docker/setup-qemu-action@v4` for ARM64 validation.
 - GitHub CI now validates Perl and Codex images on both `linux/amd64` and
   `linux/arm64`, matching the Bitbucket platform coverage.
 - Bitbucket validation now builds every Perl and Codex image on both
@@ -18,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Codex ARM64 validation now keeps Bubblewrap sandbox testing enabled under
+  Bitbucket QEMU by installing `/usr/bin/bwrap` with its setuid fallback and by
+  avoiding `no-new-privileges` in the sandbox validation container.
 - Bitbucket ARM64 validation steps now extend their step runtime to avoid
   interrupting legitimate CPAN tests under QEMU before Docker Hub publication.
 - Bitbucket `linux/arm64` validation for Perl 5.26.3 now preinstalls the
