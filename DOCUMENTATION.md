@@ -196,8 +196,14 @@ authentication, sessions, and history.
 The target installs Debian's `bubblewrap` package because Codex uses `bwrap`
 for its Linux command sandbox. The image keeps `/usr/bin/bwrap` owned by
 `root:root` with mode `4755` so Bubblewrap can fall back to its setuid mode
-when user namespaces are unavailable, including Bitbucket ARM64 validation
-under QEMU.
+when user namespaces are unavailable.
+
+CI validates the Codex sandbox smoke test only on `linux/amd64`. On
+`linux/arm64` hosted-runner jobs, the image runs under QEMU while Bubblewrap's
+namespace setup still depends on the host kernel and Docker runtime. Those jobs
+therefore validate the installed tools, `/usr/bin/bwrap` ownership and mode,
+entrypoint state initialization, and license audit, but skip the live
+`codex sandbox` command.
 
 Docker applies its own seccomp syscall filter outside that sandbox. The default
 Docker profile blocks the namespace-related system calls that `bubblewrap`

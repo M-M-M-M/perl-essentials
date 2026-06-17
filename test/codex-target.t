@@ -118,7 +118,9 @@ unlike $ci, qr/runner_user|chown .*\/codex/,
 like $ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
 like $ci, qr/codex sandbox/,
-  'Codex CI exercises the command sandbox' ;
+  'Codex CI exercises the command sandbox where supported' ;
+like $ci, qr/Skipping Codex sandbox validation for %s/,
+  'Codex CI skips host-dependent sandbox validation on unsupported platforms' ;
 like $ci, qr/seccomp=unconfined/,
   'Codex CI enables the syscalls required by bubblewrap' ;
 like $ci, qr/--cap-add SYS_ADMIN/,

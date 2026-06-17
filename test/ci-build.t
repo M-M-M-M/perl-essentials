@@ -108,10 +108,28 @@ like $docker_log, qr/^run --rm --platform linux\/amd64 /m,
   'Codex validation runs containers for the selected platform' ;
 like $docker_log, qr/--entrypoint stat .* \/usr\/bin\/bwrap/,
   'Codex validation checks the bubblewrap setuid mode' ;
+like $docker_log, qr/codex sandbox -- sh -c printf sandbox-ok/,
+  'Codex validation runs the sandbox smoke test on AMD64' ;
 like $docker_log, qr/^volume rm --force perl-essentials-codex-state-/m,
   'Codex validation removes the named Docker volume' ;
 unlike $docker_log, qr{--volume /[^ ]+:/codex},
   'Codex validation does not bind mount a runner path' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
+local $ENV{CI_PLATFORM} = 'linux/arm64' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 0, 'ARM64 Codex validation skips the host-dependent sandbox smoke test' ;
+like $output,
+  qr/Skipping Codex sandbox validation for linux\/arm64/,
+  'ARM64 Codex validation reports the skipped sandbox smoke test' ;
+unlike $docker_log, qr/codex sandbox -- sh -c printf sandbox-ok/,
+  'ARM64 Codex validation does not run the sandbox smoke test under emulation' ;
+like $docker_log, qr/^run --rm --platform linux\/arm64 /m,
+  'ARM64 Codex validation still runs containers for the selected platform' ;
 
 done_testing ;
 

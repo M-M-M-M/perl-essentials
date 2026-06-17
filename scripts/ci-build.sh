@@ -152,6 +152,21 @@ validate_codex()
          && command -v codex >/dev/null \
          && command -v rtk >/dev/null'
     validate_license_audit 1
+    validate_codex_sandbox
+}
+
+validate_codex_sandbox()
+{
+    case "${platform}" in
+    linux/amd64)
+        ;;
+    *)
+        printf 'Skipping Codex sandbox validation for %s: Bubblewrap namespace setup is host-kernel dependent under emulation\n' \
+            "${platform}"
+        return 0
+        ;;
+    esac
+
     docker_run \
         --cap-add SYS_ADMIN \
         --security-opt apparmor=unconfined \

@@ -19,9 +19,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- Codex ARM64 validation now keeps Bubblewrap sandbox testing enabled under
-  Bitbucket QEMU by installing `/usr/bin/bwrap` with its setuid fallback and by
-  avoiding `no-new-privileges` in the sandbox validation container.
+- GitHub Codex `linux/arm64` validation now skips the host-kernel-dependent
+  live Bubblewrap sandbox smoke test under QEMU while still validating the
+  installed tools, setuid `bwrap`, state initialization, and license audit.
+- Codex validation now keeps `/usr/bin/bwrap` installed with its setuid
+  fallback and avoids `no-new-privileges` so live sandbox checks keep working
+  on supported native Docker hosts.
 - Bitbucket ARM64 validation steps now extend their step runtime to avoid
   interrupting legitimate CPAN tests under QEMU before Docker Hub publication.
 - Bitbucket `linux/arm64` validation for Perl 5.26.3 now preinstalls the
