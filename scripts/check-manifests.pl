@@ -3,19 +3,22 @@
 use strict ;
 use warnings ;
 
-my ( $tested_file, $notest_file ) = @ARGV ;
-die "Usage: $0 CPANFILE CPANFILE_NOTEST\n"
-  unless defined $tested_file && defined $notest_file ;
+my ( $tested_file, @notest_files ) = @ARGV ;
+die "Usage: $0 CPANFILE CPANFILE_NOTEST [CPANFILE_NOTEST ...]\n"
+  unless defined $tested_file && @notest_files ;
 
 my @tested = read_modules($tested_file) ;
-my @notest = read_modules($notest_file) ;
+my @notest = map { read_modules($_) } @notest_files ;
 my %tested = map { $_ => 1 } @tested ;
 my @errors ;
 
 push @errors, "$tested_file is not alphabetically sorted"
   unless join( "\0", @tested ) eq join( "\0", sort @tested ) ;
-push @errors, "$notest_file is not alphabetically sorted"
-  unless join( "\0", @notest ) eq join( "\0", sort @notest ) ;
+for my $file (@notest_files) {
+  my @modules = read_modules($file) ;
+  push @errors, "$file is not alphabetically sorted"
+    unless join( "\0", @modules ) eq join( "\0", sort @modules ) ;
+}
 
 my %seen ;
 for my $module ( @tested, @notest ) {

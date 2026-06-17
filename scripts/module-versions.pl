@@ -12,7 +12,8 @@ GetOptions( 'format=s' => \$format )
 die "Unknown format: $format\n"
   unless $format eq 'text' || $format eq 'markdown' ;
 
-my @files = @ARGV ? @ARGV : qw(cpanfile cpanfile-notest) ;
+my @files =
+  @ARGV ? @ARGV : qw(cpanfile cpanfile-bootstrap-notest cpanfile-notest) ;
 my %seen ;
 
 if ( $format eq 'markdown' ) {

@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- GitHub CI now validates Perl and Codex images on both `linux/amd64` and
+  `linux/arm64`, matching the Bitbucket platform coverage.
+- Bitbucket validation now builds every Perl and Codex image on both
+  `linux/amd64` and `linux/arm64` before Docker Hub publication, in bounded
+  per-version batches with a custom single-image debug pipeline.
+- CPAN test exceptions now include a bootstrap manifest for dependency failures
+  that block a tested curated module before the main manifest can complete.
+
+### Fixed
+
+- Bitbucket ARM64 validation steps now extend their step runtime to avoid
+  interrupting legitimate CPAN tests under QEMU before Docker Hub publication.
+- Bitbucket `linux/arm64` validation for Perl 5.26.3 now preinstalls the
+  failing `DateTime::Locale` dependency without upstream tests while keeping
+  `DateTime` and the rest of the curated manifest tested.
+
+## [0.4.1] - 2026-06-16
+
+### Fixed
+
+- Docker Hub publication now retries transient Buildx bootstrap failures,
+  increases CPAN configure/test timeouts, and publishes Bitbucket images
+  sequentially to avoid multi-architecture QEMU timeout failures.
+
 ## [0.4.0] - 2026-06-15
 
 ### Added
@@ -134,7 +160,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.5...v0.3.0
 [0.2.5]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.4...v0.2.5

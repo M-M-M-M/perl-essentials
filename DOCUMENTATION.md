@@ -7,9 +7,14 @@ distribution it installs to satisfy this file. A core or dual-life module that
 is already current is not downgraded just to rerun its distribution tests.
 Every listed module is always covered by the blocking local smoke test.
 
-`cpanfile-notest` is a temporary workaround list. It disables only the upstream
-CPAN test suite for the listed module. The module must still install and pass
-the local smoke test.
+`cpanfile-bootstrap-notest` and `cpanfile-notest` are temporary workaround
+lists. They disable only the upstream CPAN test suite for listed modules. The
+module must still install and pass the local smoke test.
+
+Use `cpanfile-bootstrap-notest` only for dependencies whose failing upstream
+tests block a curated module before `cpanfile` can finish installing. Use
+`cpanfile-notest` for direct curated modules whose own tests fail after the
+tested manifest has installed.
 
 The global update remains intentionally test-free:
 
@@ -298,9 +303,11 @@ exception.
    perl -MModule::Name -e 'print "$Module::Name::VERSION\n"'
    ```
 
-5. Move the module from `cpanfile` to `cpanfile-notest`. On the same line,
-   record the upstream issue URL, affected Perl/module versions, and a review
-   date:
+5. Move the module from `cpanfile` to `cpanfile-notest`. If the failing module
+   is only a dependency that blocks a tested curated module before `cpanfile`
+   can finish, add it to `cpanfile-bootstrap-notest` instead. On the same line,
+   record the upstream issue URL, affected Perl/module versions, platform when
+   relevant, and a review date:
 
    ```perl
    requires 'Module::Name'; # https://issue.example/123; Perl 5.43.9; review 2026-09-01
@@ -309,7 +316,7 @@ exception.
 6. Rebuild the affected version, then the complete matrix. The smoke test is
    still blocking.
 
-Do not duplicate a module across both files. Do not add a permanent exception
+Do not duplicate a module across manifests. Do not add a permanent exception
 without a review date.
 
 ## Remove an exception
@@ -375,10 +382,10 @@ ldd "$(perl -MModule::Metadata -E 'say Module::Metadata->new_from_module("Module
 Run repository checks without rebuilding:
 
 ```sh
-scripts/list-cpanfile-modules.pl cpanfile cpanfile-notest
-scripts/check-manifests.pl cpanfile cpanfile-notest
-scripts/smoke-test.pl cpanfile cpanfile-notest
-scripts/module-versions.pl cpanfile cpanfile-notest
+scripts/list-cpanfile-modules.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
+scripts/check-manifests.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
+scripts/smoke-test.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
+scripts/module-versions.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
 perl -c test/integration-postgres.pl
 test/check-perl-versions.sh
 test/check-perl-versions.sh public
@@ -391,7 +398,9 @@ versions in addition to the newest stable and development versions so software
 can be tested before distribution to older systems.
 
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24 and avoids
-the deprecated Node.js 20 action runtime.
+the deprecated Node.js 20 action runtime. The main GitHub CI matrix validates
+both `linux/amd64` and `linux/arm64`; ARM64 jobs install QEMU on the hosted
+runner and pass the selected platform through `CI_PLATFORM`.
 
 `perl-versions.conf` records the exact versions and their roles. Check Docker
 Hub for newer official threaded tags:
@@ -452,6 +461,35 @@ Private Bitbucket tag pipelines publish every configured Perl version and the
 Codex flavor only after the complete validation matrix succeeds. Every image is
 a manifest for `linux/amd64` and `linux/arm64`. One UTC timestamp in
 `YYYY-MM-DD_HHmmss` format is shared by all publication jobs in that run.
+Bitbucket validates both published platforms, `linux/amd64` and `linux/arm64`,
+for every Perl version and for Codex before publication starts. ARM64 builds
+currently run through QEMU on the self-hosted Linux runner unless
+`CI_PLATFORM=linux/arm64` is run on a native ARM64 Docker host.
+Validation runs in bounded per-version batches, with only the AMD64 and ARM64
+build for one image active at the same time. This prevents the self-hosted
+Docker runner from attempting the complete image matrix at once.
+Publication is sequential on Bitbucket. This deliberately trades elapsed time
+for lower Docker-in-Docker and QEMU contention during the multi-architecture
+pushes.
+
+To debug one failing image without running the complete matrix, start the
+Bitbucket custom pipeline `validate-one-image` and set, for example,
+`PERL_VERSION=5.26.3`, `CI_PLATFORM=linux/arm64`, and `IMAGE_MODE=perl`.
+Use `IMAGE_MODE=codex` for the Codex flavor; it still uses Perl 5.43.9.
+Bitbucket ARM64 validation can legitimately exceed the default 120-minute step
+runtime while CPAN tests are still running under QEMU, so ARM64 validation
+steps use `max-time: 720`. A log that stops during `Building and testing`
+without a CPAN `FAIL` is a pipeline runtime or runner interruption signal, not
+enough evidence for a new `cpanfile-notest` entry.
+
+The publication builds keep CPAN upstream tests enabled. They pass explicit
+Docker build arguments for longer `cpanm` configure and test timeouts
+(`CPAN_CONFIGURE_TIMEOUT=1200`, `CPAN_TEST_TIMEOUT=7200` by default) because
+`linux/arm64` builds under emulation can run legitimate upstream test suites
+much more slowly than validation on the native platform. Docker Hub login
+failures are therefore separate from build-time CPAN timeout failures; check
+the first `cpanm` `FAIL` or `Timed out` line in the publication log before
+rotating credentials.
 
 For a release such as `v0.4.0`, Perl 5.42.2 receives:
 

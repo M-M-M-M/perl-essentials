@@ -3,7 +3,8 @@
 use strict ;
 use warnings ;
 
-my @files   = @ARGV ? @ARGV : qw(cpanfile cpanfile-notest) ;
+my @files =
+  @ARGV ? @ARGV : qw(cpanfile cpanfile-bootstrap-notest cpanfile-notest) ;
 my @modules = read_modules(@files) ;
 my @failed ;
 

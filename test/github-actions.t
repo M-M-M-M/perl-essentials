@@ -18,6 +18,27 @@ for my $path (@workflows) {
 }
 
 my $perl_versions = _read_text('.github/workflows/perl-versions.yml') ;
+my $ci            = _read_text('.github/workflows/ci.yml') ;
+
+like $ci, qr/timeout-minutes:\s+360/,
+  'GitHub image validation has an explicit timeout' ;
+like $ci, qr/perl-version:.*5\.26\.3.*5\.43\.9/s,
+  'GitHub image validation covers all configured Perl versions' ;
+like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
+  'GitHub image validation covers both Docker platforms' ;
+like $ci, qr/CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}/,
+  'GitHub image validation passes the selected Docker platform' ;
+like $ci, qr/docker\/setup-qemu-action\@v3/,
+  'GitHub image validation installs QEMU for emulated platforms' ;
+like $ci, qr/if:\s*matrix\.platform == 'linux\/arm64'/,
+  'GitHub image validation limits QEMU setup to ARM64 jobs' ;
+like $ci, qr/platforms:\s+arm64/,
+  'GitHub image validation installs only ARM64 QEMU support' ;
+like $ci, qr/PERL_VERSION:\s*5\.43\.9.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
+  'GitHub Codex validation covers both Docker platforms' ;
+unlike $ci, qr/ci-build-codex/,
+  'GitHub image validation uses only the unified build script' ;
+
 like $perl_versions, qr{run: test/check-perl-versions\.sh public},
   'Perl version workflow tests the public drift profile' ;
 like $perl_versions,

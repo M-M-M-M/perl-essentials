@@ -18,6 +18,7 @@ docker run --rm "$image" \
     /opt/perl-essentials/scripts/module-versions.pl \
     --format markdown \
     /opt/perl-essentials/cpanfile \
+    /opt/perl-essentials/cpanfile-bootstrap-notest \
     /opt/perl-essentials/cpanfile-notest > "$table"
 
 awk -v start="$start" -v end="$end" -v table="$table" '

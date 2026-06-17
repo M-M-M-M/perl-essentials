@@ -1,0 +1,13 @@
+# Temporary bootstrap exceptions for dependencies whose upstream CPAN tests are
+# broken before a curated module can be installed.
+#
+# Before adding an entry, follow DOCUMENTATION.md. Each exception must include:
+# - the reason and failing test;
+# - an upstream issue URL when available;
+# - affected Perl/module versions and CI platform;
+# - the date on which the exception must be reviewed.
+#
+# Example:
+# requires 'Example::Dependency'; # ISSUE-URL; Perl 5.x/linux/arm64; review YYYY-MM-DD
+
+requires 'DateTime::Locale'; # DateTime-Locale-1.45 tests fail under Bitbucket QEMU; https://metacpan.org/dist/DateTime-Locale; Perl 5.26.3/linux/arm64; review 2026-09-16

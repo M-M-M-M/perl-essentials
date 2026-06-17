@@ -43,7 +43,7 @@ COPY config/perl-essentials.zsh /etc/zsh/zshrc
 
 WORKDIR /opt/perl-essentials
 
-COPY cpanfile cpanfile-notest perl-versions.conf ./
+COPY cpanfile cpanfile-bootstrap-notest cpanfile-notest perl-versions.conf ./
 COPY AGENTS.md .perltidyrc THIRD-PARTY-NOTICES.md ./
 COPY LICENSES/ ./LICENSES/
 COPY .perltidyrc /etc/perltidyrc
@@ -56,6 +56,9 @@ CMD ["zsh", "-l"]
 
 FROM debug-base AS modules
 
+ARG CPAN_CONFIGURE_TIMEOUT=1200
+ARG CPAN_TEST_TIMEOUT=7200
+
 # This image deliberately favors current CPAN modules over reproducible
 # dependency versions. Tests are skipped only for this broad upgrade because
 # unrelated upstream test failures must not prevent the curated test pass.
@@ -64,18 +67,28 @@ RUN cpanm --save-dists /tmp/cpan-dists -in App::cpanoutdated \
 
 # Curated distributions that need installation run their CPAN test suites.
 # Current core/dual-life modules are not downgraded merely to rerun tests.
-# Documented exceptions are installed separately without upstream tests.
-# Every module in both groups still has to pass the smoke test.
-RUN cpanm --save-dists /tmp/cpan-dists \
-      --configure-timeout 300 --installdeps --cpanfile cpanfile . \
+# Bootstrap exceptions are installed first when a dependency's upstream tests
+# would otherwise block a tested curated module. Documented direct exceptions
+# are installed after the tested manifest. Every module in all groups still has
+# to pass the smoke test.
+RUN if scripts/list-cpanfile-modules.pl cpanfile-bootstrap-notest | grep -q .; then \
+      cpanm --save-dists /tmp/cpan-dists \
+        --configure-timeout "${CPAN_CONFIGURE_TIMEOUT}" \
+        -in --installdeps --cpanfile cpanfile-bootstrap-notest .; \
+    fi \
+ && cpanm --save-dists /tmp/cpan-dists \
+      --configure-timeout "${CPAN_CONFIGURE_TIMEOUT}" \
+      --test-timeout "${CPAN_TEST_TIMEOUT}" \
+      --installdeps --cpanfile cpanfile . \
  && if scripts/list-cpanfile-modules.pl cpanfile-notest | grep -q .; then \
       cpanm --save-dists /tmp/cpan-dists \
-        --configure-timeout 300 -in --installdeps --cpanfile cpanfile-notest .; \
+        --configure-timeout "${CPAN_CONFIGURE_TIMEOUT}" \
+        -in --installdeps --cpanfile cpanfile-notest .; \
     fi \
- && scripts/check-manifests.pl cpanfile cpanfile-notest \
- && scripts/smoke-test.pl cpanfile cpanfile-notest \
+ && scripts/check-manifests.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest \
+ && scripts/smoke-test.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest \
  && scripts/check-runtime-tools.sh \
- && scripts/module-versions.pl cpanfile cpanfile-notest > /opt/perl-essentials/module-versions.txt \
+ && scripts/module-versions.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest > /opt/perl-essentials/module-versions.txt \
  && perl -MJSON::PP -e 'print JSON::PP->new->canonical->encode([{ \
       name => "ohmyzsh", version => $ARGV[0], license => "MIT", \
       source => "https://github.com/ohmyzsh/ohmyzsh", \

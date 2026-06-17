@@ -11,8 +11,8 @@ builds:
    `cpan-outdated`.
 2. Every required CPAN distribution installed from `cpanfile` runs its test
    suite. Already-current core modules are not downgraded.
-3. Temporary, documented exceptions in `cpanfile-notest` are installed without
-   their upstream tests.
+3. Temporary, documented exceptions in `cpanfile-bootstrap-notest` and
+   `cpanfile-notest` are installed without their upstream tests.
 4. Every curated module, including core modules and exceptions, must pass the
    local load test.
 
@@ -61,6 +61,15 @@ docker pull perlessentials/perl-essentials:5.42.2-2026-06-15_142233
 Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
 development Perl release, currently 5.43.9.
+
+Release publication keeps the same CPAN test policy as validation. GitHub and
+Bitbucket both validate `linux/amd64` and `linux/arm64` images. Bitbucket
+default and tag pipelines run bounded per-version batches to avoid overloading
+the self-hosted Docker runner. Release jobs then publish images sequentially,
+with longer CPAN configure and test timeouts, so platform failures are found
+before Docker Hub publication starts. Use the `validate-one-image` Bitbucket
+custom pipeline to debug one combination such as `PERL_VERSION=5.26.3`,
+`CI_PLATFORM=linux/arm64`, `IMAGE_MODE=perl`.
 
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and
@@ -248,6 +257,7 @@ Run the smoke test in a built image:
 docker run --rm perl-essentials:5.43.9 \
   /opt/perl-essentials/scripts/smoke-test.pl \
   /opt/perl-essentials/cpanfile \
+  /opt/perl-essentials/cpanfile-bootstrap-notest \
   /opt/perl-essentials/cpanfile-notest
 ```
 
@@ -299,6 +309,7 @@ Ubuntu's system Perl.
 | `DateTime` | `1.66` |
 | `DateTime::Format::Excel` | `0.31` |
 | `DateTime::Format::ISO8601` | `0.19` |
+| `DateTime::Locale` | `1.45` |
 | `Devel::NYTProf` | `6.15` |
 | `Digest::SHA` | `6.04` |
 | `Encode` | `3.24` |

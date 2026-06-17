@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
@@ -18,18 +19,40 @@ jobs:
           - 5.40.4
           - 5.42.2
           - 5.43.9
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
       - uses: actions/checkout@v6
+      - name: Set up QEMU for ARM64
+        if: matrix.platform == 'linux/arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       - name: Build and validate image
         env:
           PERL_VERSION: ${{ matrix.perl-version }}
+          CI_PLATFORM: ${{ matrix.platform }}
         run: scripts/ci-build.sh
 
   codex:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
       - uses: actions/checkout@v6
+      - name: Set up QEMU for ARM64
+        if: matrix.platform == 'linux/arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       - name: Build and validate Codex image
         env:
           PERL_VERSION: 5.43.9
+          CI_PLATFORM: ${{ matrix.platform }}
         run: scripts/ci-build.sh codex

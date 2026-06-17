@@ -87,6 +87,7 @@ validate_perl()
     docker run --rm "${image}" \
         /opt/perl-essentials/scripts/smoke-test.pl \
         /opt/perl-essentials/cpanfile \
+        /opt/perl-essentials/cpanfile-bootstrap-notest \
         /opt/perl-essentials/cpanfile-notest
     docker run --rm \
         --user "$(id -u):$(id -g)" \
