@@ -122,14 +122,25 @@ $output     = qx{/bin/sh "$script" codex 2>&1} ;
 $status     = $? >> 8 ;
 $docker_log = _read_text($log) ;
 
-is $status, 0, 'ARM64 Codex validation skips the host-dependent sandbox smoke test' ;
-like $output,
-  qr/Skipping Codex sandbox validation for linux\/arm64/,
-  'ARM64 Codex validation reports the skipped sandbox smoke test' ;
-unlike $docker_log, qr/codex sandbox -- sh -c printf sandbox-ok/,
-  'ARM64 Codex validation does not run the sandbox smoke test under emulation' ;
+is $status, 0, 'ARM64 Codex validation succeeds with the sandbox smoke test' ;
+like $docker_log, qr/codex sandbox -- sh -c printf sandbox-ok/,
+  'ARM64 Codex validation runs the sandbox smoke test by default' ;
 like $docker_log, qr/^run --rm --platform linux\/arm64 /m,
   'ARM64 Codex validation still runs containers for the selected platform' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
+local $ENV{CI_SKIP_CODEX_SANDBOX} = '1' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 0, 'Codex validation can explicitly skip the sandbox smoke test' ;
+like $output,
+  qr/Skipping Codex sandbox validation because CI_SKIP_CODEX_SANDBOX=1/,
+  'explicit sandbox skip reports why it skipped' ;
+unlike $docker_log, qr/codex sandbox -- sh -c printf sandbox-ok/,
+  'explicit sandbox skip does not run the sandbox smoke test' ;
 
 done_testing ;
 

@@ -8,7 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- GitHub CI now uses `docker/setup-qemu-action@v4` for ARM64 validation.
+- GitHub workflow validation now runs `actionlint` when it is available,
+  skipping that check cleanly when the tool is not installed.
+- GitHub CI now uses native `ubuntu-24.04-arm` hosted runners for ARM64
+  validation instead of QEMU.
 - GitHub CI now validates Perl and Codex images on both `linux/amd64` and
   `linux/arm64`, matching the Bitbucket platform coverage.
 - Bitbucket validation now builds every Perl and Codex image on both
@@ -19,9 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- GitHub Codex `linux/arm64` validation now skips the host-kernel-dependent
-  live Bubblewrap sandbox smoke test under QEMU while still validating the
-  installed tools, setuid `bwrap`, state initialization, and license audit.
+- GitHub Codex `linux/arm64` validation now runs the live Bubblewrap sandbox
+  smoke test on a native ARM64 runner instead of skipping it under QEMU.
 - Codex validation now keeps `/usr/bin/bwrap` installed with its setuid
   fallback and avoids `no-new-privileges` so live sandbox checks keep working
   on supported native Docker hosts.

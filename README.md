@@ -209,6 +209,10 @@ hosts whose Docker AppArmor profile blocks mount propagation. Do not add
 `no-new-privileges=true`; it disables the setuid fallback that Bubblewrap needs
 on hosts without user namespaces.
 
+GitHub validates the Codex sandbox on native AMD64 and ARM64 hosted runners.
+Use `CI_SKIP_CODEX_SANDBOX=1` only for emulated or restricted validation
+environments where the host blocks Bubblewrap namespace creation.
+
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
 configuration, sessions, history, logs, and caches. Run `codex logout` with

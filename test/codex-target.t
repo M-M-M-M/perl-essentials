@@ -119,8 +119,8 @@ like $ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
 like $ci, qr/codex sandbox/,
   'Codex CI exercises the command sandbox where supported' ;
-like $ci, qr/Skipping Codex sandbox validation for %s/,
-  'Codex CI skips host-dependent sandbox validation on unsupported platforms' ;
+like $ci, qr/CI_SKIP_CODEX_SANDBOX/,
+  'Codex CI can explicitly skip host-dependent sandbox validation' ;
 like $ci, qr/seccomp=unconfined/,
   'Codex CI enables the syscalls required by bubblewrap' ;
 like $ci, qr/--cap-add SYS_ADMIN/,
@@ -146,8 +146,10 @@ like $github,
   'GitHub CI validates Codex with the default Perl version on each platform' ;
 like $github, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub CI validates Codex on both Docker platforms' ;
-like $github, qr/docker\/setup-qemu-action\@v4/,
-  'GitHub CI uses the Node.js 24-compatible QEMU setup action' ;
+like $github, qr/platform:\s+linux\/arm64\s+runner:\s+ubuntu-24\.04-arm/s,
+  'GitHub CI uses a native ARM64 runner for ARM64 validation' ;
+unlike $github, qr/docker\/setup-qemu-action/,
+  'GitHub CI does not install QEMU for native ARM64 validation' ;
 unlike $github, qr/ci-build-codex/,
   'GitHub CI uses only the unified build script' ;
 

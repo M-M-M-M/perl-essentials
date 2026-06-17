@@ -157,15 +157,10 @@ validate_codex()
 
 validate_codex_sandbox()
 {
-    case "${platform}" in
-    linux/amd64)
-        ;;
-    *)
-        printf 'Skipping Codex sandbox validation for %s: Bubblewrap namespace setup is host-kernel dependent under emulation\n' \
-            "${platform}"
+    if [ "${CI_SKIP_CODEX_SANDBOX:-}" = "1" ]; then
+        printf 'Skipping Codex sandbox validation because CI_SKIP_CODEX_SANDBOX=1\n'
         return 0
-        ;;
-    esac
+    fi
 
     docker_run \
         --cap-add SYS_ADMIN \

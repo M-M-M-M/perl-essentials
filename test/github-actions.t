@@ -26,16 +26,16 @@ like $ci, qr/perl-version:.*5\.26\.3.*5\.43\.9/s,
   'GitHub image validation covers all configured Perl versions' ;
 like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub image validation covers both Docker platforms' ;
+like $ci, qr/platform:\s+linux\/amd64\s+runner:\s+ubuntu-latest/s,
+  'GitHub image validation runs AMD64 jobs on the standard Ubuntu runner' ;
+like $ci, qr/platform:\s+linux\/arm64\s+runner:\s+ubuntu-24\.04-arm/s,
+  'GitHub image validation runs ARM64 jobs on a native ARM64 runner' ;
+like $ci, qr/runs-on:\s*\$\{\{\s*matrix\.runner\s*\}\}/,
+  'GitHub image validation selects the runner from the matrix' ;
 like $ci, qr/CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}/,
   'GitHub image validation passes the selected Docker platform' ;
-like $ci, qr/docker\/setup-qemu-action\@v4/,
-  'GitHub image validation installs QEMU with the current action version' ;
-unlike $ci, qr/docker\/setup-qemu-action\@v3/,
-  'GitHub image validation does not use the deprecated Node.js 20 QEMU action' ;
-like $ci, qr/if:\s*matrix\.platform == 'linux\/arm64'/,
-  'GitHub image validation limits QEMU setup to ARM64 jobs' ;
-like $ci, qr/platforms:\s+arm64/,
-  'GitHub image validation installs only ARM64 QEMU support' ;
+unlike $ci, qr/docker\/setup-qemu-action/,
+  'GitHub image validation does not install QEMU on native ARM64 runners' ;
 like $ci, qr/PERL_VERSION:\s*5\.43\.9.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
   'GitHub Codex validation covers both Docker platforms' ;
 unlike $ci, qr/ci-build-codex/,

@@ -81,7 +81,12 @@ Run the repository formatting test and static analysis:
 ```sh
 test/check-perl-format.sh
 perlcritic path/to/script.pl
+actionlint
 ```
+
+`actionlint` is optional for the Perl image but recommended for repository
+maintenance. The test suite runs it when it is installed and skips that check
+otherwise.
 
 The CI build mounts the checkout read-only at `/work` and runs the formatting
 check with `--user "$(id -u):$(id -g)"`. This keeps the container process
@@ -134,6 +139,8 @@ This command builds, tags, and validates the only Codex flavor,
 `CI_PLATFORM=linux/arm64` on an ARM64 Docker host when a native build is
 preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
+Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
+environment where Bubblewrap namespace creation is known to be blocked.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
 `/codex`. GitHub Actions normally talks to a daemon that shares the runner
@@ -198,12 +205,11 @@ for its Linux command sandbox. The image keeps `/usr/bin/bwrap` owned by
 `root:root` with mode `4755` so Bubblewrap can fall back to its setuid mode
 when user namespaces are unavailable.
 
-CI validates the Codex sandbox smoke test only on `linux/amd64`. On
-`linux/arm64` hosted-runner jobs, the image runs under QEMU while Bubblewrap's
-namespace setup still depends on the host kernel and Docker runtime. Those jobs
-therefore validate the installed tools, `/usr/bin/bwrap` ownership and mode,
-entrypoint state initialization, and license audit, but skip the live
-`codex sandbox` command.
+CI runs the Codex sandbox smoke test on native GitHub `linux/amd64` and
+`linux/arm64` runners. Environments that validate an ARM64 image through QEMU
+can opt out with `CI_SKIP_CODEX_SANDBOX=1`; those jobs still validate the
+installed tools, `/usr/bin/bwrap` ownership and mode, entrypoint state
+initialization, and license audit.
 
 Docker applies its own seccomp syscall filter outside that sandbox. The default
 Docker profile blocks the namespace-related system calls that `bubblewrap`
@@ -406,9 +412,9 @@ can be tested before distribution to older systems.
 
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24 and avoids
 the deprecated Node.js 20 action runtime. The main GitHub CI matrix validates
-both `linux/amd64` and `linux/arm64`; ARM64 jobs install QEMU on the hosted
-runner with `docker/setup-qemu-action@v4` and pass the selected platform
-through `CI_PLATFORM`.
+both `linux/amd64` and `linux/arm64`; ARM64 jobs run on the native
+`ubuntu-24.04-arm` hosted runner and pass the selected platform through
+`CI_PLATFORM`.
 
 `perl-versions.conf` records the exact versions and their roles. Check Docker
 Hub for newer official threaded tags:
