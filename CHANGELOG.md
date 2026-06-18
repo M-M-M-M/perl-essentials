@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Bitbucket Codex `linux/arm64` validation now skips only the live Bubblewrap
+  namespace smoke test that cannot run under QEMU, while retaining the image,
+  tool, setuid, state, and license checks.
 - GitHub Codex `linux/arm64` validation now runs the live Bubblewrap sandbox
   smoke test on a native ARM64 runner instead of skipping it under QEMU.
 - Codex validation now keeps `/usr/bin/bwrap` installed with its setuid

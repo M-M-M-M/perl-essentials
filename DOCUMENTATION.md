@@ -141,6 +141,8 @@ preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
 Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
 environment where Bubblewrap namespace creation is known to be blocked.
+Bitbucket applies this opt-out only to Codex `linux/arm64` jobs running under
+QEMU; native GitHub ARM64 and all AMD64 validations run the live smoke test.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
 `/codex`. GitHub Actions normally talks to a daemon that shares the runner
@@ -479,6 +481,9 @@ Bitbucket validates both published platforms, `linux/amd64` and `linux/arm64`,
 for every Perl version and for Codex before publication starts. ARM64 builds
 currently run through QEMU on the self-hosted Linux runner unless
 `CI_PLATFORM=linux/arm64` is run on a native ARM64 Docker host.
+The Codex ARM64 job skips only the live Bubblewrap namespace smoke test because
+the QEMU-backed host blocks namespace creation. It still validates Codex, RTK,
+the Bubblewrap version and setuid metadata, persistent state, and licenses.
 Validation runs in bounded per-version batches, with only the AMD64 and ARM64
 build for one image active at the same time. This prevents the self-hosted
 Docker runner from attempting the complete image matrix at once.
@@ -490,6 +495,8 @@ To debug one failing image without running the complete matrix, start the
 Bitbucket custom pipeline `validate-one-image` and set, for example,
 `PERL_VERSION=5.26.3`, `CI_PLATFORM=linux/arm64`, and `IMAGE_MODE=perl`.
 Use `IMAGE_MODE=codex` for the Codex flavor; it still uses Perl 5.43.9.
+The custom pipeline applies the same sandbox opt-out only when Codex and
+`linux/arm64` are selected together.
 Bitbucket ARM64 validation can legitimately exceed the default 120-minute step
 runtime while CPAN tests are still running under QEMU, so ARM64 validation
 steps use `max-time: 720`. A log that stops during `Building and testing`

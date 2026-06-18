@@ -67,8 +67,11 @@ Bitbucket both validate `linux/amd64` and `linux/arm64` images. Bitbucket
 default and tag pipelines run bounded per-version batches to avoid overloading
 the self-hosted Docker runner. Release jobs then publish images sequentially,
 with longer CPAN configure and test timeouts, so platform failures are found
-before Docker Hub publication starts. Use the `validate-one-image` Bitbucket
-custom pipeline to debug one combination such as `PERL_VERSION=5.26.3`,
+before Docker Hub publication starts. Bitbucket's QEMU-based Codex ARM64 job
+skips only the live Bubblewrap namespace smoke test because the emulated host
+blocks namespace creation; image tools, setuid metadata, state, and licenses
+remain validated. Use the `validate-one-image` Bitbucket custom pipeline to
+debug one combination such as `PERL_VERSION=5.26.3`,
 `CI_PLATFORM=linux/arm64`, `IMAGE_MODE=perl`.
 
 The matrix intentionally includes older Perl releases. They are retained to
@@ -210,8 +213,9 @@ hosts whose Docker AppArmor profile blocks mount propagation. Do not add
 on hosts without user namespaces.
 
 GitHub validates the Codex sandbox on native AMD64 and ARM64 hosted runners.
-Use `CI_SKIP_CODEX_SANDBOX=1` only for emulated or restricted validation
-environments where the host blocks Bubblewrap namespace creation.
+Bitbucket sets `CI_SKIP_CODEX_SANDBOX=1` only for Codex ARM64 validation under
+QEMU, where the host blocks Bubblewrap namespace creation. Bitbucket AMD64 and
+both native GitHub platforms keep the live sandbox test enabled.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
