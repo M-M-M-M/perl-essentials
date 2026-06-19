@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Public documentation now describes only GitHub validation and publication;
+  private Bitbucket runner and diagnostic procedures remain in private
+  operations documentation.
+- Codex examples use Docker's default security profile, with broad Bubblewrap
+  overrides isolated in an explicitly advanced troubleshooting section.
+
+### Fixed
+
+- Module version reports now use the `Mojolicious` distribution version for
+  the `Mojolicious::Lite` facade instead of displaying `unknown`.
+
 ## [0.5.1] - 2026-06-19
 
 ### Changed

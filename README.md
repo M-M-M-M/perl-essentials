@@ -62,12 +62,9 @@ Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
 development Perl release, currently 5.43.9.
 
-Release publication keeps the same CPAN test policy as validation. GitHub and
-Bitbucket both validate `linux/amd64` and `linux/arm64` images. Bitbucket
-default and tag pipelines submit the complete validation matrix in one
-parallel group. Six `linux` runners process up to six AMD64 jobs concurrently,
-while the dedicated `linux.arm64` runner processes ARM64 jobs as soon as it is
-available.
+Release publication keeps the same CPAN test policy as validation. GitHub
+Actions validates `linux/amd64` and `linux/arm64` images on native hosted
+runners before a release is published.
 
 Publishing a GitHub Release starts the Docker Hub workflow. GitHub builds each
 architecture natively on explicit stable runners (`ubuntu-24.04` and
@@ -75,12 +72,6 @@ architecture natively on explicit stable runners (`ubuntu-24.04` and
 multi-architecture aliases. Publication does not use QEMU. The moving
 `ubuntu-latest` label is avoided for releases, and Ubuntu 26.04 is not selected
 while its GitHub runner image remains a preview.
-
-Use the `validate-one-image` Bitbucket custom pipeline to debug one
-combination. Its `RUNNER_MODE` choice supports `linux/amd64`,
-`linux/arm64-qemu`, and `linux/arm64-native`; `IMAGE_MODE` selects Perl or
-Codex. The QEMU Codex route skips only the host-dependent live sandbox test,
-while the native ARM64 route runs it.
 
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and
@@ -131,8 +122,8 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 ## Optional Codex target
 
 Codex CLI and RTK are available in a separate development target. GitHub
-Actions and Bitbucket build and validate this target with the default Perl
-version. Release pipelines also publish it separately as `codex`,
+Actions validates this target with the default Perl version. GitHub Release
+publication also publishes it separately as `codex`,
 `vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
 and `latest` select the Perl-only `final` stage; RTK is installed only by the
 explicit `codex` target.
@@ -158,11 +149,9 @@ Codex publication always builds without cache. A timestamp identifies the
 publication run, but Codex CLI and RTK still resolve to the latest versions
 available from their official installers during that run.
 
-CI validates state with an ephemeral Docker volume rather than a runner bind
-mount. GitHub's Docker daemon can see runner paths directly, while Bitbucket's
-Docker-in-Docker service has a separate filesystem. The Docker-managed fixture
-works in both environments and never contains login credentials. Interactive
-use continues to persist credentials and configuration in `codex-auth/`.
+CI validates state with an ephemeral Docker volume that never contains login
+credentials. Interactive use persists credentials and configuration in the
+repository-local `codex-auth/` directory.
 
 Authenticate on the first run with device authorization:
 
@@ -177,22 +166,15 @@ On subsequent runs, reuse the same local state directory:
 
 ```sh
 docker run --rm -it \
-  --cap-add SYS_ADMIN \
-  --security-opt apparmor=unconfined \
-  --security-opt seccomp=unconfined \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
 ```
 
-To run Perl commands before starting Codex, open Zsh with the same mounts and
-security options:
+To run Perl commands before starting Codex, open Zsh with the same mounts:
 
 ```sh
 docker run --rm -it \
-  --cap-add SYS_ADMIN \
-  --security-opt apparmor=unconfined \
-  --security-opt seccomp=unconfined \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -208,22 +190,11 @@ idempotently before every command. It creates the RTK global `AGENTS.md` and
 default. The same directory therefore stores RTK configuration alongside the
 Codex authentication and session state.
 
-Codex uses the distribution `bubblewrap` package to sandbox commands on Linux.
-The Codex target keeps `/usr/bin/bwrap` setuid root so the sandbox can use its
-setuid fallback when user namespaces are unavailable. Docker's default seccomp
-profile blocks namespace-related system calls, and Bubblewrap also needs the
-`SYS_ADMIN` capability to create its mount namespace. These options increase
-the container's access to Linux kernel system calls and mount operations. Use
-this target only with trusted images and projects, do not add `--privileged`,
-and do not mount the Docker socket. `apparmor=unconfined` is also required on
-hosts whose Docker AppArmor profile blocks mount propagation. Do not add
-`no-new-privileges=true`; it disables the setuid fallback that Bubblewrap needs
-on hosts without user namespaces.
-
-GitHub validates the Codex sandbox on native AMD64 and ARM64 hosted runners.
-Bitbucket also validates it on the native `linux.arm64` runner. Only the
-optional manual `linux/arm64-qemu` route sets `CI_SKIP_CODEX_SANDBOX=1`,
-because its host blocks Bubblewrap namespace creation.
+Codex uses the distribution `bubblewrap` package for its Linux command
+sandbox. Normal use should keep Docker's default security profile. If Codex
+reports a Bubblewrap namespace or mount error, consult the advanced
+troubleshooting section in [DOCUMENTATION.md](DOCUMENTATION.md) before
+weakening container isolation.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
@@ -299,13 +270,13 @@ CI runs this check in the image with the checkout owner's UID and GID so Git
 can inspect the read-only `/work` mount without weakening its ownership checks.
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24.
 
-The separate `Check Perl versions` workflow runs every Monday and can also be
+The separate `Check Perl versions` workflow uses cron `17 6 * * 1`, which
+requests a run every Monday at 06:17 UTC from the default branch. GitHub may
+delay scheduled jobs during periods of high load. The workflow can also be
 started manually. It reports newer official threaded Perl images and drift in
-the public version matrix without rebuilding the Docker images. Its
-deterministic test runs as `test/check-perl-versions.sh public`; local and
-Bitbucket checks omit the argument and validate the complete private repository.
-Before the live Docker Hub query, GitHub installs the TLS modules required by
-Ubuntu's system Perl.
+the public version matrix without rebuilding Docker images. Its deterministic
+test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
+query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
 | Module | Version |
@@ -353,7 +324,7 @@ Ubuntu's system Perl.
 | `MIME::Lite` | `3.038` |
 | `MIME::Parser` | `5.517` |
 | `Math::Units` | `1.3` |
-| `Mojolicious::Lite` | `unknown` |
+| `Mojolicious::Lite` | `9.46` |
 | `Net::LDAP` | `0.68` |
 | `Net::SFTP::Foreign` | `1.93` |
 | `Perl::Critic` | `1.156` |

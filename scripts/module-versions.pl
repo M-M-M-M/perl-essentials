@@ -15,6 +15,7 @@ die "Unknown format: $format\n"
 my @files =
   @ARGV ? @ARGV : qw(cpanfile cpanfile-bootstrap-notest cpanfile-notest) ;
 my %seen ;
+my %version_module = ( 'Mojolicious::Lite' => 'Mojolicious' ) ;
 
 if ( $format eq 'markdown' ) {
   print "| Module | Version |\n" ;
@@ -37,6 +38,12 @@ for my $file (@files) {
 
     my $metadata = Module::Metadata->new_from_module($module) ;
     my $version  = $metadata ? $metadata->version : undef ;
+    if ( ( !defined $version || !length $version )
+      && defined $version_module{$module} )
+    {
+      $metadata = Module::Metadata->new_from_module( $version_module{$module} ) ;
+      $version  = $metadata ? $metadata->version : undef ;
+    }
     $version = 'unknown' unless defined $version && length $version ;
     if ( $format eq 'markdown' ) {
       print "| `$module` | `$version` |\n" ;

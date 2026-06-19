@@ -109,8 +109,8 @@ and `gsed`.
 
 The `codex` target derives from the complete `final` image. Normal image builds
 use a final `default` alias of the Perl-only `final` stage. Perl publication
-selects `final` explicitly. GitHub Actions and Bitbucket validate the Codex
-target separately with Perl 5.43.9, and release pipelines publish it under
+selects `final` explicitly. GitHub Actions validates the Codex target
+separately with Perl 5.43.9, and release publication publishes it under
 Codex-specific tags. RTK is therefore present only in the explicit `codex`
 target.
 
@@ -141,20 +141,14 @@ preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
 Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
 environment where Bubblewrap namespace creation is known to be blocked.
-Bitbucket applies this opt-out only to the optional manual
-`linux/arm64-qemu` route. Native GitHub ARM64, native Bitbucket ARM64, and all
-AMD64 validations run the live smoke test.
+Native GitHub AMD64 and ARM64 validations run the live smoke test.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
-`/codex`. GitHub Actions normally talks to a daemon that shares the runner
-filesystem, so a temporary runner directory can be bind-mounted directly.
-Bitbucket uses a separate Docker-in-Docker service through `DOCKER_HOST`; a
-runner path therefore refers to a different filesystem from the daemon's
-perspective. Keeping fixture creation, inspection, and deletion inside Docker
-makes the same validation portable across both providers. This fixture has no
-credentials, keeps its ownership entirely inside the Docker daemon, and is
-removed when the script exits. It is distinct from the repository-local
-`codex-auth/` directory used to persist interactive logins.
+`/codex`. Keeping fixture creation, inspection, and deletion inside Docker
+avoids runner-specific bind-mount assumptions. This fixture has no credentials,
+keeps its ownership entirely inside the Docker daemon, and is removed when the
+script exits. It is distinct from the repository-local `codex-auth/` directory
+used to persist interactive logins.
 
 The first login uses device authorization because a container cannot reliably
 receive the browser callback:
@@ -170,9 +164,6 @@ Start Codex later with the same writable project and state mounts:
 
 ```sh
 docker run --rm -it \
-  --cap-add SYS_ADMIN \
-  --security-opt apparmor=unconfined \
-  --security-opt seccomp=unconfined \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
@@ -183,9 +174,6 @@ before Codex:
 
 ```sh
 docker run --rm -it \
-  --cap-add SYS_ADMIN \
-  --security-opt apparmor=unconfined \
-  --security-opt seccomp=unconfined \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -209,15 +197,28 @@ for its Linux command sandbox. The image keeps `/usr/bin/bwrap` owned by
 when user namespaces are unavailable.
 
 CI runs the Codex sandbox smoke test on native GitHub `linux/amd64` and
-`linux/arm64` runners. Environments that validate an ARM64 image through QEMU
-can opt out with `CI_SKIP_CODEX_SANDBOX=1`; those jobs still validate the
-installed tools, `/usr/bin/bwrap` ownership and mode, entrypoint state
-initialization, and license audit.
+`linux/arm64` runners. Restricted or emulated environments can opt out with
+`CI_SKIP_CODEX_SANDBOX=1`; those jobs still validate the installed tools,
+`/usr/bin/bwrap` ownership and mode, entrypoint state initialization, and
+license audit.
 
-Docker applies its own seccomp syscall filter outside that sandbox. The default
-Docker profile blocks the namespace-related system calls that `bubblewrap`
-needs, so Codex cannot initialize its sandbox in a normal container even when
-`bwrap` is installed.
+### Advanced Bubblewrap troubleshooting
+
+Start with the normal Docker commands above. Do not add capabilities or disable
+security profiles preemptively. Some Linux hosts apply outer seccomp or
+AppArmor rules that prevent Bubblewrap from creating its mount namespace. If
+Codex specifically reports a namespace, mount propagation, or Bubblewrap
+initialization error, reproduce it with:
+
+```sh
+docker run --rm \
+  --cap-add SYS_ADMIN \
+  --security-opt apparmor=unconfined \
+  --security-opt seccomp=unconfined \
+  -v "$PWD":/work \
+  -v "$PWD/codex-auth":/codex \
+  perl-essentials:codex codex sandbox -- sh -c 'printf sandbox-ok'
+```
 
 `--security-opt seccomp=unconfined` disables Docker's outer syscall filter for
 this container. It does not disable the sandbox that Codex creates with
@@ -267,12 +268,6 @@ test -f "$tmp/RTK.md"
 docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
 docker run --rm -v "$tmp":/codex perl-essentials:codex rtk --version
 docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
-docker run --rm \
-  --cap-add SYS_ADMIN \
-  --security-opt apparmor=unconfined \
-  --security-opt seccomp=unconfined \
-  -v "$tmp":/codex \
-  perl-essentials:codex codex sandbox -- sh -c 'printf sandbox-ok'
 rm -rf "$tmp"
 ```
 
@@ -403,7 +398,6 @@ scripts/check-manifests.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
 scripts/smoke-test.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
 scripts/module-versions.pl cpanfile cpanfile-bootstrap-notest cpanfile-notest
 perl -c test/integration-postgres.pl
-test/check-perl-versions.sh
 test/check-perl-versions.sh public
 ```
 
@@ -433,34 +427,24 @@ immediately following series, such as 5.44 after 5.43. It also reports drift
 between the configuration, Dockerfile, CI files, and README. It never edits
 files.
 
-The drift profile controls which provider files are required:
-
-- `private`, the default, also checks `bitbucket-pipelines.yml` and is used by
-  local validation and the private Bitbucket pipeline.
-- `public` checks only files exported to GitHub and is selected explicitly by
-  the public workflow.
+The public workflow selects the `public` drift profile, which checks only files
+exported to GitHub.
 
 `test/check-perl-versions.sh` is deterministic: it uses repository fixtures to
 test current versions, available updates, a new Perl series, repository drift,
-and both drift profiles without accessing the network. Its optional argument is
-`public` or `private`; omitting it selects `private`. GitHub passes `public`
-because its snapshot intentionally excludes `bitbucket-pipelines.yml`.
-Bitbucket and local checks omit the argument and therefore validate the complete
-private repository. After that test passes, the provider job runs
+and both drift profiles without accessing the network. GitHub passes `public`
+to validate the public snapshot. After that test passes, the workflow runs
 `scripts/check-perl-versions.pl --check` against Docker Hub's live official
 `perl` tags.
 
-GitHub's `Check Perl versions` workflow runs every Monday at 06:17 UTC and can
-also be started manually. The private Bitbucket `check-perl-versions` custom
-pipeline provides the equivalent live check for the complete private
-repository; it is run manually unless a Bitbucket schedule invokes it. The two
-jobs are independent and neither triggers the other.
+GitHub's `Check Perl versions` workflow declares cron `17 6 * * 1`, requesting
+a run every Monday at 06:17 UTC from the default branch. GitHub may delay
+scheduled runs during periods of high load. The workflow can also be started
+manually.
 
 Ubuntu's system Perl does not include the HTTPS modules used by `HTTP::Tiny`.
 The GitHub workflow therefore installs `libio-socket-ssl-perl`, which also
 provides the required `Net::SSLeay` dependency, before contacting Docker Hub.
-The official Perl image used by Bitbucket already includes this TLS support.
-
 A failure reporting `UPDATE` or `ADD` is an expected maintenance signal: review
 the proposed Perl versions, update the configuration and matrices deliberately,
 then run the full image validation. A `DRIFT` failure means repository files
@@ -474,10 +458,7 @@ Public release notes are recorded in `CHANGELOG.md`.
 
 ### Docker Hub image tags
 
-Bitbucket tag pipelines validate every configured Perl version and the Codex
-flavor on `linux/amd64` and `linux/arm64`; they no longer publish Docker Hub
-images. Publishing the corresponding GitHub Release starts
-`.github/workflows/docker-publish.yml`.
+Publishing a GitHub Release starts `.github/workflows/docker-publish.yml`.
 
 The GitHub workflow builds each architecture separately and natively:
 
@@ -492,29 +473,10 @@ passed.
 
 Each build pushes a canonical architecture digest. A later job downloads the
 AMD64 and ARM64 digest artifacts and creates the final multi-architecture
-manifest aliases. No QEMU, Bubblewrap sandbox exception, SOPS key, or
-1Password credential is required by the public publication workflow. One UTC
-timestamp in `YYYY-MM-DD_HHmmss` format is shared by all images in the release.
-
-To debug one failing image without running the complete matrix, start the
-Bitbucket custom pipeline `validate-one-image`. Select the image with
-`PERL_VERSION` and `IMAGE_MODE`, then choose `RUNNER_MODE=linux/amd64`,
-`linux/arm64-qemu`, or `linux/arm64-native`. The QEMU Codex route uses
-`CI_SKIP_CODEX_SANDBOX=1`; the AMD64 and native ARM64 routes run the live
-sandbox test. Codex always uses Perl 5.43.9.
-
-To qualify a new native ARM64 self-hosted runner before changing the matrix,
-start the manual `probe-arm64-runner` pipeline. It selects the `self.hosted`
-and `linux.arm64` labels, verifies that the pipeline container, Docker daemon,
-and an Alpine container all report ARM64, then builds a minimal Codex image and
-runs the live Bubblewrap sandbox test. This probe does not use
-`CI_SKIP_CODEX_SANDBOX` and does not alter any existing validation job.
-
-Bitbucket ARM64 validation retains `max-time: 720` because complete CPAN test
-suites can still be long on the virtualized native ARM64 runner. A log that
-stops during `Building and testing` without a CPAN `FAIL` is a pipeline runtime
-or runner interruption signal, not enough evidence for a new
-`cpanfile-notest` entry.
+manifest aliases. Publication uses native runners rather than QEMU and receives
+only the Docker Hub username and token configured in the protected GitHub
+environment. One UTC timestamp in `YYYY-MM-DD_HHmmss` format is shared by all
+images in the release.
 
 The publication builds keep CPAN upstream tests enabled and pass explicit
 `cpanm` configure and test timeouts (`CPAN_CONFIGURE_TIMEOUT=1200`,
