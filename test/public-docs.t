@@ -26,6 +26,12 @@ like $documentation, qr/Advanced Bubblewrap troubleshooting/,
   'detailed documentation keeps an advanced sandbox troubleshooting section' ;
 like $documentation, qr/--cap-add SYS_ADMIN.*apparmor=unconfined.*seccomp=unconfined/s,
   'advanced sandbox troubleshooting documents the optional Docker overrides' ;
+like $documentation,
+  qr/Ubuntu 24\.04.*bwrap-userns-restrict.*apparmor_parser/s,
+  'detailed documentation covers the Ubuntu 24.04 AppArmor profile' ;
+like $documentation,
+  qr/root fallback.*CI.*does not change.*runtime/is,
+  'detailed documentation distinguishes the CI fallback from runtime behavior' ;
 like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
 like $readme, qr/`Mojolicious::Lite` \| `9\.46`/,

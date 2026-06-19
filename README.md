@@ -212,7 +212,8 @@ Codex uses the distribution `bubblewrap` package for its Linux command
 sandbox. Normal use should keep Docker's default security profile. If Codex
 reports a Bubblewrap namespace or mount error, consult the advanced
 troubleshooting section in [DOCUMENTATION.md](DOCUMENTATION.md) before
-weakening container isolation.
+weakening container isolation. Ubuntu 24.04 hosts may require the documented
+Bubblewrap AppArmor profile for non-root sandboxing.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
@@ -410,6 +411,9 @@ docker run --rm \
 ```
 
 Public release notes are maintained in [CHANGELOG.md](CHANGELOG.md).
+Public Git tags identify the filtered snapshot commits corresponding to private
+annotated SemVer release tags; their Git object IDs differ because private files
+and private history are not exported.
 
 ## License
 

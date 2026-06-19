@@ -181,12 +181,38 @@ validate_codex()
 
 validate_codex_sandbox()
 {
+    sandbox_output=""
+    sandbox_status=0
+
     if [ "${CI_SKIP_CODEX_SANDBOX:-}" = "1" ]; then
         printf 'Skipping Codex sandbox validation because CI_SKIP_CODEX_SANDBOX=1\n'
         return 0
     fi
 
+    if sandbox_output="$(run_codex_sandbox 2>&1)"; then
+        printf '%s\n' "${sandbox_output}"
+        return 0
+    else
+        sandbox_status=$?
+    fi
+
+    printf '%s\n' "${sandbox_output}" >&2
+    case "${sandbox_output}" in
+    *'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted'*)
+        printf '%s\n' \
+            'Retrying Codex sandbox validation as root because the host blocked non-root RTM_NEWADDR' >&2
+        run_codex_sandbox --user root
+        ;;
+    *)
+        return "${sandbox_status}"
+        ;;
+    esac
+}
+
+run_codex_sandbox()
+{
     docker_run \
+        "$@" \
         --cap-add SYS_ADMIN \
         --security-opt apparmor=unconfined \
         --security-opt seccomp=unconfined \

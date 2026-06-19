@@ -42,6 +42,38 @@ if [ "$1 $2" = "buildx build" ]; then
 fi
 
 case "$*" in
+*'codex sandbox -- sh -c printf sandbox-ok'*)
+    case "${SANDBOX_MODE}" in
+    success)
+        printf '%s' sandbox-ok
+        ;;
+    rtm-newaddr)
+        if printf '%s\n' "$*" | grep -q -- '--user root'; then
+            printf '%s' sandbox-ok
+        else
+            printf '%s\n' \
+                'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' >&2
+            exit 77
+        fi
+        ;;
+    other-error)
+        printf '%s\n' 'bwrap: Creating new namespace failed' >&2
+        exit 78
+        ;;
+    fallback-error)
+        if printf '%s\n' "$*" | grep -q -- '--user root'; then
+            printf '%s\n' 'bwrap: root fallback failed' >&2
+            exit 79
+        fi
+        printf '%s\n' \
+            'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' >&2
+        exit 77
+        ;;
+    esac
+    ;;
+esac
+
+case "$*" in
 *'--entrypoint grep '*)
     printf '%s\n' 1
     ;;
@@ -68,6 +100,7 @@ local $ENV{DOCKER_LOG}         = $log ;
 local $ENV{INSPECT_COUNT}      = $count ;
 local $ENV{INSPECT_SUCCEED_AT} = 3 ;
 local $ENV{PERL_VERSION}       = '5.43.9' ;
+local $ENV{SANDBOX_MODE}       = 'success' ;
 
 my $output = qx{/bin/sh "$script" codex 2>&1} ;
 my $status = $? >> 8 ;
@@ -129,7 +162,48 @@ like $docker_log, qr/^run --rm --platform linux\/arm64 /m,
   'ARM64 Codex validation still runs containers for the selected platform' ;
 
 unlink $log or die "Cannot reset '$log': $!" ;
+$ENV{SANDBOX_MODE} = 'rtm-newaddr' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 0, 'Codex validation falls back for the known RTM_NEWADDR restriction' ;
+like $output, qr/Retrying Codex sandbox validation as root.*RTM_NEWADDR/s,
+  'known host restriction reports the targeted root fallback' ;
+like $docker_log,
+  qr/codex sandbox -- sh -c printf sandbox-ok.*--user root .*codex sandbox -- sh -c printf sandbox-ok/s,
+  'known host restriction tries non-root before root' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
+$ENV{SANDBOX_MODE} = 'other-error' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 78, 'unrecognized sandbox failures remain fatal' ;
+like $output, qr/bwrap: Creating new namespace failed/,
+  'unrecognized sandbox failure is preserved in CI output' ;
+unlike $docker_log, qr/--user root .*codex sandbox/,
+  'unrecognized sandbox failure does not use the root fallback' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
+$ENV{SANDBOX_MODE} = 'fallback-error' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 79, 'a failed root fallback remains fatal' ;
+like $output, qr/bwrap: root fallback failed/,
+  'root fallback failure is preserved in CI output' ;
+like $docker_log, qr/--user root .*codex sandbox/,
+  'known host restriction attempts the root fallback once' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
 local $ENV{CI_SKIP_CODEX_SANDBOX} = '1' ;
+$ENV{SANDBOX_MODE} = 'success' ;
 
 $output     = qx{/bin/sh "$script" codex 2>&1} ;
 $status     = $? >> 8 ;

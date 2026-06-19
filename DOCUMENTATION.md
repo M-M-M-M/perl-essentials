@@ -162,7 +162,11 @@ preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
 Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
 environment where Bubblewrap namespace creation is known to be blocked.
-Native GitHub AMD64 and ARM64 validations run the live smoke test.
+Native GitHub AMD64 and ARM64 validations run the live smoke test first as the
+default non-root `perl` user. If the host returns exactly
+`bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`, CI reports the
+host restriction and retries that smoke test once as root. Other failures
+remain fatal without a retry.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
 `/codex`. Keeping fixture creation, inspection, and deletion inside Docker
@@ -223,6 +227,11 @@ CI runs the Codex sandbox smoke test on native GitHub `linux/amd64` and
 `/usr/bin/bwrap` ownership and mode, entrypoint state initialization, and
 license audit.
 
+The targeted root fallback is limited to CI validation. It does not change the
+image's default user or runtime behavior. On a host that blocks non-root
+Bubblewrap namespaces, an interactive Codex session can still report the same
+RTM_NEWADDR error until the host policy is configured.
+
 ### Advanced Bubblewrap troubleshooting
 
 Start with the normal Docker commands above. Do not add capabilities or disable
@@ -256,6 +265,25 @@ and must be granted only to the Codex container while it runs trusted projects.
 from rejecting Bubblewrap's mount propagation setup. It weakens the outer
 container confinement and therefore has the same trusted-image and
 trusted-project restrictions.
+
+Ubuntu 24.04 can separately restrict unprivileged user namespaces through
+AppArmor. OpenAI's
+[Codex sandbox documentation](https://developers.openai.com/codex/concepts/sandboxing)
+recommends loading the distribution Bubblewrap profile rather than disabling
+that restriction globally:
+
+```sh
+sudo apt update
+sudo apt install apparmor-profiles apparmor-utils
+sudo install -m 0644 \
+  /usr/share/apparmor/extra-profiles/bwrap-userns-restrict \
+  /etc/apparmor.d/bwrap-userns-restrict
+sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+```
+
+This host-level profile cannot be installed from the image or a normal
+container process. The deprecated Codex `use_legacy_landlock` feature is not
+enabled by the image or CI.
 
 Do not add `--security-opt no-new-privileges=true` to the Codex container. It
 prevents the setuid fallback that Bubblewrap needs on hosts where unprivileged
@@ -480,6 +508,9 @@ not block unrelated changes.
 
 Release publication is intentionally separate from validation workflows.
 Public release notes are recorded in `CHANGELOG.md`.
+The private publication tool recreates annotated SemVer release tags on the
+corresponding filtered public snapshot. Public and private object IDs differ
+because the public repository excludes private files and history.
 
 ### Docker Hub image tags
 

@@ -133,6 +133,11 @@ like $ci, qr/codex sandbox/,
   'Codex CI exercises the command sandbox where supported' ;
 like $ci, qr/CI_SKIP_CODEX_SANDBOX/,
   'Codex CI can explicitly skip host-dependent sandbox validation' ;
+like $ci,
+  qr/Failed RTM_NEWADDR: Operation not permitted.*run_codex_sandbox --user root/s,
+  'Codex CI retries as root only for the known host network restriction' ;
+unlike $ci, qr/use_legacy_landlock/,
+  'Codex CI does not depend on the deprecated Landlock backend' ;
 like $ci, qr/seccomp=unconfined/,
   'Codex CI enables the syscalls required by bubblewrap' ;
 like $ci, qr/--cap-add SYS_ADMIN/,

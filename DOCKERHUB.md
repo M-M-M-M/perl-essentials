@@ -34,6 +34,10 @@ on the host; no `chown` is needed. The global Zsh configuration applies to all
 users, and a minimal personal `.zshrc` prevents the new-user assistant without
 overwriting custom settings.
 
+Codex uses Bubblewrap for its Linux sandbox. Ubuntu 24.04 hosts may require the
+distribution `bwrap-userns-restrict` AppArmor profile before the sandbox can
+configure non-root user and network namespaces.
+
 ```sh
 docker run --rm perlessentials/perl-essentials:5.42 \
   perl -MDBI -MJSON -e 'print "ready\n"'
