@@ -87,8 +87,7 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 
 ## Codex target
 
-A `codex` target is also available, based on the latest development Perl
-target:
+A `codex` target is also available, based on the Perl 5.43.9 development image:
 
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
@@ -100,6 +99,10 @@ target:
 
 <!-- MODULE_VERSIONS_START -->
 Versions captured on 2026-06-19 10:11:10 (UTC).
+
+This inventory was captured from the default development image at the
+timestamp above. Module versions may differ between publication runs. For an
+exact image, see `/opt/perl-essentials/module-versions.txt`.
 
 | Module | Version |
 | --- | --- |

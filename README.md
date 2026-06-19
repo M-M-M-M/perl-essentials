@@ -304,6 +304,10 @@ query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 <!-- MODULE_VERSIONS_START -->
 Versions captured on 2026-06-19 10:11:10 (UTC).
 
+This inventory was captured from the default development image at the
+timestamp above. Module versions may differ between publication runs. For an
+exact image, see `/opt/perl-essentials/module-versions.txt`.
+
 | Module | Version |
 | --- | --- |
 | `Archive::Zip` | `1.68` |

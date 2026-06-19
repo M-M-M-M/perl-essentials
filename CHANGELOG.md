@@ -11,8 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The Docker Hub Overview is now versioned publicly in `DOCKERHUB.md`, with
   target and module tables kept aligned with `README.md`.
 - Module version tables now record their UTC capture date when regenerated.
+- Module tables now clarify that versions can vary between publication runs
+  and point to each image's embedded exact inventory.
 - Docker Hub documentation now explains the bundled Perl::Tidy profile,
   project overrides, profile opt-out, and ownership-safe in-place formatting.
+- The Docker Hub Codex description now identifies Perl 5.43.9 explicitly as
+  its development base image.
 - Public documentation now describes only GitHub validation and publication;
   private Bitbucket runner and diagnostic procedures remain in private
   operations documentation.
