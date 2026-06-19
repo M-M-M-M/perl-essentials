@@ -48,7 +48,7 @@ Supported CI matrix:
 | 5.42 | 5.42.2 | Latest stable series |
 | 5.43 | 5.43.9 | Development compatibility |
 
-Release tags publish multi-architecture images to Docker Hub:
+Published GitHub Releases create multi-architecture images on Docker Hub:
 
 ```sh
 docker pull perlessentials/perl-essentials:5.42.2
@@ -67,9 +67,14 @@ Bitbucket both validate `linux/amd64` and `linux/arm64` images. Bitbucket
 default and tag pipelines submit the complete validation matrix in one
 parallel group. Six `linux` runners process up to six AMD64 jobs concurrently,
 while the dedicated `linux.arm64` runner processes ARM64 jobs as soon as it is
-available. Release jobs then publish images sequentially, with longer CPAN
-configure and test timeouts, so platform failures are found before Docker Hub
-publication starts.
+available.
+
+Publishing a GitHub Release starts the Docker Hub workflow. GitHub builds each
+architecture natively on explicit stable runners (`ubuntu-24.04` and
+`ubuntu-24.04-arm`), pushes architecture digests, and then assembles the final
+multi-architecture aliases. Publication does not use QEMU. The moving
+`ubuntu-latest` label is avoided for releases, and Ubuntu 26.04 is not selected
+while its GitHub runner image remains a preview.
 
 Use the `validate-one-image` Bitbucket custom pipeline to debug one
 combination. Its `RUNNER_MODE` choice supports `linux/amd64`,

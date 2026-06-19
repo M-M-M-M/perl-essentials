@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-19
+
+### Changed
+
+- Docker Hub publication now runs from a published GitHub Release, using native
+  stable `ubuntu-24.04` AMD64 and `ubuntu-24.04-arm` ARM64 runners.
+- Architecture builds push canonical digests which GitHub later combines into
+  the existing multi-architecture Perl and Codex aliases without QEMU.
+- Bitbucket tag pipelines now stop after the complete validation matrix; the
+  private SOPS/age credential chain remains available only as a local fallback.
+
+### Documentation
+
+- The release procedure now documents the protected GitHub environment,
+  Docker Hub PAT setup and rotation, release approval, reruns, manifest
+  verification, and the stable-runner policy.
+
 ## [0.5.0] - 2026-06-19
 
 ### Changed
@@ -178,7 +195,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.3.0...v0.4.0

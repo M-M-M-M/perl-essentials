@@ -67,6 +67,12 @@ like $entrypoint, qr/exec "\$\@"/,
 my $public_files = _read_text('.public-files') ;
 like $public_files, qr{^scripts/codex-entrypoint\.sh$}m,
   'Public export includes the Codex entrypoint' ;
+like $public_files, qr{^scripts/publish\.sh$}m,
+  'Public export includes Docker publication logic' ;
+like $public_files, qr{^test/docker-publication\.t$}m,
+  'Public export includes Docker publication tests' ;
+like $public_files, qr{^\.github/workflows/docker-publish\.yml$}m,
+  'Public export includes the Docker publication workflow' ;
 
 my $notices = _read_text('THIRD-PARTY-NOTICES.md') ;
 like $notices, qr{\brtk-ai/rtk\b},
@@ -166,7 +172,7 @@ unlike $bitbucket, qr/ci-build-codex/,
 my $publication = _read_text('scripts/publish.sh') ;
 like $publication, qr/target="final"/,
   'Docker publication explicitly selects the final Perl image' ;
-like $publication, qr/target="codex".*no_cache="--no-cache"/s,
+like $publication, qr/target="codex".*set -- "\$\@" --no-cache/s,
   'Docker publication includes a no-cache Codex flavor' ;
 
 like $ci, qr/target="final"/,

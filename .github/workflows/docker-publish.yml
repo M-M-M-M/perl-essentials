@@ -1,0 +1,206 @@
+name: Publish Docker images
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-publish-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.value }}
+    steps:
+      - id: timestamp
+        run: echo "value=$(date -u +%Y-%m-%d_%H%M%S)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    environment: dockerhub-production
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 720
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - key: perl-526
+            mode: perl
+            perl-version: 5.26.3
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-526
+            mode: perl
+            perl-version: 5.26.3
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-532
+            mode: perl
+            perl-version: 5.32.1
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-532
+            mode: perl
+            perl-version: 5.32.1
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-536
+            mode: perl
+            perl-version: 5.36.3
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-536
+            mode: perl
+            perl-version: 5.36.3
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-538
+            mode: perl
+            perl-version: 5.38.5
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-538
+            mode: perl
+            perl-version: 5.38.5
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-540
+            mode: perl
+            perl-version: 5.40.4
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-540
+            mode: perl
+            perl-version: 5.40.4
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-542
+            mode: perl
+            perl-version: 5.42.2
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-542
+            mode: perl
+            perl-version: 5.42.2
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: perl-543
+            mode: perl
+            perl-version: 5.43.9
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-543
+            mode: perl
+            perl-version: 5.43.9
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+          - key: codex
+            mode: codex
+            perl-version: 5.43.9
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: codex
+            mode: codex
+            perl-version: 5.43.9
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v4
+      - name: Build and push architecture digest
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          PERL_VERSION: ${{ matrix.perl-version }}
+        run: |
+          scripts/publish.sh build \
+            "${{ matrix.mode }}" \
+            "${{ matrix.platform }}" \
+            "/tmp/digests/${{ matrix.architecture }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.key }}-${{ matrix.architecture }}
+          path: /tmp/digests/${{ matrix.architecture }}
+          if-no-files-found: error
+          retention-days: 1
+
+  manifest:
+    needs: [prepare, build]
+    environment: dockerhub-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - key: perl-526
+            mode: perl
+            perl-version: 5.26.3
+          - key: perl-532
+            mode: perl
+            perl-version: 5.32.1
+          - key: perl-536
+            mode: perl
+            perl-version: 5.36.3
+          - key: perl-538
+            mode: perl
+            perl-version: 5.38.5
+          - key: perl-540
+            mode: perl
+            perl-version: 5.40.4
+          - key: perl-542
+            mode: perl
+            perl-version: 5.42.2
+          - key: perl-543
+            mode: perl
+            perl-version: 5.43.9
+          - key: codex
+            mode: codex
+            perl-version: 5.43.9
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: digest-${{ matrix.key }}-*
+          path: /tmp/digests
+          merge-multiple: true
+      - name: Publish multi-architecture manifest
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          PERL_VERSION: ${{ matrix.perl-version }}
+          PUBLISH_TIMESTAMP: ${{ needs.prepare.outputs.timestamp }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          scripts/publish.sh manifest \
+            "${{ matrix.mode }}" \
+            /tmp/digests/amd64 \
+            /tmp/digests/arm64

@@ -474,19 +474,27 @@ Public release notes are recorded in `CHANGELOG.md`.
 
 ### Docker Hub image tags
 
-Private Bitbucket tag pipelines publish every configured Perl version and the
-Codex flavor only after the complete validation matrix succeeds. Every image is
-a manifest for `linux/amd64` and `linux/arm64`. One UTC timestamp in
-`YYYY-MM-DD_HHmmss` format is shared by all publication jobs in that run.
-Bitbucket validates both published platforms, `linux/amd64` and `linux/arm64`,
-for every Perl version and for Codex before publication starts. The eight ARM64
-jobs use the dedicated `linux.arm64` self-hosted runner and execute natively.
-The complete validation matrix is submitted as one parallel group. Six
-`linux` runner instances process up to six AMD64 jobs concurrently, while the
-single ARM64 runner processes its queued jobs immediately when it becomes
-available.
-Publication is sequential on Bitbucket. This deliberately trades elapsed time
-for lower Docker-in-Docker contention during the multi-architecture pushes.
+Bitbucket tag pipelines validate every configured Perl version and the Codex
+flavor on `linux/amd64` and `linux/arm64`; they no longer publish Docker Hub
+images. Publishing the corresponding GitHub Release starts
+`.github/workflows/docker-publish.yml`.
+
+The GitHub workflow builds each architecture separately and natively:
+
+- AMD64 uses the explicit stable `ubuntu-24.04` runner;
+- ARM64 uses the explicit stable `ubuntu-24.04-arm` runner.
+
+The workflow deliberately avoids `ubuntu-latest`, whose backing image can
+change without a repository modification. It also avoids Ubuntu 26.04 while
+that runner image is a public preview. Moving to 26.04 should be a deliberate
+change after GitHub marks both architectures stable and the complete matrix has
+passed.
+
+Each build pushes a canonical architecture digest. A later job downloads the
+AMD64 and ARM64 digest artifacts and creates the final multi-architecture
+manifest aliases. No QEMU, Bubblewrap sandbox exception, SOPS key, or
+1Password credential is required by the public publication workflow. One UTC
+timestamp in `YYYY-MM-DD_HHmmss` format is shared by all images in the release.
 
 To debug one failing image without running the complete matrix, start the
 Bitbucket custom pipeline `validate-one-image`. Select the image with
@@ -508,14 +516,12 @@ stops during `Building and testing` without a CPAN `FAIL` is a pipeline runtime
 or runner interruption signal, not enough evidence for a new
 `cpanfile-notest` entry.
 
-The publication builds keep CPAN upstream tests enabled. They pass explicit
-Docker build arguments for longer `cpanm` configure and test timeouts
-(`CPAN_CONFIGURE_TIMEOUT=1200`, `CPAN_TEST_TIMEOUT=7200` by default) because
-multiarchitecture publication builds can run legitimate upstream test suites
-much more slowly than single-platform validation. Docker Hub login failures
-are therefore separate from build-time CPAN timeout failures; check the first
-`cpanm` `FAIL` or `Timed out` line in the publication log before rotating
-credentials.
+The publication builds keep CPAN upstream tests enabled and pass explicit
+`cpanm` configure and test timeouts (`CPAN_CONFIGURE_TIMEOUT=1200`,
+`CPAN_TEST_TIMEOUT=7200` by default). Docker Hub authentication uses the
+protected GitHub environment `dockerhub-production`, with
+`DOCKERHUB_USERNAME` as an environment variable and `DOCKERHUB_TOKEN` as an
+environment secret.
 
 For a release such as `v0.4.0`, Perl 5.42.2 receives:
 
@@ -526,8 +532,8 @@ For a release such as `v0.4.0`, Perl 5.42.2 receives:
 
 The configured development Perl version also updates `latest`. Codex, built on
 Perl 5.43.9 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
-`v0.4.0-codex`. It never updates `latest`. A rerun creates a new timestamp and
-updates the mutable aliases.
+`v0.4.0-codex`. It never updates `latest`. Rerunning failed jobs for the same
+release keeps its shared timestamp when GitHub reuses the workflow run.
 
 Inspect either manifest before use:
 
