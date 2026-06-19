@@ -5,10 +5,12 @@ use Test::More ;
 
 my $readme        = _read_text('README.md') ;
 my $documentation = _read_text('DOCUMENTATION.md') ;
+my $dockerhub     = _read_text('DOCKERHUB.md') ;
 
 for my $document (
   [ 'README.md',        $readme ],
   [ 'DOCUMENTATION.md', $documentation ],
+  [ 'DOCKERHUB.md',     $dockerhub ],
   )
 {
   my ( $name, $content ) = @{$document} ;
@@ -28,8 +30,33 @@ like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
 like $readme, qr/`Mojolicious::Lite` \| `9\.46`/,
   'README reports the installed Mojolicious distribution version' ;
+like $dockerhub,
+  qr{/etc/perltidyrc.*project-local `.perltidyrc`.*-pro=/work/custom\.perltidyrc.*-npro}s,
+  'Docker Hub overview explains Perl::Tidy profile precedence and overrides' ;
+like $dockerhub,
+  qr{--user "\$\(id -u\):\$\(id -g\)".*perltidy -b -bext='/'}s,
+  'Docker Hub in-place formatting example preserves host ownership' ;
+like _read_text('.public-files'), qr/^DOCKERHUB\.md$/m,
+  'public snapshot includes the Docker Hub overview source' ;
+is _section( $dockerhub, 'PERL_TARGETS' ),
+  _section( $readme, 'PERL_TARGETS' ),
+  'Docker Hub and README Perl target tables match' ;
+is _section( $dockerhub, 'CODEX_TARGET' ),
+  _section( $readme, 'CODEX_TARGET' ),
+  'Docker Hub and README Codex target tables match' ;
+is _section( $dockerhub, 'MODULE_VERSIONS' ),
+  _section( $readme, 'MODULE_VERSIONS' ),
+  'Docker Hub and README module version tables match' ;
 
 done_testing ;
+
+sub _section {
+  my ( $content, $name ) = @_ ;
+  my ($section)
+    = $content
+    =~ /<!-- \Q${name}\E_START -->\n(.*?)<!-- \Q${name}\E_END -->/s ;
+  return defined $section ? $section : q{} ;
+}
 
 sub _read_text {
   my ($path) = @_ ;

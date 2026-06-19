@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- The Docker Hub Overview is now versioned publicly in `DOCKERHUB.md`, with
+  target and module tables kept aligned with `README.md`.
+- Module version tables now record their UTC capture date when regenerated.
+- Docker Hub documentation now explains the bundled Perl::Tidy profile,
+  project overrides, profile opt-out, and ownership-safe in-place formatting.
 - Public documentation now describes only GitHub validation and publication;
   private Bitbucket runner and diagnostic procedures remain in private
   operations documentation.

@@ -62,18 +62,23 @@ The repository vendors the exact `AGENTS.md` and `.perltidyrc` files from
 The Docker image stores both files under `/opt/perl-essentials` and installs
 the profile as `/etc/perltidyrc`. Perl::Tidy checks the current directory
 before the system profile, so a mounted project's `.perltidyrc` overrides the
-image default.
+image default. Pass `-pro=/work/custom.perltidyrc` to use a specific profile,
+or `-npro` to ignore all profile files.
 
-Preview formatting without changing a source file:
+Preview formatting in the container without changing a mounted source file:
 
 ```sh
-perltidy -st -se path/to/script.pl
+docker run --rm -v "$PWD":/work \
+  perlessentials/perl-essentials:5.42 \
+  perltidy -st -se /work/path/to/script.pl
 ```
 
-Format a file in place without a backup:
+Format a mounted file in place without a backup, preserving host ownership:
 
 ```sh
-perltidy -b -bext='/' path/to/script.pl
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
+  perlessentials/perl-essentials:5.42 \
+  perltidy -b -bext='/' /work/path/to/script.pl
 ```
 
 Run the repository formatting test and static analysis:

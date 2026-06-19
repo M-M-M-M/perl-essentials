@@ -38,6 +38,7 @@ docker build \
 
 Supported CI matrix:
 
+<!-- PERL_TARGETS_START -->
 | Perl series | Image version | Role |
 | --- | --- | --- |
 | 5.26 | 5.26.3 | Legacy baseline |
@@ -47,6 +48,7 @@ Supported CI matrix:
 | 5.40 | 5.40.4 | Maintained stable series |
 | 5.42 | 5.42.2 | Latest stable series |
 | 5.43 | 5.43.9 | Development compatibility |
+<!-- PERL_TARGETS_END -->
 
 Published GitHub Releases create multi-architecture images on Docker Hub:
 
@@ -81,9 +83,11 @@ installation and test policy.
 
 The optional development target is validated separately:
 
+<!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
 | `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
+<!-- CODEX_TARGET_END -->
 
 These Codex and RTK versions are observations, not pins. CI prints both
 versions on every build.
@@ -211,7 +215,26 @@ GNU-prefixed commands `gcat`, `gfind`, `ggrep`, and `gsed`.
 
 The reference formatting profile is installed as `/etc/perltidyrc`, so it is
 used automatically when a mounted project does not provide `.perltidyrc`.
-A project-local profile takes precedence.
+A project-local profile takes precedence. Pass
+`-pro=/work/custom.perltidyrc` to select another profile explicitly, or
+`-npro` to ignore all profiles.
+
+Preview formatting without modifying the mounted file:
+
+```sh
+docker run --rm -v "$PWD":/work \
+  perlessentials/perl-essentials:5.42 \
+  perltidy -st -se /work/path/to/script.pl
+```
+
+Format in place without creating a backup, using the host user to preserve
+file ownership:
+
+```sh
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
+  perlessentials/perl-essentials:5.42 \
+  perltidy -b -bext='/' /work/path/to/script.pl
+```
 
 The exact `perl-agents-md` v1.0.0 `AGENTS.md` and `.perltidyrc` snapshots are
 also available under `/opt/perl-essentials`. `AGENTS.md` is a reference there;
@@ -279,6 +302,8 @@ test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
 query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
+Versions captured on 2026-06-19 10:11:10 (UTC).
+
 | Module | Version |
 | --- | --- |
 | `Archive::Zip` | `1.68` |
