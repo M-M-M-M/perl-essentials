@@ -92,12 +92,25 @@ The optional development target is validated separately:
 These Codex and RTK versions are observations, not pins. CI prints both
 versions on every build.
 
+Published Perl and Codex images run by default as the non-root `perl` user
+with UID/GID `1000:1000`. For writable host bind mounts, pass
+`--user "$(id -u):$(id -g)"` to preserve host ownership. Use `--user root`
+only for an explicit administrative operation. The `debug-base` and `debug`
+targets remain root for package-installation diagnostics.
+
+Bind mounts preserve numeric host ownership. A macOS file owned by
+UID/GID `502:80` can therefore appear as `502:dialout` inside the Linux
+container while remaining owned by the correct host user and group. This is
+expected and does not require `chown`. The global Zsh configuration applies to
+root, `perl`, and host UID overrides; a minimal personal `.zshrc` prevents the
+Zsh new-user assistant without replacing custom shell settings.
+
 ## Run scripts and data
 
 Mount the current directory and run a script:
 
 ```sh
-docker run --rm \
+docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   perl-essentials:5.43.9 \
   perl /work/script.pl
@@ -106,7 +119,7 @@ docker run --rm \
 Mount separate script and data directories:
 
 ```sh
-docker run --rm \
+docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD/scripts":/work/scripts:ro \
   -v "$PWD/data":/work/data \
   perl-essentials:5.43.9 \
@@ -116,7 +129,8 @@ docker run --rm \
 Open an interactive shell:
 
 ```sh
-docker run --rm -it -v "$PWD":/work perl-essentials:5.43.9 zsh -l
+docker run --rm -it --user "$(id -u):$(id -g)" \
+  -v "$PWD":/work perl-essentials:5.43.9 zsh -l
 ```
 
 Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
@@ -160,7 +174,7 @@ repository-local `codex-auth/` directory.
 Authenticate on the first run with device authorization:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex codex login --device-auth
@@ -169,7 +183,7 @@ docker run --rm -it \
 On subsequent runs, reuse the same local state directory:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
@@ -178,7 +192,7 @@ docker run --rm -it \
 To run Perl commands before starting Codex, open Zsh with the same mounts:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -222,7 +236,7 @@ A project-local profile takes precedence. Pass
 Preview formatting without modifying the mounted file:
 
 ```sh
-docker run --rm -v "$PWD":/work \
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
   perlessentials/perl-essentials:5.42 \
   perltidy -st -se /work/path/to/script.pl
 ```
@@ -244,7 +258,8 @@ project hierarchy.
 Copy the references into a project without replacing existing files:
 
 ```sh
-docker run --rm -v "$PWD":/work perl-essentials:5.43.9 sh -c \
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$PWD":/work perl-essentials:5.43.9 sh -c \
   'cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
    cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc'
 ```
@@ -254,7 +269,7 @@ docker run --rm -v "$PWD":/work perl-essentials:5.43.9 sh -c \
 Run the quick backward-compatible validation:
 
 ```sh
-docker run --rm \
+docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   perl-essentials:5.43.9 \
   perl /work/test.pl

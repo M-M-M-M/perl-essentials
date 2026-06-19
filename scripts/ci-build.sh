@@ -89,6 +89,11 @@ docker_run()
 
 validate_perl()
 {
+    docker_run "${image}" sh -c \
+        'test "$(id -u)" = 1000 \
+         && test "$(id -un)" = perl \
+         && test "$HOME" = /home/perl \
+         && test -w /work'
     docker_run "${image}" \
         /opt/perl-essentials/scripts/smoke-test.pl \
         /opt/perl-essentials/cpanfile \
@@ -109,7 +114,9 @@ validate_perl()
          cmp /work/AGENTS.md /opt/perl-essentials/AGENTS.md
          cmp /work/.perltidyrc /opt/perl-essentials/.perltidyrc'
     docker_run "${image}" zsh -lic \
-        'test "$PROMPT" = "[%n@%m][%h][%~] #" && test "$(alias ll)" = "ll='\''ls -Fl'\''"'
+        'test "$PROMPT" = "[%n@%m][%h][%~] >" && test "$(alias ll)" = "ll='\''ls -Fl'\''"'
+    docker_run --user root "${image}" zsh -lic \
+        'test "$PROMPT" = "[%n@%m][%h][%~] #"'
     docker_run --user 12345:12345 "${image}" zsh -lic \
         'test "$PROMPT" = "[%n@%m][%h][%~] >"'
     validate_license_audit 0
@@ -124,7 +131,11 @@ validate_codex()
     docker volume create "${codex_state}" >/dev/null
     docker_run \
         --volume "${codex_state}:/codex" \
-        "${image}" true
+        "${image}" sh -c \
+        'test "$(id -u)" = 1000 \
+         && test "$(id -un)" = perl \
+         && test "$HOME" = /codex \
+         && test -w /codex'
     docker_run \
         --entrypoint test \
         --volume "${codex_state}:/codex" \
@@ -134,8 +145,21 @@ validate_codex()
         --volume "${codex_state}:/codex" \
         "${image}" -f /codex/RTK.md
     docker_run \
+        --entrypoint test \
+        --volume "${codex_state}:/codex" \
+        "${image}" -f /codex/.zshrc
+    docker_run \
+        --entrypoint sh \
+        --volume "${codex_state}:/codex" \
+        "${image}" -c \
+        'printf "%s\n" "# custom Zsh configuration" > /codex/.zshrc'
+    docker_run \
         --volume "${codex_state}:/codex" \
         "${image}" true
+    docker_run \
+        --entrypoint grep \
+        --volume "${codex_state}:/codex" \
+        "${image}" -qxF '# custom Zsh configuration' /codex/.zshrc
     test "$(docker_run \
         --entrypoint grep \
         --volume "${codex_state}:/codex" \

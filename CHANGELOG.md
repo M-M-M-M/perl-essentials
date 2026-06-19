@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-06-19
+
 ### Changed
 
+- Published Perl and Codex images now run as the non-root `perl` user with
+  UID/GID `1000:1000`; diagnostic targets remain root.
+- Interactive Zsh sessions now skip the new-user assistant while preserving
+  custom `.zshrc` files in persistent Codex state.
 - The Docker Hub Overview is now versioned publicly in `DOCKERHUB.md`, with
   target and module tables kept aligned with `README.md`.
 - Module version tables now record their UTC capture date when regenerated.
@@ -217,7 +223,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...v0.4.1

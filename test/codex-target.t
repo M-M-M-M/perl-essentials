@@ -61,6 +61,8 @@ ok -x 'scripts/codex-entrypoint.sh',
   'Codex entrypoint is executable' ;
 like $entrypoint, qr/rtk init -g --codex/,
   'Codex entrypoint initializes the RTK Codex integration' ;
+like $entrypoint, qr/\[ -e "\$\{HOME\}\/\.zshrc" \] \|\| : > "\$\{HOME\}\/\.zshrc"/,
+  'Codex entrypoint creates only a missing Zsh startup file' ;
 like $entrypoint, qr/exec "\$\@"/,
   'Codex entrypoint preserves the requested command' ;
 
@@ -123,6 +125,10 @@ unlike $ci, qr/runner_user|chown .*\/codex/,
   'Codex CI keeps fixture ownership inside the Docker daemon' ;
 like $ci, qr/RTK\.md/,
   'Codex CI checks automatic RTK initialization' ;
+like $ci, qr/\/codex\/\.zshrc/,
+  'Codex CI checks automatic Zsh initialization' ;
+like $ci, qr/# custom Zsh configuration.*grep.*-qxF/s,
+  'Codex CI checks that Zsh initialization preserves custom state' ;
 like $ci, qr/codex sandbox/,
   'Codex CI exercises the command sandbox where supported' ;
 like $ci, qr/CI_SKIP_CODEX_SANDBOX/,

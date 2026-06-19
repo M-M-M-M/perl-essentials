@@ -23,19 +23,30 @@ https://github.com/M-M-M-M/perl-essentials
 
 ## Usage examples
 
+Published images run by default as the non-root `perl` user with UID/GID
+`1000:1000`. For writable host bind mounts, pass
+`--user "$(id -u):$(id -g)"` to preserve host ownership. Use `--user root`
+only for explicit administrative operations.
+
+Bind mounts retain numeric host ownership. A host UID/GID may therefore be
+displayed under a different name inside the container while remaining correct
+on the host; no `chown` is needed. The global Zsh configuration applies to all
+users, and a minimal personal `.zshrc` prevents the new-user assistant without
+overwriting custom settings.
+
 ```sh
 docker run --rm perlessentials/perl-essentials:5.42 \
   perl -MDBI -MJSON -e 'print "ready\n"'
 ```
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   perlessentials/perl-essentials:5.42
 ```
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perlessentials/perl-essentials:codex zsh -l
@@ -57,7 +68,7 @@ specific profile, or `-npro` to ignore all profiles.
 Preview formatting without modifying the mounted file:
 
 ```sh
-docker run --rm -v "$PWD":/work \
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
   perlessentials/perl-essentials:5.42 \
   perltidy -st -se /work/path/to/script.pl
 ```

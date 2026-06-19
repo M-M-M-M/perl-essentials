@@ -119,6 +119,22 @@ separately with Perl 5.43.9, and release publication publishes it under
 Codex-specific tags. RTK is therefore present only in the explicit `codex`
 target.
 
+Published Perl and Codex images run by default as the non-root `perl` user
+with UID/GID `1000:1000`. For writable host bind mounts, pass
+`--user "$(id -u):$(id -g)"` so generated files retain host ownership.
+Use `--user root` only for an explicit administrative operation. The
+`debug-base` and `debug` targets intentionally remain root for package and
+CPAN diagnostics.
+
+Docker bind mounts retain numeric ownership from the host. Names are resolved
+against the container's `/etc/passwd` and `/etc/group`, so a macOS file owned
+by UID/GID `502:80` can appear as `502:dialout` inside the container while
+still being correctly owned by the host account. Do not run `chown` merely to
+change this container-side display. The global configuration in
+`/etc/zsh/zshrc` applies to root, `perl`, and host UID overrides. A minimal
+personal `.zshrc` suppresses `zsh-newuser-install`; Codex creates it only when
+the mounted `/codex` state does not already contain one.
+
 The target runs the official Codex and RTK installers. Codex package files
 remain under `/opt/codex`, while both tools use `/codex` for runtime state.
 Keeping these locations separate prevents the authentication mount from hiding
@@ -159,7 +175,7 @@ The first login uses device authorization because a container cannot reliably
 receive the browser callback:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex codex login --device-auth
@@ -168,7 +184,7 @@ docker run --rm -it \
 Start Codex later with the same writable project and state mounts:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex
@@ -178,7 +194,7 @@ Open an interactive Zsh shell when Perl commands or project checks should run
 before Codex:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex zsh -l
@@ -216,7 +232,7 @@ Codex specifically reports a namespace, mount propagation, or Bubblewrap
 initialization error, reproduce it with:
 
 ```sh
-docker run --rm \
+docker run --rm --user "$(id -u):$(id -g)" \
   --cap-add SYS_ADMIN \
   --security-opt apparmor=unconfined \
   --security-opt seccomp=unconfined \
@@ -251,7 +267,7 @@ contains sensitive local state such as access tokens, configuration, sessions,
 history, logs, and caches. To remove the container-specific login:
 
 ```sh
-docker run --rm -it \
+docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD/codex-auth":/codex \
   perl-essentials:codex codex logout
 rm -rf codex-auth
@@ -267,12 +283,16 @@ Validate a fresh unauthenticated state without performing a real login:
 tmp="$(mktemp -d)"
 test -z "$(docker run --rm --entrypoint find \
   perl-essentials:codex /codex -mindepth 1 -print -quit)"
-docker run --rm -v "$tmp":/codex perl-essentials:codex true
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$tmp":/codex perl-essentials:codex true
 test -f "$tmp/AGENTS.md"
 test -f "$tmp/RTK.md"
-docker run --rm -v "$tmp":/codex perl-essentials:codex codex --version
-docker run --rm -v "$tmp":/codex perl-essentials:codex rtk --version
-docker run --rm -v "$tmp":/codex perl-essentials:codex pwd
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$tmp":/codex perl-essentials:codex codex --version
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$tmp":/codex perl-essentials:codex rtk --version
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$tmp":/codex perl-essentials:codex pwd
 rm -rf "$tmp"
 ```
 

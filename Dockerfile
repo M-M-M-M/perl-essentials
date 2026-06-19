@@ -110,10 +110,25 @@ FROM modules AS debug
 CMD ["zsh", "-l"]
 
 FROM modules AS final
+
+RUN groupadd --gid 1000 perl \
+ && useradd --uid 1000 --gid 1000 --create-home \
+      --home-dir /home/perl --shell /bin/zsh perl \
+ && touch /home/perl/.zshrc \
+ && chmod 0755 /home/perl \
+ && chown perl:perl /home/perl/.zshrc \
+ && mkdir -p /work \
+ && chown perl:perl /work
+
+ENV HOME=/home/perl
+
 WORKDIR /work
+USER perl:perl
 CMD ["perl", "-v"]
 
 FROM final AS codex
+
+USER root
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -162,9 +177,11 @@ ENV CODEX_HOME=/codex \
     HOME=/codex \
     RTK_TELEMETRY_DISABLED=1
 
-RUN mkdir -p "${CODEX_HOME}"
+RUN mkdir -p "${CODEX_HOME}" \
+ && chown perl:perl "${CODEX_HOME}"
 
 WORKDIR /work
+USER perl:perl
 ENTRYPOINT ["/opt/perl-essentials/scripts/codex-entrypoint.sh"]
 CMD ["codex"]
 
