@@ -64,15 +64,18 @@ development Perl release, currently 5.43.9.
 
 Release publication keeps the same CPAN test policy as validation. GitHub and
 Bitbucket both validate `linux/amd64` and `linux/arm64` images. Bitbucket
-default and tag pipelines run bounded per-version batches to avoid overloading
-the self-hosted Docker runner. Release jobs then publish images sequentially,
-with longer CPAN configure and test timeouts, so platform failures are found
-before Docker Hub publication starts. Bitbucket's QEMU-based Codex ARM64 job
-skips only the live Bubblewrap namespace smoke test because the emulated host
-blocks namespace creation; image tools, setuid metadata, state, and licenses
-remain validated. Use the `validate-one-image` Bitbucket custom pipeline to
-debug one combination such as `PERL_VERSION=5.26.3`,
-`CI_PLATFORM=linux/arm64`, `IMAGE_MODE=perl`.
+default and tag pipelines submit the complete validation matrix in one
+parallel group. Six `linux` runners process up to six AMD64 jobs concurrently,
+while the dedicated `linux.arm64` runner processes ARM64 jobs as soon as it is
+available. Release jobs then publish images sequentially, with longer CPAN
+configure and test timeouts, so platform failures are found before Docker Hub
+publication starts.
+
+Use the `validate-one-image` Bitbucket custom pipeline to debug one
+combination. Its `RUNNER_MODE` choice supports `linux/amd64`,
+`linux/arm64-qemu`, and `linux/arm64-native`; `IMAGE_MODE` selects Perl or
+Codex. The QEMU Codex route skips only the host-dependent live sandbox test,
+while the native ARM64 route runs it.
 
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and
@@ -213,9 +216,9 @@ hosts whose Docker AppArmor profile blocks mount propagation. Do not add
 on hosts without user namespaces.
 
 GitHub validates the Codex sandbox on native AMD64 and ARM64 hosted runners.
-Bitbucket sets `CI_SKIP_CODEX_SANDBOX=1` only for Codex ARM64 validation under
-QEMU, where the host blocks Bubblewrap namespace creation. Bitbucket AMD64 and
-both native GitHub platforms keep the live sandbox test enabled.
+Bitbucket also validates it on the native `linux.arm64` runner. Only the
+optional manual `linux/arm64-qemu` route sets `CI_SKIP_CODEX_SANDBOX=1`,
+because its host blocks Bubblewrap namespace creation.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,

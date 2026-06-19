@@ -6,8 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-19
+
 ### Changed
 
+- Bitbucket now runs all ARM64 validation jobs on the dedicated native
+  `linux.arm64` runner and submits the complete matrix in one parallel group,
+  allowing six AMD64 runners and one ARM64 runner to stay active independently.
+- The manual single-image pipeline now offers AMD64, ARM64 under QEMU, and
+  native ARM64 runner modes.
 - GitHub workflow validation now runs `actionlint` when it is available,
   skipping that check cleanly when the tool is not installed.
 - GitHub CI now uses native `ubuntu-24.04-arm` hosted runners for ARM64
@@ -15,23 +22,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - GitHub CI now validates Perl and Codex images on both `linux/amd64` and
   `linux/arm64`, matching the Bitbucket platform coverage.
 - Bitbucket validation now builds every Perl and Codex image on both
-  `linux/amd64` and `linux/arm64` before Docker Hub publication, in bounded
-  per-version batches with a custom single-image debug pipeline.
+  `linux/amd64` and `linux/arm64` before Docker Hub publication.
 - CPAN test exceptions now include a bootstrap manifest for dependency failures
   that block a tested curated module before the main manifest can complete.
 
 ### Fixed
 
-- Bitbucket Codex `linux/arm64` validation now skips only the live Bubblewrap
-  namespace smoke test that cannot run under QEMU, while retaining the image,
-  tool, setuid, state, and license checks.
+- Bitbucket Codex `linux/arm64` validation now runs the live Bubblewrap sandbox
+  smoke test on the native ARM64 runner; only the optional QEMU debug route
+  keeps the host-dependent opt-out.
 - GitHub Codex `linux/arm64` validation now runs the live Bubblewrap sandbox
   smoke test on a native ARM64 runner instead of skipping it under QEMU.
 - Codex validation now keeps `/usr/bin/bwrap` installed with its setuid
   fallback and avoids `no-new-privileges` so live sandbox checks keep working
   on supported native Docker hosts.
-- Bitbucket ARM64 validation steps now extend their step runtime to avoid
-  interrupting legitimate CPAN tests under QEMU before Docker Hub publication.
+- Bitbucket ARM64 validation steps extend their step runtime to avoid
+  interrupting legitimate CPAN tests before Docker Hub publication.
 - Bitbucket `linux/arm64` validation for Perl 5.26.3 now preinstalls the
   failing `DateTime::Locale` dependency without upstream tests while keeping
   `DateTime` and the rest of the curated manifest tested.
@@ -172,7 +178,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.2.5...v0.3.0

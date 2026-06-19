@@ -141,8 +141,9 @@ preferred. The script reports build and validation phases and retries a
 transient Buildx bootstrap failure up to three times.
 Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
 environment where Bubblewrap namespace creation is known to be blocked.
-Bitbucket applies this opt-out only to Codex `linux/arm64` jobs running under
-QEMU; native GitHub ARM64 and all AMD64 validations run the live smoke test.
+Bitbucket applies this opt-out only to the optional manual
+`linux/arm64-qemu` route. Native GitHub ARM64, native Bitbucket ARM64, and all
+AMD64 validations run the live smoke test.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
 `/codex`. GitHub Actions normally talks to a daemon that shares the runner
@@ -478,39 +479,43 @@ Codex flavor only after the complete validation matrix succeeds. Every image is
 a manifest for `linux/amd64` and `linux/arm64`. One UTC timestamp in
 `YYYY-MM-DD_HHmmss` format is shared by all publication jobs in that run.
 Bitbucket validates both published platforms, `linux/amd64` and `linux/arm64`,
-for every Perl version and for Codex before publication starts. ARM64 builds
-currently run through QEMU on the self-hosted Linux runner unless
-`CI_PLATFORM=linux/arm64` is run on a native ARM64 Docker host.
-The Codex ARM64 job skips only the live Bubblewrap namespace smoke test because
-the QEMU-backed host blocks namespace creation. It still validates Codex, RTK,
-the Bubblewrap version and setuid metadata, persistent state, and licenses.
-Validation runs in bounded per-version batches, with only the AMD64 and ARM64
-build for one image active at the same time. This prevents the self-hosted
-Docker runner from attempting the complete image matrix at once.
+for every Perl version and for Codex before publication starts. The eight ARM64
+jobs use the dedicated `linux.arm64` self-hosted runner and execute natively.
+The complete validation matrix is submitted as one parallel group. Six
+`linux` runner instances process up to six AMD64 jobs concurrently, while the
+single ARM64 runner processes its queued jobs immediately when it becomes
+available.
 Publication is sequential on Bitbucket. This deliberately trades elapsed time
-for lower Docker-in-Docker and QEMU contention during the multi-architecture
-pushes.
+for lower Docker-in-Docker contention during the multi-architecture pushes.
 
 To debug one failing image without running the complete matrix, start the
-Bitbucket custom pipeline `validate-one-image` and set, for example,
-`PERL_VERSION=5.26.3`, `CI_PLATFORM=linux/arm64`, and `IMAGE_MODE=perl`.
-Use `IMAGE_MODE=codex` for the Codex flavor; it still uses Perl 5.43.9.
-The custom pipeline applies the same sandbox opt-out only when Codex and
-`linux/arm64` are selected together.
-Bitbucket ARM64 validation can legitimately exceed the default 120-minute step
-runtime while CPAN tests are still running under QEMU, so ARM64 validation
-steps use `max-time: 720`. A log that stops during `Building and testing`
-without a CPAN `FAIL` is a pipeline runtime or runner interruption signal, not
-enough evidence for a new `cpanfile-notest` entry.
+Bitbucket custom pipeline `validate-one-image`. Select the image with
+`PERL_VERSION` and `IMAGE_MODE`, then choose `RUNNER_MODE=linux/amd64`,
+`linux/arm64-qemu`, or `linux/arm64-native`. The QEMU Codex route uses
+`CI_SKIP_CODEX_SANDBOX=1`; the AMD64 and native ARM64 routes run the live
+sandbox test. Codex always uses Perl 5.43.9.
+
+To qualify a new native ARM64 self-hosted runner before changing the matrix,
+start the manual `probe-arm64-runner` pipeline. It selects the `self.hosted`
+and `linux.arm64` labels, verifies that the pipeline container, Docker daemon,
+and an Alpine container all report ARM64, then builds a minimal Codex image and
+runs the live Bubblewrap sandbox test. This probe does not use
+`CI_SKIP_CODEX_SANDBOX` and does not alter any existing validation job.
+
+Bitbucket ARM64 validation retains `max-time: 720` because complete CPAN test
+suites can still be long on the virtualized native ARM64 runner. A log that
+stops during `Building and testing` without a CPAN `FAIL` is a pipeline runtime
+or runner interruption signal, not enough evidence for a new
+`cpanfile-notest` entry.
 
 The publication builds keep CPAN upstream tests enabled. They pass explicit
 Docker build arguments for longer `cpanm` configure and test timeouts
 (`CPAN_CONFIGURE_TIMEOUT=1200`, `CPAN_TEST_TIMEOUT=7200` by default) because
-`linux/arm64` builds under emulation can run legitimate upstream test suites
-much more slowly than validation on the native platform. Docker Hub login
-failures are therefore separate from build-time CPAN timeout failures; check
-the first `cpanm` `FAIL` or `Timed out` line in the publication log before
-rotating credentials.
+multiarchitecture publication builds can run legitimate upstream test suites
+much more slowly than single-platform validation. Docker Hub login failures
+are therefore separate from build-time CPAN timeout failures; check the first
+`cpanm` `FAIL` or `Timed out` line in the publication log before rotating
+credentials.
 
 For a release such as `v0.4.0`, Perl 5.42.2 receives:
 
