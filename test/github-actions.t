@@ -72,10 +72,10 @@ like $publication, qr/docker\/login-action\@v4/,
   'Docker publication uses Docker Login v4' ;
 like $publication, qr/docker\/setup-buildx-action\@v4/,
   'Docker publication uses Docker Buildx v4' ;
-like $publication, qr/actions\/upload-artifact\@v4/,
-  'Docker publication uploads architecture digests' ;
-like $publication, qr/actions\/download-artifact\@v4/,
-  'Docker publication downloads architecture digests' ;
+like $publication, qr/actions\/upload-artifact\@v7/,
+  'Docker publication uploads architecture digests with Node 24 support' ;
+like $publication, qr/actions\/download-artifact\@v8/,
+  'Docker publication downloads architecture digests with Node 24 support' ;
 like $publication, qr/vars\.DOCKERHUB_USERNAME/,
   'Docker publication reads the Docker Hub username from an environment variable' ;
 like $publication, qr/secrets\.DOCKERHUB_TOKEN/,

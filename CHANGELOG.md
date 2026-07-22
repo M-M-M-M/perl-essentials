@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Docker Hub publication now uses GitHub artifact actions that run on Node.js
+  24, avoiding Node.js 20 deprecation warnings.
+
 ## [0.7.0] - 2026-07-22
 
 ### Changed
