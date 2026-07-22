@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [0.6.1] - 2026-07-22
+## [0.7.0] - 2026-07-22
 
 ### Changed
 
@@ -254,8 +254,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.1...HEAD
-[0.6.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.0...v0.6.1
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...v0.5.1
