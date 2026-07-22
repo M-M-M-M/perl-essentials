@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-07-22
+
 ### Changed
 
 - Perl 5.44.0 is now the default and latest stable image in the validated and
@@ -17,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Bitbucket keeps AMD64 validation parallel but schedules all ARM64 validation
   steps sequentially, preventing the single matching runner's 2.5-hour queue
   timeout while retaining the maximum 720-minute runtime per step.
+- License audit output is stable across current Perl::Tidy releases, and CPAN
+  archive entries without readable content no longer emit uninitialized-value
+  warnings.
 
 ## [0.6.0] - 2026-06-19
 
@@ -249,7 +254,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.0...v0.5.1
