@@ -113,15 +113,27 @@ jobs:
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
+          - key: perl-544
+            mode: perl
+            perl-version: 5.44.0
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-544
+            mode: perl
+            perl-version: 5.44.0
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
           - key: codex
             mode: codex
-            perl-version: 5.43.9
+            perl-version: 5.44.0
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-24.04
           - key: codex
             mode: codex
-            perl-version: 5.43.9
+            perl-version: 5.44.0
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
@@ -178,9 +190,12 @@ jobs:
           - key: perl-543
             mode: perl
             perl-version: 5.43.9
+          - key: perl-544
+            mode: perl
+            perl-version: 5.44.0
           - key: codex
             mode: codex
-            perl-version: 5.43.9
+            perl-version: 5.44.0
     steps:
       - uses: actions/checkout@v6
       - uses: docker/login-action@v4

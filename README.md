@@ -21,18 +21,18 @@ debugging procedures.
 
 ## Build
 
-The default is Perl 5.43.9:
+The default is Perl 5.44.0:
 
 ```sh
-docker build -t perl-essentials:5.43.9 .
+docker build -t perl-essentials:5.44.0 .
 ```
 
 Select another official threaded Perl image:
 
 ```sh
 docker build \
-  --build-arg PERL_VERSION=5.42.2 \
-  -t perl-essentials:5.42.2 \
+  --build-arg PERL_VERSION=5.43.9 \
+  -t perl-essentials:5.43.9 \
   .
 ```
 
@@ -46,23 +46,24 @@ Supported CI matrix:
 | 5.36 | 5.36.3 | Common LTS distributions |
 | 5.38 | 5.38.5 | Established production series |
 | 5.40 | 5.40.4 | Maintained stable series |
-| 5.42 | 5.42.2 | Latest stable series |
+| 5.42 | 5.42.2 | Previous stable series |
 | 5.43 | 5.43.9 | Development compatibility |
+| 5.44 | 5.44.0 | Latest stable series |
 <!-- PERL_TARGETS_END -->
 
 Published GitHub Releases create multi-architecture images on Docker Hub:
 
 ```sh
-docker pull perlessentials/perl-essentials:5.42.2
-docker pull perlessentials/perl-essentials:5.42
+docker pull perlessentials/perl-essentials:5.44.0
+docker pull perlessentials/perl-essentials:5.44
 docker pull perlessentials/perl-essentials:latest
-docker pull perlessentials/perl-essentials:v0.4.0-5.42.2
-docker pull perlessentials/perl-essentials:5.42.2-2026-06-15_142233
+docker pull perlessentials/perl-essentials:v0.4.0-5.44.0
+docker pull perlessentials/perl-essentials:5.44.0-2026-06-15_142233
 ```
 
 Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
-development Perl release, currently 5.43.9.
+default Perl release, currently 5.44.0.
 
 Release publication keeps the same CPAN test policy as validation. GitHub
 Actions validates `linux/amd64` and `linux/arm64` images on native hosted
@@ -86,7 +87,7 @@ The optional development target is validated separately:
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
+| `codex` | 5.44.0 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 These Codex and RTK versions are observations, not pins. CI prints both
@@ -112,7 +113,7 @@ Mount the current directory and run a script:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.43.9 \
+  perl-essentials:5.44.0 \
   perl /work/script.pl
 ```
 
@@ -122,7 +123,7 @@ Mount separate script and data directories:
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD/scripts":/work/scripts:ro \
   -v "$PWD/data":/work/data \
-  perl-essentials:5.43.9 \
+  perl-essentials:5.44.0 \
   perl /work/scripts/report.pl /work/data/input.csv
 ```
 
@@ -130,7 +131,7 @@ Open an interactive shell:
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.43.9 zsh -l
+  -v "$PWD":/work perl-essentials:5.44.0 zsh -l
 ```
 
 Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
@@ -140,7 +141,7 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 ## Optional Codex target
 
 Codex CLI and RTK are available in a separate development target. GitHub
-Actions validates this target with the default Perl version. GitHub Release
+Actions validates this target with Perl 5.44.0. GitHub Release
 publication also publishes it separately as `codex`,
 `vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
 and `latest` select the Perl-only `final` stage; RTK is installed only by the
@@ -149,7 +150,7 @@ Build without the cache to retrieve the latest versions available from their
 official installers:
 
 ```sh
-PERL_VERSION=5.43.9 scripts/ci-build.sh codex
+PERL_VERSION=5.44.0 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
@@ -260,7 +261,7 @@ Copy the references into a project without replacing existing files:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.43.9 sh -c \
+  -v "$PWD":/work perl-essentials:5.44.0 sh -c \
   'cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
    cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc'
 ```
@@ -272,14 +273,14 @@ Run the quick backward-compatible validation:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.43.9 \
+  perl-essentials:5.44.0 \
   perl /work/test.pl
 ```
 
 Run the smoke test in a built image:
 
 ```sh
-docker run --rm perl-essentials:5.43.9 \
+docker run --rm perl-essentials:5.44.0 \
   /opt/perl-essentials/scripts/smoke-test.pl \
   /opt/perl-essentials/cpanfile \
   /opt/perl-essentials/cpanfile-bootstrap-notest \
@@ -289,7 +290,7 @@ docker run --rm perl-essentials:5.43.9 \
 Display the versions captured during the build:
 
 ```sh
-docker run --rm perl-essentials:5.43.9 \
+docker run --rm perl-essentials:5.44.0 \
   cat /opt/perl-essentials/module-versions.txt
 ```
 
@@ -320,7 +321,7 @@ query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 <!-- MODULE_VERSIONS_START -->
 Versions captured on 2026-06-19 10:11:10 (UTC).
 
-This inventory was captured from the default development image at the
+This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
 exact image, see `/opt/perl-essentials/module-versions.txt`.
 
@@ -406,7 +407,7 @@ docker run --rm \
   -e TEST_PG_USER='postgres' \
   -e TEST_PG_PASSWORD='secret' \
   -v "$PWD":/work:ro \
-  perl-essentials:5.43.9 \
+  perl-essentials:5.44.0 \
   perl /work/test/integration-postgres.pl
 ```
 

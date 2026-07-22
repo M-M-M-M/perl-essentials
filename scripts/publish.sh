@@ -101,7 +101,7 @@ publish_manifest()
             --tag "${repository}:${series}" \
             --tag "${repository}:${RELEASE_TAG}-${PERL_VERSION}"
         if awk -F'|' -v version="${PERL_VERSION}" \
-            '$1 == version && $2 == "development" { found = 1 } END { exit !found }' \
+            '!/^#/ && NF { default = $1 } END { exit !(default == version) }' \
             perl-versions.conf
         then
             set -- "$@" --tag "${repository}:latest"

@@ -88,11 +88,7 @@ if ( defined $direct_components ) {
   push @components, _direct_components( $direct_components, $output ) ;
 }
 
-@components = sort {
-  $a->{ecosystem} cmp $b->{ecosystem}
-    || $a->{name} cmp $b->{name}
-    || $a->{version} cmp $b->{version}
-} @components ;
+@components = sort { _component_cmp( $a, $b ) } @components ;
 
 my %seen ;
 for my $component (@components) {
@@ -144,6 +140,18 @@ sub _copy_tree {
     $source,
   ) ;
   return ;
+}
+
+sub _component_cmp {
+  my ( $left, $right ) = @_ ;
+
+  my $ecosystem_cmp = $left->{ecosystem} cmp $right->{ecosystem} ;
+  return $ecosystem_cmp if $ecosystem_cmp ;
+
+  my $name_cmp = $left->{name} cmp $right->{name} ;
+  return $name_cmp if $name_cmp ;
+
+  return $left->{version} cmp $right->{version} ;
 }
 
 sub _cpan_components {
@@ -199,9 +207,12 @@ sub _cpan_components {
     my $component_dir
       = File::Spec->catdir( $audit_root, 'texts', 'cpan', _safe_name($name) ) ;
     for my $path ( sort @notice_paths ) {
+      my $content = $tar->get_content($path) ;
+      next if !defined $content ;
+
       my $target = File::Spec->catfile( $component_dir, basename($path) ) ;
       make_path($component_dir) ;
-      _write_bytes( $target, $tar->get_content($path) ) ;
+      _write_bytes( $target, $content ) ;
       push @license_files, File::Spec->abs2rel( $target, $audit_root ) ;
     }
 

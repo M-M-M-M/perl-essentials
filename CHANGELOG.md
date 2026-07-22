@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Perl 5.44.0 is now the default and latest stable image in the validated and
+  published matrix.
+- The Codex image now follows the latest available Perl version.
+
+### Fixed
+
+- Bitbucket keeps AMD64 validation parallel but schedules all ARM64 validation
+  steps sequentially, preventing the single matching runner's 2.5-hour queue
+  timeout while retaining the maximum 720-minute runtime per step.
+
 ## [0.6.0] - 2026-06-19
 
 ### Changed

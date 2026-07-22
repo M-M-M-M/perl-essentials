@@ -28,7 +28,8 @@ fi
 
 grep -q 'UPDATE: 5.42.2 -> 5.42.3' "$output"
 grep -q 'UPDATE: 5.43.9 -> 5.43.10' "$output"
-grep -q 'ADD: 5.44.0' "$output"
+grep -q 'UPDATE: 5.44.0 -> 5.44.1' "$output"
+grep -q 'ADD: 5.45.0' "$output"
 
 cat > "${temp_dir}/drift.conf" <<'EOF'
 9.99.1|development|Synthetic drift test

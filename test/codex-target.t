@@ -159,8 +159,8 @@ like $ci, qr/Validating .* image/,
 
 my $github = _read_text('.github/workflows/ci.yml') ;
 like $github,
-  qr/PERL_VERSION:\s*5\.43\.9.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
-  'GitHub CI validates Codex with the default Perl version on each platform' ;
+  qr/PERL_VERSION:\s*5\.44\.0.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
+  'GitHub CI validates Codex with the configured Codex Perl version on each platform' ;
 like $github, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub CI validates Codex on both Docker platforms' ;
 like $github, qr/platform:\s+linux\/arm64\s+runner:\s+ubuntu-24\.04-arm/s,
@@ -172,11 +172,11 @@ unlike $github, qr/ci-build-codex/,
 
 my $bitbucket = _read_text('bitbucket-pipelines.yml') ;
 like $bitbucket,
-  qr/PERL_VERSION=5\.43\.9 CI_PLATFORM=linux\/amd64 scripts\/ci-build\.sh codex/,
-  'Bitbucket CI validates Codex for linux/amd64 with the default Perl version' ;
+  qr/PERL_VERSION=5\.44\.0 CI_PLATFORM=linux\/amd64 scripts\/ci-build\.sh codex/,
+  'Bitbucket CI validates Codex for linux/amd64 with the configured Codex Perl version' ;
 like $bitbucket,
-  qr/PERL_VERSION=5\.43\.9 CI_PLATFORM=linux\/arm64 scripts\/ci-build\.sh codex/,
-  'Bitbucket CI validates Codex for linux/arm64 with the default Perl version' ;
+  qr/PERL_VERSION=5\.44\.0 CI_PLATFORM=linux\/arm64 scripts\/ci-build\.sh codex/,
+  'Bitbucket CI validates Codex for linux/arm64 with the configured Codex Perl version' ;
 unlike $bitbucket, qr/ci-build-codex/,
   'Bitbucket CI uses only the unified build script' ;
 

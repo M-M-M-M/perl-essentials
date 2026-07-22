@@ -24,7 +24,7 @@ my $publication   = _read_text('.github/workflows/docker-publish.yml') ;
 
 like $ci, qr/timeout-minutes:\s+360/,
   'GitHub image validation has an explicit timeout' ;
-like $ci, qr/perl-version:.*5\.26\.3.*5\.43\.9/s,
+like $ci, qr/perl-version:.*5\.26\.3.*5\.44\.0/s,
   'GitHub image validation covers all configured Perl versions' ;
 like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub image validation covers both Docker platforms' ;
@@ -38,7 +38,7 @@ like $ci, qr/CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}/,
   'GitHub image validation passes the selected Docker platform' ;
 unlike $ci, qr/docker\/setup-qemu-action/,
   'GitHub image validation does not install QEMU on native ARM64 runners' ;
-like $ci, qr/PERL_VERSION:\s*5\.43\.9.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
+like $ci, qr/PERL_VERSION:\s*5\.44\.0.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
   'GitHub Codex validation covers both Docker platforms' ;
 unlike $ci, qr/ci-build-codex/,
   'GitHub image validation uses only the unified build script' ;

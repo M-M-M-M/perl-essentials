@@ -62,7 +62,7 @@ for my $path ( $readme, $dockerhub ) {
     qr/Versions captured on 2026-06-19 12:34:56 \(UTC\)\./,
     "$path receives the module version capture date" ;
   like $content,
-qr{This inventory was captured from the default development image.*Module versions may differ between publication runs.*`/opt/perl-essentials/module-versions\.txt`}s,
+    qr{This inventory was captured from the default image.*Module versions may differ between publication runs.*`/opt/perl-essentials/module-versions\.txt`}s,
     "$path explains the inventory scope and exact-image source" ;
   like $content, qr/\| `Example` \| `4\.20` \|/,
     "$path receives the generated module table" ;

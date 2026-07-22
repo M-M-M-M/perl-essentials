@@ -5,3 +5,4 @@
 5.40.4-threaded
 5.42.2-threaded
 5.43.9-threaded
+5.44.0-threaded

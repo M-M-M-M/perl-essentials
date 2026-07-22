@@ -39,14 +39,14 @@ distribution `bwrap-userns-restrict` AppArmor profile before the sandbox can
 configure non-root user and network namespaces.
 
 ```sh
-docker run --rm perlessentials/perl-essentials:5.42 \
+docker run --rm perlessentials/perl-essentials:5.44 \
   perl -MDBI -MJSON -e 'print "ready\n"'
 ```
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perlessentials/perl-essentials:5.42
+  perlessentials/perl-essentials:5.44
 ```
 
 ```sh
@@ -73,7 +73,7 @@ Preview formatting without modifying the mounted file:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
-  perlessentials/perl-essentials:5.42 \
+  perlessentials/perl-essentials:5.44 \
   perltidy -st -se /work/path/to/script.pl
 ```
 
@@ -82,7 +82,7 @@ file ownership:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
-  perlessentials/perl-essentials:5.42 \
+  perlessentials/perl-essentials:5.44 \
   perltidy -b -bext='/' /work/path/to/script.pl
 ```
 
@@ -96,18 +96,19 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 | 5.36 | 5.36.3 | Common LTS distributions |
 | 5.38 | 5.38.5 | Established production series |
 | 5.40 | 5.40.4 | Maintained stable series |
-| 5.42 | 5.42.2 | Latest stable series |
+| 5.42 | 5.42.2 | Previous stable series |
 | 5.43 | 5.43.9 | Development compatibility |
+| 5.44 | 5.44.0 | Latest stable series |
 <!-- PERL_TARGETS_END -->
 
 ## Codex target
 
-A `codex` target is also available, based on the Perl 5.43.9 development image:
+A `codex` target is also available, based on the Perl 5.44.0 image:
 
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.43.9 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
+| `codex` | 5.44.0 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 ## Included Perl modules
@@ -115,7 +116,7 @@ A `codex` target is also available, based on the Perl 5.43.9 development image:
 <!-- MODULE_VERSIONS_START -->
 Versions captured on 2026-06-19 10:11:10 (UTC).
 
-This inventory was captured from the default development image at the
+This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
 exact image, see `/opt/perl-essentials/module-versions.txt`.
 

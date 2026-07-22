@@ -115,6 +115,18 @@ COPYRIGHT
     },
     {},
   ) ;
+  _create_distribution(
+    $dists,
+    'Example-License-Directory-3.0',
+    {
+      name    => 'Example-License-Directory',
+      version => '3.0',
+      license => ['mit'],
+    },
+    {
+      LICENSE => undef,
+    },
+  ) ;
 
   my $ohmyzsh_license = File::Spec->catfile( $tmp, 'ohmyzsh-license.txt' ) ;
   _write_text( $ohmyzsh_license, "Oh My Zsh MIT license\n" ) ;
@@ -144,6 +156,8 @@ COPYRIGHT
   ) ;
   is $status, 0, 'license audit succeeds on representative fixtures'
     or diag $audit_output ;
+  unlike $audit_output, qr/Use of uninitialized value \$content/,
+    'unreadable CPAN license entries do not emit content warnings' ;
   like $audit_output, qr/NOASSERTION: deb:undocumented/,
     'missing Debian license is reported' ;
   like $audit_output, qr/NOASSERTION: cpan:Example-Unknown/,
@@ -156,7 +170,7 @@ COPYRIGHT
 
   my $inventory = _read_json($inventory_path) ;
   is $inventory->{schema_version},  1, 'inventory schema is versioned' ;
-  is $inventory->{component_count}, 6, 'all fixture components are inventoried' ;
+  is $inventory->{component_count}, 7, 'all fixture components are inventoried' ;
 
   my %component = map {
     ( "$_->{ecosystem}:$_->{name}" => $_ )
@@ -172,6 +186,10 @@ COPYRIGHT
     'CPAN license identifiers are normalized' ;
   is_deeply $component{'cpan:Example-Unknown'}{licenses}, ['NOASSERTION'],
     'missing CPAN metadata uses NOASSERTION' ;
+  is_deeply $component{'cpan:Example-License-Directory'}{licenses}, ['MIT'],
+    'CPAN distribution with unreadable license entry is still inventoried' ;
+  is scalar @{ $component{'cpan:Example-License-Directory'}{license_files} },
+    0, 'unreadable CPAN license entry is not referenced' ;
   is_deeply $component{'perl:perl'}{licenses},
     ['Artistic-1.0-Perl OR GPL-1.0-or-later'],
     'Perl dual licensing is explicit' ;
@@ -233,7 +251,7 @@ COPYRIGHT
   ok $codex_component{'direct:rtk'},       'RTK is added to Codex audit' ;
   ok $codex_component{'cpan:Example-Licensed'},
     'base inventory components survive Codex enrichment' ;
-  is $codex_inventory->{component_count}, 8,
+  is $codex_inventory->{component_count}, 9,
     'Codex inventory includes base and Codex-only components' ;
 }
 
@@ -260,7 +278,12 @@ sub _create_distribution {
     JSON::PP->new->canonical->pretty->encode($metadata),
   ) ;
   for my $file ( sort keys %{$files} ) {
-    _write_text( File::Spec->catfile( $source, $file ), $files->{$file} ) ;
+    my $path = File::Spec->catfile( $source, $file ) ;
+    if ( !defined $files->{$file} ) {
+      make_path($path) ;
+      next ;
+    }
+    _write_text( $path, $files->{$file} ) ;
   }
 
   my $archive      = File::Spec->catfile( $directory, "$name.tar.gz" ) ;
@@ -273,7 +296,7 @@ sub _create_distribution {
       wanted   => sub {
         push @archive_files,
           File::Spec->abs2rel( $File::Find::name, $archive_root )
-          if -f $File::Find::name ;
+          if -f $File::Find::name || -d $File::Find::name ;
       },
     },
     $source,

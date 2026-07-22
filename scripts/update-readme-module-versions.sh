@@ -22,7 +22,7 @@ trap 'rm -f "$table"' EXIT HUP INT TERM
 
 printf 'Versions captured on %s (UTC).\n\n' "$capture_timestamp" > "$table"
 cat >> "$table" <<'MARKDOWN'
-This inventory was captured from the default development image at the
+This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
 exact image, see `/opt/perl-essentials/module-versions.txt`.
 
