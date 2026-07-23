@@ -23,6 +23,16 @@ _write_text(
   File::Spec->catfile( $bin, 'docker' ),
   <<'SH',
 #!/bin/sh
+case "$*" in
+*" codex --version")
+  printf '%s\n' 'codex-cli 9.87.0'
+  exit 0
+  ;;
+*" rtk --version")
+  printf '%s\n' 'rtk 6.54.0'
+  exit 0
+  ;;
+esac
 printf '%s\n' '| Module | Version |'
 printf '%s\n' '| --- | --- |'
 printf '%s\n' '| `Example` | `4.20` |'
@@ -36,6 +46,9 @@ for my $path ( $readme, $dockerhub ) {
     $path,
     <<'MARKDOWN',
 Before
+<!-- CODEX_TARGET_START -->
+old codex
+<!-- CODEX_TARGET_END -->
 <!-- MODULE_VERSIONS_START -->
 old
 <!-- MODULE_VERSIONS_END -->
@@ -66,6 +79,9 @@ for my $path ( $readme, $dockerhub ) {
     "$path explains the inventory scope and exact-image source" ;
   like $content, qr/\| `Example` \| `4\.20` \|/,
     "$path receives the generated module table" ;
+  like $content,
+qr/\| `codex` \| 5\.44\.0 \| Latest at no-cache build; 9\.87\.0 observed 2026-06-19 12:34:56 \| Latest at no-cache build; 6\.54\.0 observed 2026-06-19 12:34:56 \| `codex`, release, and timestamp tags \|/,
+    "$path receives the generated Codex target table" ;
 }
 
 done_testing ;

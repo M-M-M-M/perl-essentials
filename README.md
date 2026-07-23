@@ -87,7 +87,7 @@ The optional development target is validated separately:
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.44.0 | Latest at no-cache build; 0.139.0 observed 2026-06-12 | Latest at no-cache build; 0.42.4 observed 2026-06-12 | `codex`, release, and timestamp tags |
+| `codex` | 5.44.0 | Latest at no-cache build; 0.145.0 observed 2026-07-23 | Latest at no-cache build; 0.43.0 observed 2026-07-23 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 These Codex and RTK versions are observations, not pins. CI prints both
@@ -319,7 +319,7 @@ test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
 query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
-Versions captured on 2026-06-19 10:11:10 (UTC).
+Versions captured on 2026-07-23 06:33:22 (UTC).
 
 This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
@@ -330,18 +330,17 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Archive::Zip` | `1.68` |
 | `Archive::Zip::MemberRead` | `1.68` |
 | `Array::Compare` | `3.0.8` |
-| `Cpanel::JSON::XS` | `4.42` |
+| `Cpanel::JSON::XS` | `4.43` |
 | `Cwd` | `3.95` |
 | `DBD::Pg` | `3.20.2` |
 | `DBD::SQLite` | `1.78` |
-| `DBI` | `1.648` |
+| `DBI` | `1.651` |
 | `Data::Dumper` | `2.192` |
 | `Data::Peek` | `0.54` |
 | `Date::Calc` | `6.4` |
 | `DateTime` | `1.66` |
 | `DateTime::Format::Excel` | `0.31` |
 | `DateTime::Format::ISO8601` | `0.19` |
-| `DateTime::Locale` | `1.45` |
 | `Devel::NYTProf` | `6.15` |
 | `Digest::SHA` | `6.04` |
 | `Encode` | `3.24` |
@@ -357,7 +356,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `HTTP::Request::Common` | `7.02` |
 | `I18N::Langinfo` | `0.24` |
 | `IO::Pty` | `1.31` |
-| `Imager` | `1.031` |
+| `Imager` | `1.033` |
 | `JSON` | `4.11` |
 | `JSON::Lines` | `1.11` |
 | `JSON::MaybeXS` | `1.004008` |
@@ -370,24 +369,24 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `MIME::Lite` | `3.038` |
 | `MIME::Parser` | `5.517` |
 | `Math::Units` | `1.3` |
-| `Mojolicious::Lite` | `9.46` |
+| `Mojolicious::Lite` | `9.48` |
 | `Net::LDAP` | `0.68` |
 | `Net::SFTP::Foreign` | `1.93` |
 | `Perl::Critic` | `1.156` |
-| `Perl::Tidy` | `20260204` |
+| `Perl::Tidy` | `20260705` |
 | `Scalar::Util` | `1.70` |
 | `Schedule::RateLimiter` | `0.01` |
 | `Sort::Key` | `1.33` |
 | `Spreadsheet::XLSX` | `0.18` |
-| `Test::MockModule` | `0.185.2` |
-| `Test::More` | `1.302220` |
+| `Test::MockModule` | `0.185.3` |
+| `Test::More` | `1.302222` |
 | `Text::CSV` | `2.06` |
 | `Text::Iconv` | `1.7` |
 | `Thread::Queue` | `3.14` |
 | `Time::Duration` | `1.21` |
 | `Time::HiRes` | `1.9780` |
 | `Time::Limit` | `0.003` |
-| `URI::Escape` | `5.34` |
+| `URI::Escape` | `5.35` |
 | `XML::Hash` | `0.95` |
 | `XML::LibXML` | `2.0213` |
 | `XML::LibXML::XPathContext` | `2.0213` |
@@ -395,6 +394,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `threads::shared` | `1.73` |
 | `utf8` | `1.29` |
 | `utf8::all` | `0.026` |
+| `DateTime::Locale` | `1.45` |
 | `REST::Client` | `281` |
 | `XML::XML2JSON` | `0.06` |
 <!-- MODULE_VERSIONS_END -->

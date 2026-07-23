@@ -34,7 +34,7 @@ like $documentation,
   'detailed documentation distinguishes the CI fallback from runtime behavior' ;
 like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
-like $readme, qr/`Mojolicious::Lite` \| `9\.46`/,
+like $readme, qr/`Mojolicious::Lite` \| `9\.48`/,
   'README reports the installed Mojolicious distribution version' ;
 like $dockerhub,
   qr{/etc/perltidyrc.*project-local `.perltidyrc`.*-pro=/work/custom\.perltidyrc.*-npro}s,
