@@ -8,8 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Docker Scout CVE audit results and risk acceptance guidance are documented in
+  `SECURITY.md`.
 - README and Docker Hub table regeneration now updates observed Codex CLI and
   RTK versions alongside the module inventory.
+- README and publication documentation Docker Hub tag examples now use
+  placeholder release and timestamp tags instead of nonexistent historical tags.
 
 ## [0.7.1] - 2026-07-22
 

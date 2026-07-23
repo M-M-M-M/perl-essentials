@@ -541,16 +541,16 @@ protected GitHub environment `dockerhub-production`, with
 `DOCKERHUB_USERNAME` as an environment variable and `DOCKERHUB_TOKEN` as an
 environment secret.
 
-For a release such as `v0.4.0`, Perl 5.44.0 receives:
+For a release such as `vX.Y.Z`, Perl 5.44.0 receives:
 
 - `5.44.0-YYYY-MM-DD_HHmmss`, identifying the publication run;
 - `5.44.0`, the exact-version alias;
 - `5.44`, the series alias;
-- `v0.4.0-5.44.0`, the release-specific alias.
+- `vX.Y.Z-5.44.0`, the release-specific alias.
 
 The configured default Perl version also updates `latest`. Codex, built on
 Perl 5.44.0 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
-`v0.4.0-codex`. It never updates `latest`. Rerunning failed jobs for the same
+`vX.Y.Z-codex`. It never updates `latest`. Rerunning failed jobs for the same
 release keeps its shared timestamp when GitHub reuses the workflow run.
 
 Inspect either manifest before use:

@@ -57,13 +57,15 @@ Published GitHub Releases create multi-architecture images on Docker Hub:
 docker pull perlessentials/perl-essentials:5.44.0
 docker pull perlessentials/perl-essentials:5.44
 docker pull perlessentials/perl-essentials:latest
-docker pull perlessentials/perl-essentials:v0.4.0-5.44.0
-docker pull perlessentials/perl-essentials:5.44.0-2026-06-15_142233
+docker pull perlessentials/perl-essentials:vX.Y.Z-5.44.0
+docker pull perlessentials/perl-essentials:5.44.0-YYYY-MM-DD_HHmmss
 ```
 
 Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
 default Perl release, currently 5.44.0.
+Replace `vX.Y.Z` and `YYYY-MM-DD_HHmmss` with tags from the published GitHub
+Release or Docker Hub tag list.
 
 Release publication keeps the same CPAN test policy as validation. GitHub
 Actions validates `linux/amd64` and `linux/arm64` images on native hosted
