@@ -228,8 +228,9 @@ See [DOCUMENTATION.md](DOCUMENTATION.md) for validation and cleanup details.
 
 ## Perl development tools
 
-The image includes `perltidy`, `perlcritic`, `prove`, `cpanm`, `rg`, and the
-GNU-prefixed commands `gcat`, `gfind`, `ggrep`, and `gsed`.
+The image includes `perltidy`, `perlcritic`, `prove`, `cpanm`, `rg`,
+`parallel`, `hyperfine`, and the GNU-prefixed commands `gcat`, `gfind`,
+`ggrep`, and `gsed`.
 
 The reference formatting profile is installed as `/etc/perltidyrc`, so it is
 used automatically when a mounted project does not provide `.perltidyrc`.

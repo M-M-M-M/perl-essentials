@@ -107,8 +107,8 @@ cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
 cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc
 ```
 
-The image also provides `rg` and GNU-prefixed aliases `gcat`, `gfind`, `ggrep`,
-and `gsed`.
+The image also provides `rg`, GNU `parallel`, `hyperfine`, and GNU-prefixed
+aliases `gcat`, `gfind`, `ggrep`, and `gsed`.
 
 ## Use the optional Codex target
 

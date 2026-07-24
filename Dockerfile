@@ -2,6 +2,10 @@ ARG PERL_VERSION=5.44.0
 FROM perl:${PERL_VERSION}-threaded AS system
 
 ARG PERL_VERSION
+ARG TARGETARCH
+ARG HYPERFINE_VERSION=1.20.0
+ARG HYPERFINE_AMD64_SHA256=63ad53934062118f5b0be11785e0bb1603d4b91667d1921f2fd8df9a8712040a
+ARG HYPERFINE_ARM64_SHA256=90875cb1db7a1d797c311174d061728361e58fc70e3b62262a00635ac3b1997c
 
 LABEL org.opencontainers.image.title="perl-essentials" \
       org.opencontainers.image.description="Threaded Perl with a curated, up-to-date set of CPAN modules" \
@@ -22,14 +26,46 @@ RUN if grep -q '^VERSION_CODENAME=buster$' /etc/os-release; then \
  && apt-get install -y --no-install-recommends \
       ca-certificates \
       coreutils \
+      curl \
       findutils \
       git \
       grep \
+      parallel \
       ripgrep \
       sed \
       spell \
       vim \
       zsh \
+ && hyperfine_arch="${TARGETARCH:-$(dpkg --print-architecture)}" \
+ && case "${hyperfine_arch}" in \
+      amd64) \
+        hyperfine_target=x86_64-unknown-linux-gnu; \
+        hyperfine_sha="${HYPERFINE_AMD64_SHA256}"; \
+        ;; \
+      arm64) \
+        hyperfine_target=aarch64-unknown-linux-gnu; \
+        hyperfine_sha="${HYPERFINE_ARM64_SHA256}"; \
+        ;; \
+      *) \
+        printf 'Unsupported hyperfine architecture: %s\n' "${hyperfine_arch}" >&2; \
+        exit 1; \
+        ;; \
+    esac \
+ && hyperfine_archive="hyperfine-v${HYPERFINE_VERSION}-${hyperfine_target}.tar.gz" \
+ && hyperfine_dir="/tmp/hyperfine-v${HYPERFINE_VERSION}-${hyperfine_target}" \
+ && curl -fsSL \
+      "https://github.com/sharkdp/hyperfine/releases/download/v${HYPERFINE_VERSION}/${hyperfine_archive}" \
+      -o "/tmp/${hyperfine_archive}" \
+ && printf '%s  %s\n' "${hyperfine_sha}" "/tmp/${hyperfine_archive}" \
+      | sha256sum -c - \
+ && tar -xzf "/tmp/${hyperfine_archive}" -C /tmp \
+ && install -m 0755 "${hyperfine_dir}/hyperfine" /usr/local/bin/hyperfine \
+ && install -d /usr/local/share/man/man1 \
+ && install -m 0644 "${hyperfine_dir}/hyperfine.1" \
+      /usr/local/share/man/man1/hyperfine.1 \
+ && cat "${hyperfine_dir}/LICENSE-APACHE" "${hyperfine_dir}/LICENSE-MIT" \
+      > /tmp/LICENSE-HYPERFINE \
+ && rm -rf "/tmp/${hyperfine_archive}" "${hyperfine_dir}" \
  && git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /opt/oh-my-zsh \
  && ln -s "$(command -v cat)" /usr/local/bin/gcat \
  && ln -s "$(command -v find)" /usr/local/bin/gfind \
@@ -93,7 +129,12 @@ RUN if scripts/list-cpanfile-modules.pl cpanfile-bootstrap-notest | grep -q .; t
       name => "ohmyzsh", version => $ARGV[0], license => "MIT", \
       source => "https://github.com/ohmyzsh/ohmyzsh", \
       license_file => "/opt/oh-my-zsh/LICENSE.txt" \
+    }, { \
+      name => "hyperfine", version => $ARGV[1], license => "Apache-2.0 OR MIT", \
+      source => "https://github.com/sharkdp/hyperfine", \
+      license_file => "/tmp/LICENSE-HYPERFINE" \
     }])' "$(git -C /opt/oh-my-zsh rev-parse HEAD)" \
+      "${HYPERFINE_VERSION}" \
       > /tmp/direct-components.json \
  && /opt/perl-essentials/scripts/license-audit.pl \
       --output /opt/perl-essentials/licenses \
@@ -104,7 +145,8 @@ RUN if scripts/list-cpanfile-modules.pl cpanfile-bootstrap-notest | grep -q .; t
       --perl-version "$(perl -MConfig -e 'print $Config{version}')" \
       --perl-license "$(perl -MConfig -e 'print "$Config{privlib}/pod/perlartistic.pod"')" \
       --perl-license "$(perl -MConfig -e 'print "$Config{privlib}/pod/perlgpl.pod"')" \
- && rm -rf /root/.cpanm /tmp/cpan-dists /tmp/direct-components.json
+ && rm -rf /root/.cpanm /tmp/cpan-dists /tmp/direct-components.json \
+      /tmp/LICENSE-HYPERFINE
 
 FROM modules AS debug
 CMD ["zsh", "-l"]

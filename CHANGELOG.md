@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Images now include GNU `parallel` and `hyperfine` for parallel command
+  execution and command-line benchmarking.
 - Docker Scout CVE audit results and risk acceptance guidance are documented in
   `SECURITY.md`.
 - README and Docker Hub table regeneration now updates observed Codex CLI and

@@ -13,6 +13,21 @@ my $checker = File::Spec->catfile( $root, 'scripts', 'check-runtime-tools.sh' ) 
 ok -x $checker, 'runtime tool checker is executable' ;
 
 my $dockerfile = _read_text('Dockerfile') ;
+like $dockerfile, qr/apt-get install.*\bparallel\b/s,
+  'Docker build installs GNU parallel' ;
+like $dockerfile, qr/HYPERFINE_VERSION=1\.20\.0/,
+  'Docker build pins the hyperfine version' ;
+like $dockerfile,
+  qr/HYPERFINE_AMD64_SHA256=63ad53934062118f5b0be11785e0bb1603d4b91667d1921f2fd8df9a8712040a/,
+  'Docker build pins the hyperfine AMD64 archive checksum' ;
+like $dockerfile,
+  qr/HYPERFINE_ARM64_SHA256=90875cb1db7a1d797c311174d061728361e58fc70e3b62262a00635ac3b1997c/,
+  'Docker build pins the hyperfine ARM64 archive checksum' ;
+like $dockerfile, qr/sha256sum -c/,
+  'Docker build verifies the downloaded hyperfine archive' ;
+like $dockerfile, qr/name => "hyperfine"/,
+  'Docker build includes hyperfine in the direct license inventory' ;
+
 for my $command (qw(cat find grep sed)) {
   like $dockerfile,
     qr{ln -s "\$\(command -v \Q$command\E\)" /usr/local/bin/g\Q$command\E},
@@ -38,7 +53,10 @@ SKIP: {
   make_path($bin) ;
   _write_text( File::Spec->catfile( $tmp, '.perltidyrc' ), "# local profile\n" ) ;
 
-  for my $command (qw(perlcritic rg gcat gfind ggrep gsed)) {
+  for my $command (
+    qw(hyperfine parallel perlcritic rg gcat gfind ggrep gsed)
+    )
+  {
     _write_command( $bin, $command, "#!/bin/sh\nexit 0\n" ) ;
   }
   _write_command(

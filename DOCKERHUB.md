@@ -62,8 +62,9 @@ docker run --rm perlessentials/perl-essentials:5.26 perl -e 'print "$^V\n"'
 
 ## Perl development tools
 
-The image includes `perltidy`, `perlcritic`, `prove`, `cpanm`, `rg`, and the
-GNU-prefixed commands `gcat`, `gfind`, `ggrep`, and `gsed`.
+The image includes `perltidy`, `perlcritic`, `prove`, `cpanm`, `rg`,
+`parallel`, `hyperfine`, and the GNU-prefixed commands `gcat`, `gfind`,
+`ggrep`, and `gsed`.
 
 Perl::Tidy uses `/etc/perltidyrc` by default. A project-local `.perltidyrc`
 under `/work` takes precedence. Use `-pro=/work/custom.perltidyrc` to select a
