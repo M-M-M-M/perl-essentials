@@ -219,3 +219,16 @@ jobs:
             "${{ matrix.mode }}" \
             /tmp/digests/amd64 \
             /tmp/digests/arm64
+
+  description:
+    needs: [manifest]
+    environment: dockerhub-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Update Docker Hub description
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: scripts/update-dockerhub-description.pl --file DOCKERHUB.md

@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-24
+
 ### Changed
 
 - Images now include GNU `parallel` and `hyperfine` for parallel command
   execution and command-line benchmarking.
+- Docker Hub publication now updates the repository Overview from
+  `DOCKERHUB.md` after release manifests are published.
+- Docker Hub SOPS wrappers now use the standard local age key file by default.
 - Docker Scout CVE audit results and risk acceptance guidance are documented in
   `SECURITY.md`.
 - README and Docker Hub table regeneration now updates observed Codex CLI and
@@ -272,7 +277,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.5.2...v0.6.0

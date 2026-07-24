@@ -74,9 +74,11 @@ runners before a release is published.
 Publishing a GitHub Release starts the Docker Hub workflow. GitHub builds each
 architecture natively on explicit stable runners (`ubuntu-24.04` and
 `ubuntu-24.04-arm`), pushes architecture digests, and then assembles the final
-multi-architecture aliases. Publication does not use QEMU. The moving
-`ubuntu-latest` label is avoided for releases, and Ubuntu 26.04 is not selected
-while its GitHub runner image remains a preview.
+multi-architecture aliases. The same workflow updates the Docker Hub Overview
+from the version-controlled `DOCKERHUB.md` source after the manifests are
+published. Publication does not use QEMU. The moving `ubuntu-latest` label is
+avoided for releases, and Ubuntu 26.04 is not selected while its GitHub runner
+image remains a preview.
 
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and

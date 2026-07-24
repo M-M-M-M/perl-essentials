@@ -86,6 +86,8 @@ like $publication, qr/scripts\/publish\.sh build/,
   'Docker publication builds architecture-specific digests through the public script' ;
 like $publication, qr/scripts\/publish\.sh manifest/,
   'Docker publication assembles final manifests through the public script' ;
+like $publication, qr/needs:\s+\[manifest\].*scripts\/update-dockerhub-description\.pl/s,
+  'Docker publication updates the Docker Hub description after manifests' ;
 
 done_testing ;
 

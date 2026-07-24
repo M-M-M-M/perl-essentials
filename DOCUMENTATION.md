@@ -534,6 +534,10 @@ only the Docker Hub username and token configured in the protected GitHub
 environment. One UTC timestamp in `YYYY-MM-DD_HHmmss` format is shared by all
 images in the release.
 
+After the manifest jobs finish, the workflow updates the Docker Hub repository
+Overview from `DOCKERHUB.md`. That file is the version-controlled source of
+truth for the public Docker Hub page and is updated alongside `README.md`.
+
 The publication builds keep CPAN upstream tests enabled and pass explicit
 `cpanm` configure and test timeouts (`CPAN_CONFIGURE_TIMEOUT=1200`,
 `CPAN_TEST_TIMEOUT=7200` by default). Docker Hub authentication uses the

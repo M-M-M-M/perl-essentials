@@ -71,6 +71,8 @@ like $public_files, qr{^scripts/codex-entrypoint\.sh$}m,
   'Public export includes the Codex entrypoint' ;
 like $public_files, qr{^scripts/publish\.sh$}m,
   'Public export includes Docker publication logic' ;
+like $public_files, qr{^scripts/update-dockerhub-description\.pl$}m,
+  'Public export includes Docker Hub description publication logic' ;
 like $public_files, qr{^test/docker-publication\.t$}m,
   'Public export includes Docker publication tests' ;
 like $public_files, qr{^\.github/workflows/docker-publish\.yml$}m,

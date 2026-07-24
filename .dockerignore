@@ -14,5 +14,6 @@ codex-auth/
 secrets/
 scripts/dockerhub-login-sops.sh
 scripts/publish.sh
+scripts/update-dockerhub-description-sops.sh
 scripts/rotate-dockerhub-secret.zsh
 TODO.md
