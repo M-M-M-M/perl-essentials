@@ -536,7 +536,9 @@ images in the release.
 
 After the manifest jobs finish, the workflow updates the Docker Hub repository
 Overview from `DOCKERHUB.md`. That file is the version-controlled source of
-truth for the public Docker Hub page and is updated alongside `README.md`.
+truth for the public Docker Hub page and is updated alongside `README.md`. The
+job installs `libio-socket-ssl-perl` first because Ubuntu's system Perl needs
+it, and its `Net::SSLeay` dependency, for `HTTP::Tiny` HTTPS requests.
 
 The publication builds keep CPAN upstream tests enabled and pass explicit
 `cpanm` configure and test timeouts (`CPAN_CONFIGURE_TIMEOUT=1200`,

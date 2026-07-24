@@ -76,6 +76,9 @@ like $publication, qr/actions\/upload-artifact\@v7/,
   'Docker publication uploads architecture digests with Node 24 support' ;
 like $publication, qr/actions\/download-artifact\@v8/,
   'Docker publication downloads architecture digests with Node 24 support' ;
+like $publication,
+  qr{name: Install Perl HTTPS support.*libio-socket-ssl-perl.*scripts/update-dockerhub-description\.pl}s,
+  'Docker publication installs Perl HTTPS support before updating the Docker Hub description' ;
 like $publication, qr/vars\.DOCKERHUB_USERNAME/,
   'Docker publication reads the Docker Hub username from an environment variable' ;
 like $publication, qr/secrets\.DOCKERHUB_TOKEN/,

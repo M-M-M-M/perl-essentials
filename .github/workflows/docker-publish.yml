@@ -227,6 +227,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+      - name: Install Perl HTTPS support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libio-socket-ssl-perl
       - name: Update Docker Hub description
         env:
           DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
