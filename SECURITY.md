@@ -2,7 +2,7 @@
 
 ## Docker Scout audit
 
-Last local audit: 2026-07-23.
+Last local audit: 2026-07-24.
 
 Docker Scout CLI: `v1.22.0 (go1.26.3 - darwin/arm64)`. Docker Scout reported
 that `v1.23.1` was available during the scan.
@@ -18,20 +18,19 @@ platforms:
 Aliases such as `5.44`, `latest`, timestamp tags, and release tags were not
 scanned separately because they point to the same published manifests.
 
-The scan used:
+The scan used Docker Scout CVE reports:
 
 ```sh
-docker scout quickview --platform PLATFORM registry://perlessentials/perl-essentials:TAG
-docker scout cves --platform PLATFORM --format sarif registry://perlessentials/perl-essentials:TAG
-docker scout cves --platform PLATFORM --only-base --format sarif registry://perlessentials/perl-essentials:TAG
-docker scout cves --platform PLATFORM --ignore-base --format sarif registry://perlessentials/perl-essentials:TAG
+docker scout cves --platform PLATFORM --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
+docker scout cves --platform PLATFORM --only-base --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
+docker scout cves --platform PLATFORM --ignore-base --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
 ```
 
-When Docker Hub rate limiting interrupted Scout registry pulls, the remaining
-scans were resumed by pulling the platform explicitly with Docker and scanning
-`local://perlessentials/perl-essentials:TAG`. The locally pulled canonical tags
-were removed after scanning. Three unrelated historical local tags remained:
-`v0.7.1-5.44.0`, `codex-2026-06-19_172956`, and
+When a Scout registry scan failed, the scan was resumed by pulling the platform
+explicitly with Docker and scanning
+`local://perlessentials/perl-essentials:TAG`. Locally pulled canonical tags were
+removed immediately after each tag/platform scan. Three unrelated historical
+local tags remained: `v0.7.1-5.44.0`, `codex-2026-06-19_172956`, and
 `smoke-2026-06-15_170711`.
 
 ### Summary
@@ -43,22 +42,22 @@ Counts are Docker Scout SARIF rule counts. `Base` is `--only-base`; `Final` is
 | --- | --- | ---: | ---: | ---: | --- |
 | `5.26.3` | `linux/amd64` | 18 | 18 | 0 | none |
 | `5.26.3` | `linux/arm64` | 18 | 18 | 0 | none |
-| `5.32.1` | `linux/amd64` | 1001 | 830 | 171 | `vim` |
-| `5.32.1` | `linux/arm64` | 1001 | 830 | 171 | `vim` |
-| `5.36.3` | `linux/amd64` | 650 | 590 | 60 | `vim` |
-| `5.36.3` | `linux/arm64` | 650 | 590 | 60 | `vim` |
-| `5.38.5` | `linux/amd64` | 303 | 270 | 33 | `vim` |
-| `5.38.5` | `linux/arm64` | 303 | 270 | 33 | `vim` |
-| `5.40.4` | `linux/amd64` | 303 | 270 | 33 | `vim` |
-| `5.40.4` | `linux/arm64` | 303 | 270 | 33 | `vim` |
-| `5.42.2` | `linux/amd64` | 303 | 270 | 33 | `vim` |
-| `5.42.2` | `linux/arm64` | 303 | 270 | 33 | `vim` |
-| `5.43.9` | `linux/amd64` | 303 | 270 | 33 | `vim` |
-| `5.43.9` | `linux/arm64` | 303 | 270 | 33 | `vim` |
-| `5.44.0` | `linux/amd64` | 303 | 270 | 33 | `vim` |
-| `5.44.0` | `linux/arm64` | 303 | 270 | 33 | `vim` |
-| `codex` | `linux/amd64` | 307 | 270 | 37 | `vim`, `gawk` |
-| `codex` | `linux/arm64` | 307 | 270 | 37 | `vim`, `gawk` |
+| `5.32.1` | `linux/amd64` | 1002 | 831 | 171 | `vim` |
+| `5.32.1` | `linux/arm64` | 1002 | 831 | 171 | `vim` |
+| `5.36.3` | `linux/amd64` | 644 | 584 | 60 | `vim` |
+| `5.36.3` | `linux/arm64` | 644 | 584 | 60 | `vim` |
+| `5.38.5` | `linux/amd64` | 304 | 271 | 33 | `vim` |
+| `5.38.5` | `linux/arm64` | 304 | 271 | 33 | `vim` |
+| `5.40.4` | `linux/amd64` | 304 | 271 | 33 | `vim` |
+| `5.40.4` | `linux/arm64` | 304 | 271 | 33 | `vim` |
+| `5.42.2` | `linux/amd64` | 304 | 271 | 33 | `vim` |
+| `5.42.2` | `linux/arm64` | 304 | 271 | 33 | `vim` |
+| `5.43.9` | `linux/amd64` | 304 | 271 | 33 | `vim` |
+| `5.43.9` | `linux/arm64` | 304 | 271 | 33 | `vim` |
+| `5.44.0` | `linux/amd64` | 304 | 271 | 33 | `vim` |
+| `5.44.0` | `linux/arm64` | 304 | 271 | 33 | `vim` |
+| `codex` | `linux/amd64` | 308 | 271 | 37 | `vim`, `gawk` |
+| `codex` | `linux/arm64` | 308 | 271 | 37 | `vim`, `gawk` |
 
 The architectures produced identical counts for each tag. No final-layer CVE
 reported a fixed package version in Docker Scout.
@@ -66,7 +65,7 @@ reported a fixed package version in Docker Scout.
 ### Notable findings
 
 - Base-image CVEs dominate the report. For current Perl images, Scout reported
-  270 CVEs in the official `perl` base image and 33 CVEs outside the base.
+  271 CVEs in the official `perl` base image and 33 CVEs outside the base.
 - Image format libraries are inherited from the official base image. For
   `5.44.0/linux/amd64`, Scout reported base CVEs for `imagemagick` (9),
   `openexr` (14), `libheif` (17), and `libde265` (10), all with no fixed

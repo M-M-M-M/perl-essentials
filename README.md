@@ -17,7 +17,8 @@ builds:
    local load test.
 
 See [DOCUMENTATION.md](DOCUMENTATION.md) for maintenance, exception, and
-debugging procedures.
+debugging procedures. See [SECURITY.md](SECURITY.md) for Docker Scout CVE audit
+results and risk decisions.
 
 ## Build
 

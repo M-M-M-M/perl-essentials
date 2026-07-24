@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Docker Scout CVE audit results were refreshed, and README now links to the
+  public security audit and risk decisions.
+
 ## [0.8.1] - 2026-07-24
 
 ### Fixed
