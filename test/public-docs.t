@@ -44,7 +44,7 @@ like $dockerhub,
 like $dockerhub,
   qr{--user "\$\(id -u\):\$\(id -g\)".*perltidy -b -bext='/'}s,
   'Docker Hub in-place formatting example preserves host ownership' ;
-like $dockerhub, qr/based on the Perl 5\.44\.0 image/,
+like $dockerhub, qr/based on the Perl 5\.45\.1 image/,
   'Docker Hub identifies the exact Codex Perl image' ;
 unlike $dockerhub, qr/based on the latest development Perl target/,
   'Docker Hub does not describe the Codex base as an unstable latest target' ;

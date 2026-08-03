@@ -6,6 +6,8 @@ set -eu
 
 mode="${1:-perl}"
 platform="${CI_PLATFORM:-linux/amd64}"
+buildx_bootstrap_attempts=6
+buildx_bootstrap_retry_delay=10
 codex_state=""
 
 cleanup()
@@ -21,16 +23,16 @@ bootstrap_builder()
     attempt=1
 
     while ! docker buildx inspect --bootstrap "${builder}"; do
-        if [ "${attempt}" -ge 3 ]; then
+        if [ "${attempt}" -ge "${buildx_bootstrap_attempts}" ]; then
             printf 'Buildx bootstrap failed after %s attempts\n' \
                 "${attempt}" >&2
             return 1
         fi
 
-        printf 'Buildx bootstrap failed (attempt %s/3), retrying\n' \
-            "${attempt}" >&2
+        printf 'Buildx bootstrap failed (attempt %s/%s), retrying\n' \
+            "${attempt}" "${buildx_bootstrap_attempts}" >&2
         attempt=$((attempt + 1))
-        sleep 5
+        sleep "${buildx_bootstrap_retry_delay}"
     done
 
     printf 'Buildx builder is ready\n'
@@ -82,6 +84,24 @@ validate_license_audit()
     ' "${expect_codex}"
 }
 
+run_validation_step()
+{
+    label="$1"
+    shift
+
+    printf 'CI validation step: %s\n' "${label}"
+    if "$@"; then
+        printf 'CI validation step: %s ok\n' "${label}"
+        return 0
+    else
+        status=$?
+    fi
+
+    printf 'CI validation step: %s failed with status %s\n' \
+        "${label}" "${status}" >&2
+    return "${status}"
+}
+
 docker_run()
 {
     docker run --rm --platform "${platform}" "$@"
@@ -126,9 +146,32 @@ validate_codex()
 {
     codex_state="perl-essentials-codex-state-$$"
 
+    run_validation_step codex-empty-state validate_codex_empty_state
+    run_validation_step codex-volume-create docker volume create "${codex_state}"
+    run_validation_step codex-user validate_codex_user
+    run_validation_step codex-agents-file validate_codex_file /codex/AGENTS.md
+    run_validation_step codex-rtk-file validate_codex_file /codex/RTK.md
+    run_validation_step codex-zshrc-file validate_codex_file /codex/.zshrc
+    run_validation_step codex-zshrc-persist validate_codex_zshrc_persist
+    run_validation_step codex-agents-include validate_codex_agents_include
+    run_validation_step codex-version docker_run "${image}" codex --version
+    run_validation_step rtk-version docker_run "${image}" rtk --version
+    run_validation_step bwrap-version docker_run "${image}" bwrap --version
+    run_validation_step bwrap-setuid validate_codex_bwrap_setuid
+    run_validation_step codex-workdir docker_run "${image}" sh -c 'test "$PWD" = /work'
+    run_validation_step codex-path validate_codex_path
+    run_validation_step codex-license-audit validate_license_audit 1
+    run_validation_step codex-sandbox validate_codex_sandbox
+}
+
+validate_codex_empty_state()
+{
     test -z "$(docker_run --entrypoint find "${image}" \
         /codex -mindepth 1 -print -quit)"
-    docker volume create "${codex_state}" >/dev/null
+}
+
+validate_codex_user()
+{
     docker_run \
         --volume "${codex_state}:/codex" \
         "${image}" sh -c \
@@ -136,18 +179,18 @@ validate_codex()
          && test "$(id -un)" = perl \
          && test "$HOME" = /codex \
          && test -w /codex'
+}
+
+validate_codex_file()
+{
     docker_run \
         --entrypoint test \
         --volume "${codex_state}:/codex" \
-        "${image}" -f /codex/AGENTS.md
-    docker_run \
-        --entrypoint test \
-        --volume "${codex_state}:/codex" \
-        "${image}" -f /codex/RTK.md
-    docker_run \
-        --entrypoint test \
-        --volume "${codex_state}:/codex" \
-        "${image}" -f /codex/.zshrc
+        "${image}" -f "$1"
+}
+
+validate_codex_zshrc_persist()
+{
     docker_run \
         --entrypoint sh \
         --volume "${codex_state}:/codex" \
@@ -160,23 +203,29 @@ validate_codex()
         --entrypoint grep \
         --volume "${codex_state}:/codex" \
         "${image}" -qxF '# custom Zsh configuration' /codex/.zshrc
+}
+
+validate_codex_agents_include()
+{
     test "$(docker_run \
         --entrypoint grep \
         --volume "${codex_state}:/codex" \
         "${image}" -c '^@/codex/RTK\.md$' /codex/AGENTS.md)" -eq 1
-    docker_run "${image}" codex --version
-    docker_run "${image}" rtk --version
-    docker_run "${image}" bwrap --version
+}
+
+validate_codex_bwrap_setuid()
+{
     test "$(docker_run \
         --entrypoint stat \
         "${image}" -c '%a:%U:%G' /usr/bin/bwrap)" = "4755:root:root"
-    docker_run "${image}" sh -c 'test "$PWD" = /work'
+}
+
+validate_codex_path()
+{
     docker_run "${image}" zsh -lic \
         'command -v perl >/dev/null \
          && command -v codex >/dev/null \
          && command -v rtk >/dev/null'
-    validate_license_audit 1
-    validate_codex_sandbox
 }
 
 validate_codex_sandbox()
@@ -203,8 +252,35 @@ validate_codex_sandbox()
             'Retrying Codex sandbox validation as root because the host blocked non-root RTM_NEWADDR' >&2
         run_codex_sandbox --user root
         ;;
+    *'Sandbox(SeccompInstall'*'Invalid argument'*)
+        if codex_sandbox_seccomp_einval_is_expected; then
+            printf '%s\n' \
+                'Skipping Codex sandbox validation because linux/amd64 is running on an arm64 Docker host and Codex seccomp sandbox is not supported there'
+            return 0
+        fi
+        return "${sandbox_status}"
+        ;;
     *)
         return "${sandbox_status}"
+        ;;
+    esac
+}
+
+codex_sandbox_seccomp_einval_is_expected()
+{
+    host_architecture=""
+
+    if [ "${platform}" != "linux/amd64" ]; then
+        return 1
+    fi
+
+    host_architecture="$(docker info --format '{{.Architecture}}' 2>/dev/null || true)"
+    case "${host_architecture}" in
+    aarch64|arm64)
+        return 0
+        ;;
+    *)
+        return 1
         ;;
     esac
 }
@@ -222,13 +298,13 @@ run_codex_sandbox()
 case "${mode}" in
 perl)
     target="final"
-    image="perl-essentials:${PERL_VERSION}"
+    image="${CI_IMAGE:-perl-essentials:${PERL_VERSION}}"
     no_cache=""
     validate="validate_perl"
     ;;
 codex)
     target="codex"
-    image="perl-essentials:codex"
+    image="${CI_IMAGE:-perl-essentials:codex}"
     no_cache="--no-cache"
     validate="validate_codex"
     ;;
@@ -257,19 +333,32 @@ docker buildx build --builder "${builder}" --target "${target}" --check .
 
 printf 'Building target %s for %s as %s\n' \
     "${target}" "${platform}" "${image}"
-set -- docker buildx build \
-    --builder "${builder}" \
-    --platform "${platform}" \
-    --target "${target}" \
-    --load \
-    --build-arg PERL_VERSION="${PERL_VERSION}" \
-    --tag "${image}"
 if [ -n "${no_cache}" ]; then
-    set -- "$@" "${no_cache}"
+    docker buildx build \
+        --builder "${builder}" \
+        --platform "${platform}" \
+        --target "${target}" \
+        --load \
+        --build-arg PERL_VERSION="${PERL_VERSION}" \
+        --tag "${image}" \
+        "${no_cache}" \
+        .
+else
+    docker buildx build \
+        --builder "${builder}" \
+        --platform "${platform}" \
+        --target "${target}" \
+        --load \
+        --build-arg PERL_VERSION="${PERL_VERSION}" \
+        --tag "${image}" \
+        .
 fi
-set -- "$@" .
-"$@"
 
 printf 'Docker image %s loaded successfully\n' "${image}"
 printf 'Validating %s image\n' "${mode}"
-"${validate}"
+if "${validate}"; then
+    exit 0
+else
+    status=$?
+fi
+exit "${status}"

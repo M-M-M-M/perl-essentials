@@ -7,8 +7,8 @@ Last local audit: 2026-07-24.
 Docker Scout CLI: `v1.22.0 (go1.26.3 - darwin/arm64)`. Docker Scout reported
 that `v1.23.1` was available during the scan.
 
-The audit covered the canonical published Docker Hub tags for both supported
-platforms:
+The audit covered the canonical Docker Hub tags that were published at the
+time, for both supported platforms:
 
 - Tags: `5.26.3`, `5.32.1`, `5.36.3`, `5.38.5`, `5.40.4`, `5.42.2`,
   `5.43.9`, `5.44.0`, and `codex`
@@ -17,6 +17,8 @@ platforms:
 
 Aliases such as `5.44`, `latest`, timestamp tags, and release tags were not
 scanned separately because they point to the same published manifests.
+Perl 5.45.1 was added after this audit and must be included in the next Docker
+Scout refresh before the security table is treated as current again.
 
 The scan used Docker Scout CVE reports:
 

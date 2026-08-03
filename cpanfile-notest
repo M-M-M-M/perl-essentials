@@ -10,4 +10,4 @@
 # requires 'Example::Module'; # ISSUE-URL; Perl 5.x; review YYYY-MM-DD
 
 requires 'REST::Client'; # IO::Socket::SSL dependency tests fail; https://metacpan.org/dist/REST-Client; Perl 5.26.3/module 281; review 2026-09-09
-requires 'XML::XML2JSON'; # Intermittent backend/root-element test failure; https://metacpan.org/dist/XML-XML2JSON; Perl 5.43.9/module 0.05; review 2026-09-09
+requires 'XML::XML2JSON'; # Intermittent backend/root-element test failure; https://metacpan.org/dist/XML-XML2JSON; Perl development/module 0.05; review 2026-09-09

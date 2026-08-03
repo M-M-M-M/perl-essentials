@@ -15,5 +15,6 @@ secrets/
 scripts/dockerhub-login-sops.sh
 scripts/publish.sh
 scripts/update-dockerhub-description-sops.sh
+scripts/validate-all-images-local.sh
 scripts/rotate-dockerhub-secret.zsh
 TODO.md

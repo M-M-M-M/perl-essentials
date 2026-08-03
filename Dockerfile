@@ -1,4 +1,4 @@
-ARG PERL_VERSION=5.44.0
+ARG PERL_VERSION=5.45.1
 FROM perl:${PERL_VERSION}-threaded AS system
 
 ARG PERL_VERSION
@@ -93,13 +93,17 @@ CMD ["zsh", "-l"]
 FROM debug-base AS modules
 
 ARG CPAN_CONFIGURE_TIMEOUT=1200
-ARG CPAN_TEST_TIMEOUT=7200
+ARG CPAN_TEST_TIMEOUT=10800
 
 # This image deliberately favors current CPAN modules over reproducible
 # dependency versions. Tests are skipped only for this broad upgrade because
 # unrelated upstream test failures must not prevent the curated test pass.
-RUN cpanm --save-dists /tmp/cpan-dists -in App::cpanoutdated \
- && cpan-outdated -p | cpanm --save-dists /tmp/cpan-dists -in
+RUN cpanm --save-dists /tmp/cpan-dists \
+      --configure-timeout "${CPAN_CONFIGURE_TIMEOUT}" \
+      -in App::cpanoutdated \
+ && cpan-outdated -p | cpanm --save-dists /tmp/cpan-dists \
+      --configure-timeout "${CPAN_CONFIGURE_TIMEOUT}" \
+      -in
 
 # Curated distributions that need installation run their CPAN test suites.
 # Current core/dual-life modules are not downgraded merely to rerun tests.

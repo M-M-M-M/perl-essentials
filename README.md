@@ -22,18 +22,18 @@ results and risk decisions.
 
 ## Build
 
-The default is Perl 5.44.0:
+The default is Perl 5.45.1:
 
 ```sh
-docker build -t perl-essentials:5.44.0 .
+docker build -t perl-essentials:5.45.1 .
 ```
 
 Select another official threaded Perl image:
 
 ```sh
 docker build \
-  --build-arg PERL_VERSION=5.43.9 \
-  -t perl-essentials:5.43.9 \
+  --build-arg PERL_VERSION=5.44.0 \
+  -t perl-essentials:5.44.0 \
   .
 ```
 
@@ -48,23 +48,23 @@ Supported CI matrix:
 | 5.38 | 5.38.5 | Established production series |
 | 5.40 | 5.40.4 | Maintained stable series |
 | 5.42 | 5.42.2 | Previous stable series |
-| 5.43 | 5.43.9 | Development compatibility |
 | 5.44 | 5.44.0 | Latest stable series |
+| 5.45 | 5.45.1 | Development compatibility |
 <!-- PERL_TARGETS_END -->
 
 Published GitHub Releases create multi-architecture images on Docker Hub:
 
 ```sh
-docker pull perlessentials/perl-essentials:5.44.0
-docker pull perlessentials/perl-essentials:5.44
+docker pull perlessentials/perl-essentials:5.45.1
+docker pull perlessentials/perl-essentials:5.45
 docker pull perlessentials/perl-essentials:latest
-docker pull perlessentials/perl-essentials:vX.Y.Z-5.44.0
-docker pull perlessentials/perl-essentials:5.44.0-YYYY-MM-DD_HHmmss
+docker pull perlessentials/perl-essentials:vX.Y.Z-5.45.1
+docker pull perlessentials/perl-essentials:5.45.1-YYYY-MM-DD_HHmmss
 ```
 
 Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
-default Perl release, currently 5.44.0.
+default Perl release, currently 5.45.1.
 Replace `vX.Y.Z` and `YYYY-MM-DD_HHmmss` with tags from the published GitHub
 Release or Docker Hub tag list.
 
@@ -82,6 +82,13 @@ API client on GitHub runners. Publication does not use QEMU. The moving
 `ubuntu-latest` label is avoided for releases, and Ubuntu 26.04 is not selected
 while its GitHub runner image remains a preview.
 
+Private-to-public publication is a two-step operator process. First run
+`./publish-public.zsh` from the private checkout to publish the allowlisted
+snapshot and any annotated SemVer tag on `HEAD` to the public GitHub repository.
+Then create the GitHub Release manually from that public tag. Do not use
+`gh release create` from the private checkout; the manual GitHub Release
+publication is the action that starts Docker Hub image publication.
+
 The matrix intentionally includes older Perl releases. They are retained to
 validate modules intended for distribution to legacy Debian, Ubuntu, RHEL, and
 other machines that cannot immediately adopt the latest Perl. All versions,
@@ -93,11 +100,11 @@ The optional development target is validated separately:
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.44.0 | Latest at no-cache build; 0.145.0 observed 2026-07-23 | Latest at no-cache build; 0.43.0 observed 2026-07-23 | `codex`, release, and timestamp tags |
+| `codex` | 5.45.1 | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
-These Codex and RTK versions are observations, not pins. CI prints both
-versions on every build.
+Codex CLI and RTK versions are not pinned. CI prints both resolved versions on
+every build.
 
 Published Perl and Codex images run by default as the non-root `perl` user
 with UID/GID `1000:1000`. For writable host bind mounts, pass
@@ -119,7 +126,7 @@ Mount the current directory and run a script:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.44.0 \
+  perl-essentials:5.45.1 \
   perl /work/script.pl
 ```
 
@@ -129,7 +136,7 @@ Mount separate script and data directories:
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD/scripts":/work/scripts:ro \
   -v "$PWD/data":/work/data \
-  perl-essentials:5.44.0 \
+  perl-essentials:5.45.1 \
   perl /work/scripts/report.pl /work/data/input.csv
 ```
 
@@ -137,7 +144,7 @@ Open an interactive shell:
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.44.0 zsh -l
+  -v "$PWD":/work perl-essentials:5.45.1 zsh -l
 ```
 
 Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
@@ -147,7 +154,7 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 ## Optional Codex target
 
 Codex CLI and RTK are available in a separate development target. GitHub
-Actions validates this target with Perl 5.44.0. GitHub Release
+Actions validates this target with Perl 5.45.1. GitHub Release
 publication also publishes it separately as `codex`,
 `vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
 and `latest` select the Perl-only `final` stage; RTK is installed only by the
@@ -156,13 +163,14 @@ Build without the cache to retrieve the latest versions available from their
 official installers:
 
 ```sh
-PERL_VERSION=5.44.0 scripts/ci-build.sh codex
+PERL_VERSION=5.45.1 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
 The script builds, tags, and validates the single local Codex flavor as
 `perl-essentials:codex`. It replaces any older image under that tag, reports
-each build phase, and retries transient Buildx bootstrap failures.
+each build phase, and retries transient Buildx bootstrap failures up to six
+times.
 
 Pull the published Codex flavor with:
 
@@ -221,6 +229,10 @@ reports a Bubblewrap namespace or mount error, consult the advanced
 troubleshooting section in [DOCUMENTATION.md](DOCUMENTATION.md) before
 weakening container isolation. Ubuntu 24.04 hosts may require the documented
 Bubblewrap AppArmor profile for non-root sandboxing.
+On Apple Silicon Macs, local `linux/amd64` validation runs under Docker
+Desktop emulation. If Codex reports `SeccompInstall` with `Invalid argument`
+there, `scripts/ci-build.sh` documents and skips only that sandbox smoke test;
+native AMD64 and ARM64 CI runners still run it as a hard validation.
 
 `codex-auth/` is isolated from the host's `~/.codex` and ignored by both Git
 and the Docker build context. It can contain sensitive access tokens,
@@ -268,7 +280,7 @@ Copy the references into a project without replacing existing files:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.44.0 sh -c \
+  -v "$PWD":/work perl-essentials:5.45.1 sh -c \
   'cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
    cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc'
 ```
@@ -280,14 +292,14 @@ Run the quick backward-compatible validation:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.44.0 \
+  perl-essentials:5.45.1 \
   perl /work/test.pl
 ```
 
 Run the smoke test in a built image:
 
 ```sh
-docker run --rm perl-essentials:5.44.0 \
+docker run --rm perl-essentials:5.45.1 \
   /opt/perl-essentials/scripts/smoke-test.pl \
   /opt/perl-essentials/cpanfile \
   /opt/perl-essentials/cpanfile-bootstrap-notest \
@@ -297,7 +309,7 @@ docker run --rm perl-essentials:5.44.0 \
 Display the versions captured during the build:
 
 ```sh
-docker run --rm perl-essentials:5.44.0 \
+docker run --rm perl-essentials:5.45.1 \
   cat /opt/perl-essentials/module-versions.txt
 ```
 
@@ -414,7 +426,7 @@ docker run --rm \
   -e TEST_PG_USER='postgres' \
   -e TEST_PG_PASSWORD='secret' \
   -v "$PWD":/work:ro \
-  perl-essentials:5.44.0 \
+  perl-essentials:5.45.1 \
   perl /work/test/integration-postgres.pl
 ```
 

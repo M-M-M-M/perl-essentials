@@ -39,7 +39,7 @@ repository's smoke test.
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.44.0 \
+  --build-arg PERL_VERSION=5.45.1 \
   -t perl-essentials:debug .
 
 docker run --rm perl-essentials:debug \
@@ -115,7 +115,7 @@ aliases `gcat`, `gfind`, `ggrep`, and `gsed`.
 The `codex` target derives from the complete `final` image. Normal image builds
 use a final `default` alias of the Perl-only `final` stage. Perl publication
 selects `final` explicitly. GitHub Actions validates the Codex target
-separately with Perl 5.44.0, and release publication publishes it under
+separately with Perl 5.45.1, and release publication publishes it under
 Codex-specific tags. RTK is therefore present only in the explicit `codex`
 target.
 
@@ -144,14 +144,14 @@ version level:
 
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.44.0 | Latest; 0.139.0 observed 2026-06-12 | Latest; 0.42.4 observed 2026-06-12 | Docker Hub Codex tags |
+| `codex` | 5.45.1 | Latest at no-cache build | Latest at no-cache build | Docker Hub Codex tags |
 
-The observed versions document a successful build rather than pinning future
-builds. CI runs `codex --version` and `rtk --version` so each validation log
-records the resolved versions.
+Codex CLI and RTK versions are intentionally not pinned. CI runs
+`codex --version` and `rtk --version` so each validation log records the
+resolved versions.
 
 ```sh
-PERL_VERSION=5.44.0 scripts/ci-build.sh codex
+PERL_VERSION=5.45.1 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
@@ -159,7 +159,7 @@ This command builds, tags, and validates the only Codex flavor,
 `perl-essentials:codex`, replacing any older local image with that tag. Set
 `CI_PLATFORM=linux/arm64` on an ARM64 Docker host when a native build is
 preferred. The script reports build and validation phases and retries a
-transient Buildx bootstrap failure up to three times.
+transient Buildx bootstrap failure up to six times.
 Set `CI_SKIP_CODEX_SANDBOX=1` only when validating in an emulated or restricted
 environment where Bubblewrap namespace creation is known to be blocked.
 Native GitHub AMD64 and ARM64 validations run the live smoke test first as the
@@ -167,6 +167,12 @@ default non-root `perl` user. If the host returns exactly
 `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`, CI reports the
 host restriction and retries that smoke test once as root. Other failures
 remain fatal without a retry.
+On Apple Silicon Macs, a local `CI_PLATFORM=linux/amd64` build runs under
+Docker Desktop's AMD64 emulation. Codex can then fail while installing its
+inner seccomp sandbox with `Sandbox(SeccompInstall(... Invalid argument))`,
+even when the image itself and normal AMD64 commands are valid. The CI script
+recognizes and skips only that exact smoke-test failure when Docker reports an
+ARM64 host; the same error remains fatal on native AMD64 hosts.
 
 CI state validation uses a uniquely named, ephemeral Docker volume mounted on
 `/codex`. Keeping fixture creation, inspection, and deletion inside Docker
@@ -226,6 +232,9 @@ CI runs the Codex sandbox smoke test on native GitHub `linux/amd64` and
 `CI_SKIP_CODEX_SANDBOX=1`; those jobs still validate the installed tools,
 `/usr/bin/bwrap` ownership and mode, entrypoint state initialization, and
 license audit.
+Local Apple Silicon `linux/amd64` validation keeps all those checks and treats
+only the Codex `SeccompInstall`/`Invalid argument` sandbox smoke-test failure
+as an emulation limitation.
 
 The targeted root fallback is limited to CI validation. It does not change the
 image's default user or runtime behavior. On a host that blocks non-root
@@ -284,6 +293,20 @@ sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
 This host-level profile cannot be installed from the image or a normal
 container process. The deprecated Codex `use_legacy_landlock` feature is not
 enabled by the image or CI.
+
+To retest whether the Apple Silicon workaround is still needed after upgrading
+Docker Desktop, QEMU/binfmt, runc, libseccomp, or Codex CLI, run the real local
+AMD64 validation:
+
+```sh
+PERL_VERSION=5.45.1 CI_PLATFORM=linux/amd64 scripts/ci-build.sh codex
+```
+
+The workaround is still needed if the `codex-sandbox` step prints
+`SeccompInstall` with `Invalid argument` and then reports that it skipped the
+sandbox validation because `linux/amd64` is running on an ARM64 Docker host.
+It can be removed only after the same command reaches
+`CI validation step: codex-sandbox ok` without the skip message.
 
 Do not add `--security-opt no-new-privileges=true` to the Codex container. It
 prevents the setuid fallback that Bubblewrap needs on hosts where unprivileged
@@ -374,7 +397,7 @@ exception.
    relevant, and a review date:
 
    ```perl
-   requires 'Module::Name'; # https://issue.example/123; Perl 5.43.9; review 2026-09-01
+   requires 'Module::Name'; # https://issue.example/123; Perl 5.45.1; review 2026-09-01
    ```
 
 6. Rebuild the affected version, then the complete matrix. The smoke test is
@@ -404,15 +427,15 @@ Show full logs and disable the build cache:
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.44.0 \
-  -t perl-essentials:5.44.0 .
+  --build-arg PERL_VERSION=5.45.1 \
+  -t perl-essentials:5.45.1 .
 ```
 
 Build and enter the pre-CPAN debug target:
 
 ```sh
 docker build --target debug-base \
-  --build-arg PERL_VERSION=5.44.0 \
+  --build-arg PERL_VERSION=5.45.1 \
   -t perl-essentials:debug-base .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug-base
 ```
@@ -426,7 +449,7 @@ Build and enter the complete debug target:
 
 ```sh
 docker build --target debug \
-  --build-arg PERL_VERSION=5.44.0 \
+  --build-arg PERL_VERSION=5.45.1 \
   -t perl-essentials:debug .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug
 ```
@@ -476,7 +499,7 @@ perl scripts/check-perl-versions.pl --check --drift-profile public
 ```
 
 The script proposes newer patch releases for configured series and only the
-immediately following series, such as 5.45 after 5.44. It also reports drift
+immediately following series, such as 5.46 after 5.45. It also reports drift
 between the configuration, Dockerfile, CI files, and README. It never edits
 files.
 
@@ -542,27 +565,29 @@ it, and its `Net::SSLeay` dependency, for `HTTP::Tiny` HTTPS requests.
 
 The publication builds keep CPAN upstream tests enabled and pass explicit
 `cpanm` configure and test timeouts (`CPAN_CONFIGURE_TIMEOUT=1200`,
-`CPAN_TEST_TIMEOUT=7200` by default). Docker Hub authentication uses the
-protected GitHub environment `dockerhub-production`, with
+`CPAN_TEST_TIMEOUT=10800` by default). The configure timeout also applies to
+the broad `cpan-outdated` update, which can otherwise hit `cpanm`'s default
+60-second configure timeout on slower ARM64 runners. Docker Hub authentication
+uses the protected GitHub environment `dockerhub-production`, with
 `DOCKERHUB_USERNAME` as an environment variable and `DOCKERHUB_TOKEN` as an
 environment secret.
 
-For a release such as `vX.Y.Z`, Perl 5.44.0 receives:
+For a release such as `vX.Y.Z`, Perl 5.45.1 receives:
 
-- `5.44.0-YYYY-MM-DD_HHmmss`, identifying the publication run;
-- `5.44.0`, the exact-version alias;
-- `5.44`, the series alias;
-- `vX.Y.Z-5.44.0`, the release-specific alias.
+- `5.45.1-YYYY-MM-DD_HHmmss`, identifying the publication run;
+- `5.45.1`, the exact-version alias;
+- `5.45`, the series alias;
+- `vX.Y.Z-5.45.1`, the release-specific alias.
 
 The configured default Perl version also updates `latest`. Codex, built on
-Perl 5.44.0 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
+Perl 5.45.1 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
 `vX.Y.Z-codex`. It never updates `latest`. Rerunning failed jobs for the same
 release keeps its shared timestamp when GitHub reuses the workflow run.
 
 Inspect either manifest before use:
 
 ```sh
-docker buildx imagetools inspect perlessentials/perl-essentials:5.44.0
+docker buildx imagetools inspect perlessentials/perl-essentials:5.45.1
 docker buildx imagetools inspect perlessentials/perl-essentials:codex
 ```
 

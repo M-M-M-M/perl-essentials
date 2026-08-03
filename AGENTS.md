@@ -24,6 +24,13 @@ Avoid large changes; leave TODO puzzles for follow-up.
 Flag smells and refactoring; suggest issues, don't fix silently.
 Do not merge changes without committing first and getting review or approval when the workflow requires it.
 
+# Publication
+
+For GitHub public publication, do not use `gh release create` from this private
+checkout. First publish the filtered public snapshot with `./publish-public.zsh`;
+then the GitHub Release is created manually in the public GitHub repository.
+Publishing that GitHub Release triggers the Docker Hub workflow.
+
 # Perl
 
 Use strict and warnings in every file.

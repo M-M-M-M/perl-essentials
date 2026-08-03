@@ -37,16 +37,20 @@ overwriting custom settings.
 Codex uses Bubblewrap for its Linux sandbox. Ubuntu 24.04 hosts may require the
 distribution `bwrap-userns-restrict` AppArmor profile before the sandbox can
 configure non-root user and network namespaces.
+Local `linux/amd64` validation on Apple Silicon Docker Desktop runs through
+emulation; a Codex `SeccompInstall`/`Invalid argument` sandbox failure there is
+handled as a documented local smoke-test limitation, while native CI keeps the
+sandbox validation strict.
 
 ```sh
-docker run --rm perlessentials/perl-essentials:5.44 \
+docker run --rm perlessentials/perl-essentials:5.45 \
   perl -MDBI -MJSON -e 'print "ready\n"'
 ```
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perlessentials/perl-essentials:5.44
+  perlessentials/perl-essentials:5.45
 ```
 
 ```sh
@@ -74,7 +78,7 @@ Preview formatting without modifying the mounted file:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
-  perlessentials/perl-essentials:5.44 \
+  perlessentials/perl-essentials:5.45 \
   perltidy -st -se /work/path/to/script.pl
 ```
 
@@ -83,7 +87,7 @@ file ownership:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
-  perlessentials/perl-essentials:5.44 \
+  perlessentials/perl-essentials:5.45 \
   perltidy -b -bext='/' /work/path/to/script.pl
 ```
 
@@ -98,18 +102,18 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 | 5.38 | 5.38.5 | Established production series |
 | 5.40 | 5.40.4 | Maintained stable series |
 | 5.42 | 5.42.2 | Previous stable series |
-| 5.43 | 5.43.9 | Development compatibility |
 | 5.44 | 5.44.0 | Latest stable series |
+| 5.45 | 5.45.1 | Development compatibility |
 <!-- PERL_TARGETS_END -->
 
 ## Codex target
 
-A `codex` target is also available, based on the Perl 5.44.0 image:
+A `codex` target is also available, based on the Perl 5.45.1 image:
 
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.44.0 | Latest at no-cache build; 0.145.0 observed 2026-07-23 | Latest at no-cache build; 0.43.0 observed 2026-07-23 | `codex`, release, and timestamp tags |
+| `codex` | 5.45.1 | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 ## Included Perl modules

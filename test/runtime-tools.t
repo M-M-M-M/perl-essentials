@@ -37,6 +37,12 @@ unlike $dockerfile, qr{ln -s /usr/bin/(?:cat|find|grep|sed)},
   'Docker build does not assume GNU command locations' ;
 like $dockerfile, qr/scripts\/check-runtime-tools\.sh/,
   'Docker build validates runtime tools' ;
+like $dockerfile,
+  qr{cpanm --save-dists /tmp/cpan-dists\s+\\\s+--configure-timeout "\$\{CPAN_CONFIGURE_TIMEOUT\}"\s+\\\s+-in App::cpanoutdated},
+  'Docker build extends the configure timeout when installing cpan-outdated' ;
+like $dockerfile,
+  qr{cpan-outdated -p \| cpanm --save-dists /tmp/cpan-dists\s+\\\s+--configure-timeout "\$\{CPAN_CONFIGURE_TIMEOUT\}"\s+\\\s+-in},
+  'Docker build extends the configure timeout when updating outdated CPAN modules' ;
 
 my $ci = _read_text('scripts/ci-build.sh') ;
 like $ci, qr{/opt/perl-essentials/scripts/check-runtime-tools\.sh},

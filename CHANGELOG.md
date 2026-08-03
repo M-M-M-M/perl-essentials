@@ -8,8 +8,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Perl 5.45.1 replaces Perl 5.43.9 as the development image, and the Codex
+  image now builds from Perl 5.45.1.
+- GitHub publication documentation now records the operator flow: publish the
+  filtered public snapshot with `./publish-public.zsh`, then manually create
+  the GitHub Release to trigger Docker Hub publication.
 - Docker Scout CVE audit results were refreshed, and README now links to the
   public security audit and risk decisions.
+- CPAN test timeout now defaults to 10800 seconds so slow ARM64 runners can
+  distinguish long upstream test suites from the Bitbucket 12-hour step limit.
+- Private operators can now run the full local Docker image validation matrix
+  with per-job logs, a combined log, summary reports with human-readable
+  durations, and cleanup of newly built images.
+- Local Docker image validation now supports parallel jobs and includes a
+  benchmark wrapper to compare full-matrix run times by job count.
+- Codex image CI validation now labels each runtime assertion so silent failures
+  identify the failing validation step and exit status.
+
+### Fixed
+
+- CI Buildx bootstrap no longer passes the unsupported `--timeout` flag and
+  now retries transient bootstrap failures up to six times.
+- The broad `cpan-outdated` update now uses the configured CPAN configure
+  timeout, avoiding default 60-second configure failures on slow ARM64 runners.
 
 ## [0.8.1] - 2026-07-24
 

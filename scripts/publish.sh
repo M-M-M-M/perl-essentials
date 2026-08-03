@@ -5,7 +5,7 @@ set -eu
 : "${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME must be set}"
 : "${PERL_VERSION:?PERL_VERSION must be set}"
 : "${CPAN_CONFIGURE_TIMEOUT:=1200}"
-: "${CPAN_TEST_TIMEOUT:=7200}"
+: "${CPAN_TEST_TIMEOUT:=10800}"
 
 command="${1:-}"
 mode="${2:-}"

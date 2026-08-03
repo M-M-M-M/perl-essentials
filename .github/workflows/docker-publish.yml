@@ -101,18 +101,6 @@ jobs:
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
-          - key: perl-543
-            mode: perl
-            perl-version: 5.43.9
-            platform: linux/amd64
-            architecture: amd64
-            runner: ubuntu-24.04
-          - key: perl-543
-            mode: perl
-            perl-version: 5.43.9
-            platform: linux/arm64
-            architecture: arm64
-            runner: ubuntu-24.04-arm
           - key: perl-544
             mode: perl
             perl-version: 5.44.0
@@ -125,15 +113,27 @@ jobs:
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
+          - key: perl-545
+            mode: perl
+            perl-version: 5.45.1
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-24.04
+          - key: perl-545
+            mode: perl
+            perl-version: 5.45.1
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-24.04-arm
           - key: codex
             mode: codex
-            perl-version: 5.44.0
+            perl-version: 5.45.1
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-24.04
           - key: codex
             mode: codex
-            perl-version: 5.44.0
+            perl-version: 5.45.1
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
@@ -187,15 +187,15 @@ jobs:
           - key: perl-542
             mode: perl
             perl-version: 5.42.2
-          - key: perl-543
-            mode: perl
-            perl-version: 5.43.9
           - key: perl-544
             mode: perl
             perl-version: 5.44.0
+          - key: perl-545
+            mode: perl
+            perl-version: 5.45.1
           - key: codex
             mode: codex
-            perl-version: 5.44.0
+            perl-version: 5.45.1
     steps:
       - uses: actions/checkout@v6
       - uses: docker/login-action@v4
