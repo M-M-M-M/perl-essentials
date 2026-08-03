@@ -100,7 +100,7 @@ The optional development target is validated separately:
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.45.1 | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags |
+| `codex` | 5.45.1 | Latest at no-cache build; 0.146.0 observed 2026-08-03 19:32:39 | Latest at no-cache build; 0.44.2 observed 2026-08-03 19:32:39 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 Codex CLI and RTK versions are not pinned. CI prints both resolved versions on
@@ -338,7 +338,7 @@ test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
 query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
-Versions captured on 2026-07-23 06:33:22 (UTC).
+Versions captured on 2026-08-03 19:32:39 (UTC).
 
 This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
@@ -371,8 +371,8 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `File::Temp` | `0.2312` |
 | `File::Which` | `1.27` |
 | `Getopt::Long` | `2.58` |
-| `HTTP::Cookies` | `6.11` |
-| `HTTP::Request::Common` | `7.02` |
+| `HTTP::Cookies` | `6.12` |
+| `HTTP::Request::Common` | `7.04` |
 | `I18N::Langinfo` | `0.24` |
 | `IO::Pty` | `1.31` |
 | `Imager` | `1.033` |
@@ -409,8 +409,8 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `XML::Hash` | `0.95` |
 | `XML::LibXML` | `2.0213` |
 | `XML::LibXML::XPathContext` | `2.0213` |
-| `threads` | `2.45` |
-| `threads::shared` | `1.73` |
+| `threads` | `2.46` |
+| `threads::shared` | `1.74` |
 | `utf8` | `1.29` |
 | `utf8::all` | `0.026` |
 | `DateTime::Locale` | `1.45` |
