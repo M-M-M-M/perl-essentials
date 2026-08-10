@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Perl stable targets 5.40 and 5.42 now track Perl 5.40.5 and 5.42.3.
+
 ## [0.9.2] - 2026-08-03
 
 ### Fixed

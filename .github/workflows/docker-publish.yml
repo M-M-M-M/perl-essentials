@@ -79,25 +79,25 @@ jobs:
             runner: ubuntu-24.04-arm
           - key: perl-540
             mode: perl
-            perl-version: 5.40.4
+            perl-version: 5.40.5
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-24.04
           - key: perl-540
             mode: perl
-            perl-version: 5.40.4
+            perl-version: 5.40.5
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
           - key: perl-542
             mode: perl
-            perl-version: 5.42.2
+            perl-version: 5.42.3
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-24.04
           - key: perl-542
             mode: perl
-            perl-version: 5.42.2
+            perl-version: 5.42.3
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-24.04-arm
@@ -183,10 +183,10 @@ jobs:
             perl-version: 5.38.5
           - key: perl-540
             mode: perl
-            perl-version: 5.40.4
+            perl-version: 5.40.5
           - key: perl-542
             mode: perl
-            perl-version: 5.42.2
+            perl-version: 5.42.3
           - key: perl-544
             mode: perl
             perl-version: 5.44.0

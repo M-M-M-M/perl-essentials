@@ -26,7 +26,7 @@ if perl "$script" --check --no-drift \
     exit 1
 fi
 
-grep -q 'UPDATE: 5.42.2 -> 5.42.3' "$output"
+grep -q 'UPDATE: 5.42.3 -> 5.42.4' "$output"
 grep -q 'UPDATE: 5.44.0 -> 5.44.1' "$output"
 grep -q 'UPDATE: 5.45.1 -> 5.45.2' "$output"
 grep -q 'ADD: 5.46.0' "$output"

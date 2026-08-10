@@ -100,8 +100,8 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 | 5.32 | 5.32.1 | Broad legacy compatibility |
 | 5.36 | 5.36.3 | Common LTS distributions |
 | 5.38 | 5.38.5 | Established production series |
-| 5.40 | 5.40.4 | Maintained stable series |
-| 5.42 | 5.42.2 | Previous stable series |
+| 5.40 | 5.40.5 | Maintained stable series |
+| 5.42 | 5.42.3 | Previous stable series |
 | 5.44 | 5.44.0 | Latest stable series |
 | 5.45 | 5.45.1 | Development compatibility |
 <!-- PERL_TARGETS_END -->
