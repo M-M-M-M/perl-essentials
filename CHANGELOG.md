@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [0.9.3] - 2026-08-10
+## [0.9.4] - 2026-08-24
 
 ### Changed
 
@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   follows that latest configured Perl target.
 - DBD::Pg remains installed but is temporarily installed without its upstream
   CPAN test suite after DBD-Pg 3.21.1 failed under Perl 5.45.2 ARM64 builds.
+
+## [0.9.3] - 2026-08-10
+
+### Changed
+
 - Perl stable targets 5.40 and 5.42 now track Perl 5.40.5 and 5.42.3.
 - Public snapshot publication now uses a temporary checkout and archive that
   are removed automatically after each run.
@@ -332,7 +337,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.3...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.4...HEAD
+[0.9.4]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.8.1...v0.9.1
