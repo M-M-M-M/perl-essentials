@@ -120,7 +120,7 @@ local $ENV{BUILD_STATUS}        = 42 ;
 local $ENV{DOCKER_LOG}          = $log ;
 local $ENV{INSPECT_COUNT}       = $count ;
 local $ENV{INSPECT_SUCCEED_AT}  = 3 ;
-local $ENV{PERL_VERSION}        = '5.45.1' ;
+local $ENV{PERL_VERSION}        = '5.45.2' ;
 local $ENV{SANDBOX_MODE}        = 'success' ;
 local $ENV{DOCKER_ARCHITECTURE} = 'x86_64' ;
 

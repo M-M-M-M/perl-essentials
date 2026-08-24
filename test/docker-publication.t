@@ -118,7 +118,7 @@ like $perl_log, qr/buildx imagetools inspect.*5\.44\.0/,
   'manifest publication verifies the exact-version alias' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;
-my %default_env = ( %base_env, PERL_VERSION => '5.45.1' ) ;
+my %default_env = ( %base_env, PERL_VERSION => '5.45.2' ) ;
 ( $status, $output )
   = _run_with_env( \%default_env, $publish, 'manifest', 'perl',
   $amd64_digest, $arm64_digest ) ;

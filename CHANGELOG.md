@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Perl development target 5.45 now tracks Perl 5.45.2, and the Codex image
+  follows that latest configured Perl target.
+- DBD::Pg remains installed but is temporarily installed without its upstream
+  CPAN test suite after DBD-Pg 3.21.1 failed under Perl 5.45.2 ARM64 builds.
 - Perl stable targets 5.40 and 5.42 now track Perl 5.40.5 and 5.42.3.
 - Public snapshot publication now uses a temporary checkout and archive that
   are removed automatically after each run.

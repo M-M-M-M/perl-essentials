@@ -7,7 +7,6 @@ requires 'Archive::Zip::MemberRead';
 requires 'Array::Compare';
 requires 'Cpanel::JSON::XS';
 requires 'Cwd';
-requires 'DBD::Pg';
 requires 'DBD::SQLite';
 requires 'DBI';
 requires 'Data::Dumper';

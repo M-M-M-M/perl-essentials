@@ -37,7 +37,7 @@ like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
 like $readme, qr{\[SECURITY\.md\]\(SECURITY\.md\)},
   'README links to the Docker Scout security audit' ;
-like $readme, qr/`Mojolicious::Lite` \| `9\.48`/,
+like $readme, qr/`Mojolicious::Lite` \| `9\.49`/,
   'README reports the installed Mojolicious distribution version' ;
 like $dockerhub,
   qr{/etc/perltidyrc.*project-local `.perltidyrc`.*-pro=/work/custom\.perltidyrc.*-npro}s,
@@ -45,7 +45,7 @@ like $dockerhub,
 like $dockerhub,
   qr{--user "\$\(id -u\):\$\(id -g\)".*perltidy -b -bext='/'}s,
   'Docker Hub in-place formatting example preserves host ownership' ;
-like $dockerhub, qr/based on the Perl 5\.45\.1 image/,
+like $dockerhub, qr/based on the Perl 5\.45\.2 image/,
   'Docker Hub identifies the exact Codex Perl image' ;
 unlike $dockerhub, qr/based on the latest development Perl target/,
   'Docker Hub does not describe the Codex base as an unstable latest target' ;
