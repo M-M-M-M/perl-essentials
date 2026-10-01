@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.7] - 2026-10-01
+
+### Fixed
+
+- Docker image publication no longer uses an `awk` variable named `default`,
+  avoiding GitHub runner syntax errors while publishing Perl manifests.
+
 ## [0.9.6] - 2026-10-01
 
 ### Fixed

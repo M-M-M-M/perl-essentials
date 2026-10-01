@@ -212,6 +212,10 @@ like $output, qr/Usage:/,
   'unknown image mode reports the supported interface' ;
 
 my $publish_script = _read_text($publish) ;
+unlike $publish_script, qr/\bdefault\s*=/,
+  'publication script avoids awk default keyword assignments' ;
+unlike $publish_script, qr/print\s+default\b/,
+  'publication script avoids printing awk default keyword variables' ;
 unlike $publish_script, qr/setup-qemu|tonistiigi\/binfmt/,
   'publication script contains no QEMU setup path' ;
 

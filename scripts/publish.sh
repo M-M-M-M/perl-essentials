@@ -101,12 +101,12 @@ publish_manifest()
             --tag "${primary_tag}" \
             --tag "${repository}:${series}" \
             --tag "${repository}:${RELEASE_TAG}-${PERL_VERSION}"
-        if awk -F'|' -v version="${PERL_VERSION}" \
-            '!/^#/ && NF { default = $1 } END { exit !(default == version) }' \
-            perl-versions.conf
-        then
-            set -- "$@" --tag "${repository}:latest"
-        fi
+	if awk -F'|' -v version="${PERL_VERSION}" \
+		'!/^#/ && NF { default_version = $1 } END { exit !(default_version == version) }' \
+		perl-versions.conf
+	then
+		set -- "$@" --tag "${repository}:latest"
+	fi
     else
         primary_tag="${repository}:codex"
         set -- \
@@ -123,8 +123,8 @@ publish_manifest()
 
 default_perl_version()
 {
-    awk -F'|' '!/^#/ && NF { default = $1 } END { print default }' \
-        perl-versions.conf
+	awk -F'|' '!/^#/ && NF { default_version = $1 } END { print default_version }' \
+		perl-versions.conf
 }
 
 image_digest()
