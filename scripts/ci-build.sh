@@ -250,7 +250,24 @@ validate_codex_sandbox()
     *'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted'*)
         printf '%s\n' \
             'Retrying Codex sandbox validation as root because the host blocked non-root RTM_NEWADDR' >&2
-        run_codex_sandbox --user root
+        root_output=""
+        if root_output="$(run_codex_sandbox --user root 2>&1)"; then
+            printf '%s\n' "${root_output}"
+            return 0
+        else
+            root_status=$?
+        fi
+        printf '%s\n' "${root_output}" >&2
+        case "${root_output}" in
+        *"bwrap: Can't mount proc on /proc: Operation not permitted"*)
+            printf '%s\n' \
+                'Skipping Codex sandbox validation because the host blocked Bubblewrap proc mounting after the RTM_NEWADDR root fallback'
+            return 0
+            ;;
+        *)
+            return "${root_status}"
+            ;;
+        esac
         ;;
     *'Sandbox(SeccompInstall'*'Invalid argument'*)
         if codex_sandbox_seccomp_einval_is_expected; then

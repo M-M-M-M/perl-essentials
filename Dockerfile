@@ -13,7 +13,20 @@ LABEL org.opencontainers.image.title="perl-essentials" \
       org.opencontainers.image.licenses="MIT"
 
 # These packages support interactive troubleshooting.
-RUN if grep -q '^VERSION_CODENAME=buster$' /etc/os-release; then \
+RUN printf '%s\n' \
+      'Acquire::Retries "5";' \
+      'Acquire::http::Timeout "120";' \
+      'Acquire::https::Timeout "120";' \
+      > /etc/apt/apt.conf.d/80-retries \
+ && if grep -q '^VERSION_CODENAME=bullseye$' /etc/os-release; then \
+      sed -i \
+        -e 's|^# deb http://snapshot.debian.org/archive/debian-security/|deb http://snapshot.debian.org/archive/debian-security/|g' \
+        -e 's|snapshot.debian.org/archive/debian-security/[0-9TZ]*|snapshot.debian.org/archive/debian-security/20260901T000000Z|g' \
+        -e 's|^deb http://deb.debian.org/debian-security bullseye-security|# deb http://deb.debian.org/debian-security bullseye-security|g' \
+        /etc/apt/sources.list; \
+      printf 'Acquire::Check-Valid-Until "false";\n' \
+        > /etc/apt/apt.conf.d/99archive; \
+    elif grep -q '^VERSION_CODENAME=buster$' /etc/os-release; then \
       sed -i \
         -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
         -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' \

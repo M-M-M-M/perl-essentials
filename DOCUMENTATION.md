@@ -166,7 +166,11 @@ Native GitHub AMD64 and ARM64 validations run the live smoke test first as the
 default non-root `perl` user. If the host returns exactly
 `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`, CI reports the
 host restriction and retries that smoke test once as root. Other failures
-remain fatal without a retry.
+remain fatal without a retry. Some hosted runners also reject Bubblewrap's
+`/proc` mount during that root fallback with exactly
+`bwrap: Can't mount proc on /proc: Operation not permitted`; CI reports and
+skips only that host-level sandbox smoke-test failure because the image build,
+installed tools, entrypoint, and license audit have already been validated.
 On Apple Silicon Macs, a local `CI_PLATFORM=linux/amd64` build runs under
 Docker Desktop's AMD64 emulation. Codex can then fail while installing its
 inner seccomp sandbox with `Sandbox(SeccompInstall(... Invalid argument))`,
@@ -650,3 +654,15 @@ needs correction, prepare a new patch release.
 The Perl 5.26.3 base image uses end-of-life Debian Buster repositories. The
 Dockerfile switches only that image to `archive.debian.org` and disables the
 expired repository timestamp check.
+
+The Perl 5.32.1 base image uses Debian Bullseye. Live `bullseye-security`
+mirrors can temporarily advertise package versions whose `.deb` files return
+404 during Docker builds. The Dockerfile keeps the live Bullseye main and
+updates repositories, but pins only `bullseye-security` to the
+`20260901T000000Z` Debian snapshot and disables the timestamp validity check
+for that image. This preserves the current Bullseye security package versions
+used by CI while making the legacy build reproducible.
+
+All image builds configure APT with five fetch retries and 120-second HTTP and
+HTTPS timeouts. This absorbs transient mirror timeouts without hiding persistent
+package or repository errors.

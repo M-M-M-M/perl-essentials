@@ -27,6 +27,10 @@ like $dockerfile, qr/sha256sum -c/,
   'Docker build verifies the downloaded hyperfine archive' ;
 like $dockerfile, qr/name => "hyperfine"/,
   'Docker build includes hyperfine in the direct license inventory' ;
+like $dockerfile, qr/Acquire::Retries "5"/,
+  'Docker build retries transient APT fetch failures' ;
+like $dockerfile, qr/VERSION_CODENAME=bullseye.*archive\/debian-security\/20260901T000000Z/s,
+  'Docker build uses Debian security snapshots for the Bullseye-based Perl 5.32 image' ;
 
 for my $command (qw(cat find grep sed)) {
   like $dockerfile,

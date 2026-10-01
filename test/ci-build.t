@@ -90,6 +90,15 @@ case "$*" in
             'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' >&2
         exit 77
         ;;
+    fallback-proc-denied)
+        if printf '%s\n' "$*" | grep -q -- '--user root'; then
+            printf '%s\n' "bwrap: Can't mount proc on /proc: Operation not permitted" >&2
+            exit 1
+        fi
+        printf '%s\n' \
+            'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted' >&2
+        exit 77
+        ;;
     esac
     ;;
 esac
@@ -290,6 +299,19 @@ like $output, qr/bwrap: root fallback failed/,
   'root fallback failure is preserved in CI output' ;
 like $docker_log, qr/--user root .*codex sandbox/,
   'known host restriction attempts the root fallback once' ;
+
+unlink $log or die "Cannot reset '$log': $!" ;
+$ENV{SANDBOX_MODE} = 'fallback-proc-denied' ;
+
+$output     = qx{/bin/sh "$script" codex 2>&1} ;
+$status     = $? >> 8 ;
+$docker_log = _read_text($log) ;
+
+is $status, 0, 'Codex validation skips the known hosted-runner proc mount restriction' ;
+like $output, qr/host blocked Bubblewrap proc mounting after the RTM_NEWADDR root fallback/,
+  'known hosted-runner proc mount restriction reports why it skipped' ;
+like $docker_log, qr/--user root .*codex sandbox/,
+  'known hosted-runner proc mount restriction attempts the root fallback once' ;
 
 unlink $log or die "Cannot reset '$log': $!" ;
 local $ENV{CI_SKIP_CODEX_SANDBOX} = '1' ;

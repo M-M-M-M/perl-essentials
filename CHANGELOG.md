@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Perl 5.32.1 builds now pin only Debian Bullseye security packages to a recent
+  Debian snapshot, avoiding transient 404 failures from live
+  `bullseye-security` mirrors without downgrading to the base image's old
+  package set.
+- Docker builds now configure APT retries and fetch timeouts to absorb
+  transient Debian mirror timeouts.
+- Codex CI validation now treats the hosted-runner Bubblewrap `/proc` mount
+  denial after the RTM_NEWADDR root fallback as a known host limitation, while
+  keeping unrelated sandbox failures fatal.
+
 ## [0.9.5] - 2026-10-01
 
 ### Fixed
