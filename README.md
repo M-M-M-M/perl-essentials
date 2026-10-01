@@ -100,7 +100,7 @@ The optional development target is validated separately:
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.45.2 | Latest at no-cache build; 0.149.1 observed 2026-08-24 09:35:05 | Latest at no-cache build; 0.45.0 observed 2026-08-24 09:35:05 | `codex`, release, and timestamp tags |
+| `codex` | 5.45.2 | Latest at no-cache build; 0.149.1 observed 2026-10-01 08:39:14 | Latest at no-cache build; 0.45.0 observed 2026-10-01 08:39:14 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 Codex CLI and RTK versions are not pinned. CI prints both resolved versions on
@@ -338,7 +338,7 @@ test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
 query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
-Versions captured on 2026-08-24 09:35:05 (UTC).
+Versions captured on 2026-10-01 08:39:14 (UTC).
 
 This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an

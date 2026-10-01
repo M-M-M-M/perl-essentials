@@ -219,6 +219,7 @@ jobs:
             "${{ matrix.mode }}" \
             /tmp/digests/amd64 \
             /tmp/digests/arm64
+          scripts/publish.sh verify-latest "${{ matrix.mode }}"
 
   description:
     needs: [manifest]

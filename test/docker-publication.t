@@ -15,7 +15,8 @@ my $bin = File::Spec->catdir( $tmp, 'bin' ) ;
 my $log = File::Spec->catfile( $tmp, 'docker.log' ) ;
 make_path($bin) ;
 
-my $docker = File::Spec->catfile( $bin, 'docker' ) ;
+my $docker        = File::Spec->catfile( $bin, 'docker' ) ;
+my $inspect_state = File::Spec->catfile( $tmp, 'inspect-state' ) ;
 _write_text(
   $docker,
   <<'SH',
@@ -23,6 +24,21 @@ _write_text(
 set -eu
 
 printf '%s\n' "$*" >> "$DOCKER_TEST_LOG"
+
+if [ "$1" = "buildx" ] && [ "$2" = "imagetools" ] && [ "$3" = "inspect" ]; then
+    if [ -n "${DOCKER_TEST_INSPECT_DIGESTS:-}" ]; then
+        state="${DOCKER_TEST_INSPECT_STATE:?DOCKER_TEST_INSPECT_STATE must be set}"
+        index=1
+        if [ -f "$state" ]; then
+            index=$(($(cat "$state") + 1))
+        fi
+        printf '%s\n' "$index" > "$state"
+        digest=$(printf '%s\n' "$DOCKER_TEST_INSPECT_DIGESTS" | sed -n "${index}p")
+        test -n "$digest" || digest=sha256:inspect-default
+        printf 'Digest:    %s\n' "$digest"
+    fi
+    exit 0
+fi
 
 metadata=
 previous=
@@ -42,12 +58,13 @@ SH
 chmod 0755, $docker or die "Cannot make fake Docker executable: $!" ;
 
 my %base_env = (
-  DOCKERHUB_USERNAME => 'perlessentials',
-  DOCKER_TEST_LOG    => $log,
-  PATH               => "$bin:$ENV{PATH}",
-  PERL_VERSION       => '5.44.0',
-  PUBLISH_TIMESTAMP  => '2026-06-19_142233',
-  RELEASE_TAG        => 'v0.5.1',
+  DOCKERHUB_USERNAME        => 'perlessentials',
+  DOCKER_TEST_LOG           => $log,
+  DOCKER_TEST_INSPECT_STATE => $inspect_state,
+  PATH                      => "$bin:$ENV{PATH}",
+  PERL_VERSION              => '5.44.0',
+  PUBLISH_TIMESTAMP         => '2026-06-19_142233',
+  RELEASE_TAG               => 'v0.5.1',
 ) ;
 
 my $amd64_digest = File::Spec->catfile( $tmp, 'digests', 'amd64' ) ;
@@ -78,7 +95,7 @@ unlike $build_log, qr/setup-qemu|binfmt|--privileged/,
 unlike $build_log, qr/--no-cache/,
   'Perl digest build remains cacheable' ;
 
-unlink $log or die "Cannot reset fake Docker log: $!" ;
+unlink $log if -f $log ;
 my $arm64_digest = File::Spec->catfile( $tmp, 'digests', 'arm64' ) ;
 ( $status, $output )
   = _run_with_env( \%base_env, $publish, 'build', 'codex',
@@ -128,6 +145,50 @@ like _read_text($log), qr/--tag perlessentials\/perl-essentials:latest/,
   'default Perl updates latest' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;
+unlink $inspect_state if -f $inspect_state ;
+my %matching_latest_env = (
+  %default_env,
+  DOCKER_TEST_INSPECT_DIGESTS => join "\n",
+  qw(
+    sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  ),
+) ;
+( $status, $output )
+  = _run_with_env( \%matching_latest_env, $publish, 'verify-latest', 'perl' ) ;
+is $status, 0, 'default Perl latest verification succeeds'
+  or diag $output ;
+like $output, qr/Docker Hub latest digest matches/,
+  'default Perl latest verification reports the matching digest' ;
+like _read_text($log),
+  qr/imagetools inspect perlessentials\/perl-essentials:5\.45\.2.*imagetools inspect perlessentials\/perl-essentials:latest/s,
+  'default Perl latest verification inspects version and latest tags' ;
+
+unlink $log or die "Cannot reset fake Docker log: $!" ;
+unlink $inspect_state if -f $inspect_state ;
+my %mismatched_latest_env = (
+  %default_env,
+  DOCKER_TEST_INSPECT_DIGESTS => join "\n",
+  qw(
+    sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  ),
+) ;
+( $status, $output )
+  = _run_with_env( \%mismatched_latest_env, $publish, 'verify-latest', 'perl' ) ;
+isnt $status, 0, 'default Perl latest verification fails on digest mismatch' ;
+like $output, qr/Docker Hub latest digest mismatch/,
+  'default Perl latest verification reports stale latest' ;
+
+unlink $log or die "Cannot reset fake Docker log: $!" ;
+( $status, $output )
+  = _run_with_env( \%base_env, $publish, 'verify-latest', 'perl' ) ;
+is $status, 0, 'non-default Perl latest verification is skipped'
+  or diag $output ;
+like $output, qr/Skipping latest verification for non-default Perl 5\.44\.0/,
+  'non-default Perl latest verification explains why it is skipped' ;
+
+unlink $log if -f $log ;
 ( $status, $output )
   = _run_with_env( \%base_env, $publish, 'manifest', 'codex',
   $amd64_digest, $arm64_digest ) ;

@@ -15,6 +15,7 @@ usage()
 {
     printf 'Usage: %s build [perl|codex] PLATFORM DIGEST_FILE\n' "$0" >&2
     printf '       %s manifest [perl|codex] DIGEST_FILE...\n' "$0" >&2
+    printf '       %s verify-latest [perl|codex]\n' "$0" >&2
     exit 2
 }
 
@@ -120,12 +121,67 @@ publish_manifest()
     docker buildx imagetools inspect "${primary_tag}"
 }
 
+default_perl_version()
+{
+    awk -F'|' '!/^#/ && NF { default = $1 } END { print default }' \
+        perl-versions.conf
+}
+
+image_digest()
+{
+    docker buildx imagetools inspect "$1" \
+        | awk '/^Digest:/ { print $2; exit }'
+}
+
+verify_latest()
+{
+    shift 2
+    test "$#" -eq 0 || usage
+
+    select_target
+    if [ "${mode}" != "perl" ]; then
+        printf 'Skipping latest verification for %s target\n' "${mode}"
+        return 0
+    fi
+
+    default_version=$(default_perl_version)
+    if [ "${PERL_VERSION}" != "${default_version}" ]; then
+        printf 'Skipping latest verification for non-default Perl %s\n' \
+            "${PERL_VERSION}"
+        return 0
+    fi
+
+    version_tag="${repository}:${PERL_VERSION}"
+    latest_tag="${repository}:latest"
+    version_digest=$(image_digest "${version_tag}")
+    latest_digest=$(image_digest "${latest_tag}")
+
+    if [ -z "${version_digest}" ] || [ -z "${latest_digest}" ]; then
+        printf 'Cannot read Docker Hub digests for %s and %s\n' \
+            "${version_tag}" "${latest_tag}" >&2
+        exit 1
+    fi
+
+    if [ "${version_digest}" != "${latest_digest}" ]; then
+        printf 'Docker Hub latest digest mismatch: %s=%s %s=%s\n' \
+            "${latest_tag}" "${latest_digest}" \
+            "${version_tag}" "${version_digest}" >&2
+        exit 1
+    fi
+
+    printf 'Docker Hub latest digest matches %s: %s\n' \
+        "${version_tag}" "${latest_digest}"
+}
+
 case "${command}" in
 build)
     build_digest "$@"
     ;;
 manifest)
     publish_manifest "$@"
+    ;;
+verify-latest)
+    verify_latest "$@"
     ;;
 *)
     usage
