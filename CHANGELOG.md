@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.6] - 2026-10-01
+
 ### Fixed
 
 - Perl 5.32.1 builds now pin only Debian Bullseye security packages to a recent
