@@ -24,22 +24,24 @@ my $publication   = _read_text('.github/workflows/docker-publish.yml') ;
 
 like $ci, qr/timeout-minutes:\s+360/,
   'GitHub image validation has an explicit timeout' ;
-like $ci, qr/perl-version:.*5\.26\.3.*5\.45\.2/s,
+like $ci, qr/perl-version:.*5\.26\.3.*5\.45\.3/s,
   'GitHub image validation covers all configured Perl versions' ;
 like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub image validation covers both Docker platforms' ;
-like $ci, qr/platform:\s+linux\/amd64\s+runner:\s+ubuntu-latest/s,
-  'GitHub image validation runs AMD64 jobs on the standard Ubuntu runner' ;
-like $ci, qr/platform:\s+linux\/arm64\s+runner:\s+ubuntu-24\.04-arm/s,
-  'GitHub image validation runs ARM64 jobs on a native ARM64 runner' ;
+like $ci, qr/platform:\s+linux\/amd64\s+runner:\s+ubuntu-26\.04/s,
+  'GitHub image validation runs AMD64 jobs on an explicit Ubuntu 26 runner' ;
+like $ci, qr/platform:\s+linux\/arm64\s+runner:\s+ubuntu-26\.04-arm/s,
+  'GitHub image validation runs ARM64 jobs on an explicit native Ubuntu 26 ARM64 runner' ;
 like $ci, qr/runs-on:\s*\$\{\{\s*matrix\.runner\s*\}\}/,
   'GitHub image validation selects the runner from the matrix' ;
 like $ci, qr/CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}/,
   'GitHub image validation passes the selected Docker platform' ;
 unlike $ci, qr/docker\/setup-qemu-action/,
   'GitHub image validation does not install QEMU on native ARM64 runners' ;
-like $ci, qr/PERL_VERSION:\s*5\.45\.2.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
+like $ci, qr/PERL_VERSION:\s*5\.45\.3.*CI_PLATFORM:\s*\$\{\{\s*matrix\.platform\s*\}\}.*scripts\/ci-build\.sh codex/s,
   'GitHub Codex validation covers both Docker platforms' ;
+unlike $ci, qr/ubuntu-latest|ubuntu-24\.04/,
+  'GitHub image validation avoids moving and previous Ubuntu runner labels' ;
 unlike $ci, qr/ci-build-codex/,
   'GitHub image validation uses only the unified build script' ;
 
@@ -51,6 +53,10 @@ like $perl_versions,
 like $perl_versions,
   qr{scripts/check-perl-versions\.pl --check --drift-profile public},
   'Perl version workflow uses the public drift profile' ;
+like $perl_versions, qr/runs-on:\s+ubuntu-26\.04/,
+  'Perl version workflow uses an explicit Ubuntu 26 runner' ;
+unlike $perl_versions, qr/ubuntu-latest|ubuntu-24\.04/,
+  'Perl version workflow avoids moving and previous Ubuntu runner labels' ;
 
 like $publication, qr/release:\s+types:\s+\[published\]/,
   'Docker publication starts only from a published GitHub release' ;
@@ -62,12 +68,12 @@ like $publication, qr/cancel-in-progress:\s+false/,
   'Docker publication never cancels an in-progress release' ;
 like $publication, qr/permissions:\s+contents:\s+read/s,
   'Docker publication uses read-only repository permissions' ;
-like $publication, qr/runner:\s+ubuntu-24\.04\b/,
-  'Docker publication uses explicit stable AMD64 runners' ;
-like $publication, qr/runner:\s+ubuntu-24\.04-arm\b/,
-  'Docker publication uses explicit stable ARM64 runners' ;
-unlike $publication, qr/ubuntu-latest|ubuntu-26\.04/,
-  'Docker publication avoids moving or preview runner labels' ;
+like $publication, qr/runner:\s+ubuntu-26\.04\b/,
+  'Docker publication uses explicit Ubuntu 26 AMD64 runners' ;
+like $publication, qr/runner:\s+ubuntu-26\.04-arm\b/,
+  'Docker publication uses explicit Ubuntu 26 ARM64 runners' ;
+unlike $publication, qr/ubuntu-latest|ubuntu-24\.04/,
+  'Docker publication avoids moving and previous Ubuntu runner labels' ;
 like $publication, qr/docker\/login-action\@v4/,
   'Docker publication uses Docker Login v4' ;
 like $publication, qr/docker\/setup-buildx-action\@v4/,

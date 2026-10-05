@@ -39,7 +39,7 @@ repository's smoke test.
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.45.1 \
+  --build-arg PERL_VERSION=5.45.3 \
   -t perl-essentials:debug .
 
 docker run --rm perl-essentials:debug \
@@ -115,7 +115,7 @@ aliases `gcat`, `gfind`, `ggrep`, and `gsed`.
 The `codex` target derives from the complete `final` image. Normal image builds
 use a final `default` alias of the Perl-only `final` stage. Perl publication
 selects `final` explicitly. GitHub Actions validates the Codex target
-separately with Perl 5.45.1, and release publication publishes it under
+separately with Perl 5.45.3, and release publication publishes it under
 Codex-specific tags. RTK is therefore present only in the explicit `codex`
 target.
 
@@ -144,14 +144,14 @@ version level:
 
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.45.1 | Latest at no-cache build | Latest at no-cache build | Docker Hub Codex tags |
+| `codex` | 5.45.3 | Latest at no-cache build | Latest at no-cache build | Docker Hub Codex tags |
 
 Codex CLI and RTK versions are intentionally not pinned. CI runs
 `codex --version` and `rtk --version` so each validation log records the
 resolved versions.
 
 ```sh
-PERL_VERSION=5.45.1 scripts/ci-build.sh codex
+PERL_VERSION=5.45.3 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
@@ -303,7 +303,7 @@ Docker Desktop, QEMU/binfmt, runc, libseccomp, or Codex CLI, run the real local
 AMD64 validation:
 
 ```sh
-PERL_VERSION=5.45.1 CI_PLATFORM=linux/amd64 scripts/ci-build.sh codex
+PERL_VERSION=5.45.3 CI_PLATFORM=linux/amd64 scripts/ci-build.sh codex
 ```
 
 The workaround is still needed if the `codex-sandbox` step prints
@@ -311,6 +311,13 @@ The workaround is still needed if the `codex-sandbox` step prints
 sandbox validation because `linux/amd64` is running on an ARM64 Docker host.
 It can be removed only after the same command reaches
 `CI validation step: codex-sandbox ok` without the skip message.
+
+A targeted local validation of Perl 5.45.3 on 2026-10-05 took
+`8415s (2h 20m 15s)` for four images: Perl AMD64 `3481s (58m 1s)`,
+Perl ARM64 `869s (14m 29s)`, Codex AMD64 `3232s (53m 52s)`, and Codex
+ARM64 `829s (13m 49s)`. The AMD64 rows were measured on Apple Silicon
+Docker Desktop and include emulation overhead, so use them as a patience
+guide rather than a failure threshold.
 
 Do not add `--security-opt no-new-privileges=true` to the Codex container. It
 prevents the setuid fallback that Bubblewrap needs on hosts where unprivileged
@@ -401,7 +408,7 @@ exception.
    relevant, and a review date:
 
    ```perl
-   requires 'Module::Name'; # https://issue.example/123; Perl 5.45.1; review 2026-09-01
+   requires 'Module::Name'; # https://issue.example/123; Perl 5.45.3; review 2026-09-01
    ```
 
 6. Rebuild the affected version, then the complete matrix. The smoke test is
@@ -431,15 +438,15 @@ Show full logs and disable the build cache:
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.45.1 \
-  -t perl-essentials:5.45.1 .
+  --build-arg PERL_VERSION=5.45.3 \
+  -t perl-essentials:5.45.3 .
 ```
 
 Build and enter the pre-CPAN debug target:
 
 ```sh
 docker build --target debug-base \
-  --build-arg PERL_VERSION=5.45.1 \
+  --build-arg PERL_VERSION=5.45.3 \
   -t perl-essentials:debug-base .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug-base
 ```
@@ -453,7 +460,7 @@ Build and enter the complete debug target:
 
 ```sh
 docker build --target debug \
-  --build-arg PERL_VERSION=5.45.1 \
+  --build-arg PERL_VERSION=5.45.3 \
   -t perl-essentials:debug .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug
 ```
@@ -490,7 +497,7 @@ can be tested before distribution to older systems.
 GitHub workflows use `actions/checkout@v6`, which runs on Node.js 24 and avoids
 the deprecated Node.js 20 action runtime. The main GitHub CI matrix validates
 both `linux/amd64` and `linux/arm64`; ARM64 jobs run on the native
-`ubuntu-24.04-arm` hosted runner and pass the selected platform through
+`ubuntu-26.04-arm` hosted runner and pass the selected platform through
 `CI_PLATFORM`.
 
 `perl-versions.conf` records the exact versions and their roles. Check Docker
@@ -545,14 +552,13 @@ Publishing a GitHub Release starts `.github/workflows/docker-publish.yml`.
 
 The GitHub workflow builds each architecture separately and natively:
 
-- AMD64 uses the explicit stable `ubuntu-24.04` runner;
-- ARM64 uses the explicit stable `ubuntu-24.04-arm` runner.
+- AMD64 uses the explicit `ubuntu-26.04` runner;
+- ARM64 uses the explicit `ubuntu-26.04-arm` runner.
 
 The workflow deliberately avoids `ubuntu-latest`, whose backing image can
-change without a repository modification. It also avoids Ubuntu 26.04 while
-that runner image is a public preview. Moving to 26.04 should be a deliberate
-change after GitHub marks both architectures stable and the complete matrix has
-passed.
+change without a repository modification. Ubuntu 26.04 is selected explicitly
+so the repository records the runner migration and the release path validates
+the same image family that GitHub is migrating toward.
 
 Each build pushes a canonical architecture digest. A later job downloads the
 AMD64 and ARM64 digest artifacts and creates the final multi-architecture
@@ -576,22 +582,22 @@ uses the protected GitHub environment `dockerhub-production`, with
 `DOCKERHUB_USERNAME` as an environment variable and `DOCKERHUB_TOKEN` as an
 environment secret.
 
-For a release such as `vX.Y.Z`, Perl 5.45.1 receives:
+For a release such as `vX.Y.Z`, Perl 5.45.3 receives:
 
-- `5.45.1-YYYY-MM-DD_HHmmss`, identifying the publication run;
-- `5.45.1`, the exact-version alias;
+- `5.45.3-YYYY-MM-DD_HHmmss`, identifying the publication run;
+- `5.45.3`, the exact-version alias;
 - `5.45`, the series alias;
-- `vX.Y.Z-5.45.1`, the release-specific alias.
+- `vX.Y.Z-5.45.3`, the release-specific alias.
 
 The configured default Perl version also updates `latest`. Codex, built on
-Perl 5.45.1 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
+Perl 5.45.3 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
 `vX.Y.Z-codex`. It never updates `latest`. Rerunning failed jobs for the same
 release keeps its shared timestamp when GitHub reuses the workflow run.
 
 Inspect either manifest before use:
 
 ```sh
-docker buildx imagetools inspect perlessentials/perl-essentials:5.45.1
+docker buildx imagetools inspect perlessentials/perl-essentials:5.45.3
 docker buildx imagetools inspect perlessentials/perl-essentials:codex
 ```
 

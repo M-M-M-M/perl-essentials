@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-05
+
+### Changed
+
+- Perl development target 5.45 now tracks Perl 5.45.3, and the Codex image
+  follows that latest configured Perl target.
+- GitHub Actions workflows now pin Ubuntu 26 runners explicitly instead of
+  using `ubuntu-latest` or the previous Ubuntu 24.04 runner pins.
+- Local Docker image validation can target one configured Perl version with
+  `--perl-version`, including the matching Codex image.
+
 ## [0.9.7] - 2026-10-01
 
 ### Fixed
@@ -365,7 +376,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.5...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.7...v0.10.0
+[0.9.7]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.6...v0.9.7
+[0.9.6]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.2...v0.9.3

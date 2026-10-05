@@ -135,7 +135,7 @@ like $perl_log, qr/buildx imagetools inspect.*5\.44\.0/,
   'manifest publication verifies the exact-version alias' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;
-my %default_env = ( %base_env, PERL_VERSION => '5.45.2' ) ;
+my %default_env = ( %base_env, PERL_VERSION => '5.45.3' ) ;
 ( $status, $output )
   = _run_with_env( \%default_env, $publish, 'manifest', 'perl',
   $amd64_digest, $arm64_digest ) ;
@@ -161,7 +161,7 @@ is $status, 0, 'default Perl latest verification succeeds'
 like $output, qr/Docker Hub latest digest matches/,
   'default Perl latest verification reports the matching digest' ;
 like _read_text($log),
-  qr/imagetools inspect perlessentials\/perl-essentials:5\.45\.2.*imagetools inspect perlessentials\/perl-essentials:latest/s,
+  qr/imagetools inspect perlessentials\/perl-essentials:5\.45\.3.*imagetools inspect perlessentials\/perl-essentials:latest/s,
   'default Perl latest verification inspects version and latest tags' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;

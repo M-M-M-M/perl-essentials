@@ -103,41 +103,39 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 | 5.40 | 5.40.5 | Maintained stable series |
 | 5.42 | 5.42.3 | Previous stable series |
 | 5.44 | 5.44.0 | Latest stable series |
-| 5.45 | 5.45.2 | Development compatibility |
+| 5.45 | 5.45.3 | Development compatibility |
 <!-- PERL_TARGETS_END -->
 
 ## Codex target
 
-A `codex` target is also available, based on the Perl 5.45.2 image:
+A `codex` target is also available, based on the Perl 5.45.3 image:
 
 <!-- CODEX_TARGET_START -->
 | Target | Perl base | Codex CLI | RTK | Publication |
 | --- | --- | --- | --- | --- |
-| `codex` | 5.45.2 | Latest at no-cache build; 0.149.1 observed 2026-10-01 08:39:14 | Latest at no-cache build; 0.45.0 observed 2026-10-01 08:39:14 | `codex`, release, and timestamp tags |
+| `codex` | 5.45.3 | Latest at no-cache build; 0.160.0 observed 2026-10-05 15:02:34 | Latest at no-cache build; 0.51.0 observed 2026-10-05 15:02:34 | `codex`, release, and timestamp tags |
 <!-- CODEX_TARGET_END -->
 
 ## Included Perl modules
 
 <!-- MODULE_VERSIONS_START -->
-Versions captured on 2026-10-01 08:39:14 (UTC).
+Versions captured on 2026-10-05 15:02:34 (UTC).
 
-This inventory was captured from the default image at the
-timestamp above. Module versions may differ between publication runs. For an
-exact image, see `/opt/perl-essentials/module-versions.txt`.
+This inventory was captured from the default image at the timestamp above. Module versions may differ between publication runs. For an exact image, see `/opt/perl-essentials/module-versions.txt`.
 
 | Module | Version |
 | --- | --- |
 | `Archive::Zip` | `1.68` |
 | `Archive::Zip::MemberRead` | `1.68` |
 | `Array::Compare` | `3.0.8` |
-| `Cpanel::JSON::XS` | `4.43` |
+| `Cpanel::JSON::XS` | `4.53` |
 | `Cwd` | `3.95` |
 | `DBD::SQLite` | `1.78` |
-| `DBI` | `1.652` |
+| `DBI` | `1.655` |
 | `Data::Dumper` | `2.192` |
 | `Data::Peek` | `0.54` |
 | `Date::Calc` | `6.4` |
-| `DateTime` | `1.66` |
+| `DateTime` | `1.67` |
 | `DateTime::Format::Excel` | `0.31` |
 | `DateTime::Format::ISO8601` | `0.19` |
 | `Devel::NYTProf` | `6.15` |
@@ -155,7 +153,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `HTTP::Request::Common` | `7.04` |
 | `I18N::Langinfo` | `0.24` |
 | `IO::Pty` | `1.31` |
-| `Imager` | `1.035` |
+| `Imager` | `1.037` |
 | `JSON` | `4.11` |
 | `JSON::Lines` | `1.11` |
 | `JSON::MaybeXS` | `1.004008` |
@@ -166,35 +164,35 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `List::Util` | `1.70` |
 | `MIME::Base64` | `3.16_01` |
 | `MIME::Lite` | `3.038` |
-| `MIME::Parser` | `5.517` |
+| `MIME::Parser` | `5.519` |
 | `Math::Units` | `1.3` |
 | `Mojolicious::Lite` | `9.49` |
 | `Net::LDAP` | `0.68` |
 | `Net::SFTP::Foreign` | `1.93` |
 | `Perl::Critic` | `1.156` |
-| `Perl::Tidy` | `20260808` |
+| `Perl::Tidy` | `20260826` |
 | `Scalar::Util` | `1.70` |
 | `Schedule::RateLimiter` | `0.01` |
 | `Sort::Key` | `1.33` |
 | `Spreadsheet::XLSX` | `0.18` |
 | `Test::MockModule` | `0.185.3` |
-| `Test::More` | `1.302222` |
+| `Test::More` | `1.302225` |
 | `Text::CSV` | `2.06` |
 | `Text::Iconv` | `1.7` |
 | `Thread::Queue` | `3.14` |
 | `Time::Duration` | `1.21` |
 | `Time::HiRes` | `1.9781` |
 | `Time::Limit` | `0.003` |
-| `URI::Escape` | `5.36` |
+| `URI::Escape` | `5.37` |
 | `XML::Hash` | `0.95` |
 | `XML::LibXML` | `2.0213` |
 | `XML::LibXML::XPathContext` | `2.0213` |
-| `threads` | `2.46` |
+| `threads` | `2.47` |
 | `threads::shared` | `1.74` |
 | `utf8` | `1.29` |
 | `utf8::all` | `0.026` |
-| `DateTime::Locale` | `1.45` |
-| `DBD::Pg` | `3.21.1` |
+| `DateTime::Locale` | `1.46` |
+| `DBD::Pg` | `3.21.2` |
 | `REST::Client` | `281` |
 | `XML::XML2JSON` | `0.06` |
 <!-- MODULE_VERSIONS_END -->

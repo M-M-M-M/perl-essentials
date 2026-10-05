@@ -152,7 +152,7 @@ COPYRIGHT
     '--debian-copyright-root', $copyright,
     '--cpan-dists',            $dists,
     '--direct-components',     $direct,
-    '--perl-version',          '5.45.2',
+    '--perl-version',          '5.45.3',
   ) ;
   is $status, 0, 'license audit succeeds on representative fixtures'
     or diag $audit_output ;
