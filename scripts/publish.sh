@@ -102,17 +102,24 @@ publish_manifest()
             --tag "${repository}:${series}" \
             --tag "${repository}:${RELEASE_TAG}-${PERL_VERSION}"
 	if awk -F'|' -v version="${PERL_VERSION}" \
-		'!/^#/ && NF { default_version = $1 } END { exit !(default_version == version) }' \
+		'$2 == "stable" { default_version = $1 } END { exit !(default_version == version) }' \
 		perl-versions.conf
 	then
 		set -- "$@" --tag "${repository}:latest"
 	fi
+        if awk -F'|' -v version="${PERL_VERSION}" '$1 == version && $2 == "development" { found=1 } END { exit !found }' perl-versions.conf; then
+            set -- "$@" --tag "${repository}:dev"
+        fi
     else
-        primary_tag="${repository}:codex"
+        flavor=codex
+        if awk -F'|' -v version="${PERL_VERSION}" '$1 == version && $2 == "development" { found=1 } END { exit !found }' perl-versions.conf; then
+            flavor=codex-dev
+        fi
+        primary_tag="${repository}:${flavor}"
         set -- \
-            --tag "${repository}:codex-${PUBLISH_TIMESTAMP}" \
+            --tag "${repository}:${flavor}-${PUBLISH_TIMESTAMP}" \
             --tag "${primary_tag}" \
-            --tag "${repository}:${RELEASE_TAG}-codex"
+            --tag "${repository}:${RELEASE_TAG}-${flavor}"
     fi
 
     docker buildx imagetools create "$@" \
@@ -123,7 +130,7 @@ publish_manifest()
 
 default_perl_version()
 {
-	awk -F'|' '!/^#/ && NF { default_version = $1 } END { print default_version }' \
+	awk -F'|' '$2 == "stable" { default_version = $1 } END { print default_version }' \
 		perl-versions.conf
 }
 

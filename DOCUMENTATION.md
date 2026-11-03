@@ -39,7 +39,7 @@ repository's smoke test.
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.45.3 \
+  --build-arg PERL_VERSION=5.45.4 \
   -t perl-essentials:debug .
 
 docker run --rm perl-essentials:debug \
@@ -115,7 +115,8 @@ aliases `gcat`, `gfind`, `ggrep`, and `gsed`.
 The `codex` target derives from the complete `final` image. Normal image builds
 use a final `default` alias of the Perl-only `final` stage. Perl publication
 selects `final` explicitly. GitHub Actions validates the Codex target
-separately with Perl 5.45.3, and release publication publishes it under
+separately with stable Perl 5.44.0 and development Perl 5.45.4, and release
+publication publishes it under
 Codex-specific tags. RTK is therefore present only in the explicit `codex`
 target.
 
@@ -142,20 +143,20 @@ the installed CLIs. A no-cache build deliberately resolves their latest
 available versions, so this target is not reproducible at the Codex or RTK
 version level:
 
-| Target | Perl base | Codex CLI | RTK | Publication |
-| --- | --- | --- | --- | --- |
-| `codex` | 5.45.3 | Latest at no-cache build | Latest at no-cache build | Docker Hub Codex tags |
+| Target  | Perl base | Codex CLI                | RTK                      | Publication           |
+| ------- | --------- | ------------------------ | ------------------------ | --------------------- |
+| `codex` | 5.44.0    | Latest at no-cache build | Latest at no-cache build | Docker Hub Codex tags |
 
 Codex CLI and RTK versions are intentionally not pinned. CI runs
 `codex --version` and `rtk --version` so each validation log records the
 resolved versions.
 
 ```sh
-PERL_VERSION=5.45.3 scripts/ci-build.sh codex
+PERL_VERSION=5.44.0 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
-This command builds, tags, and validates the only Codex flavor,
+This command builds, tags, and validates the stable Codex flavor,
 `perl-essentials:codex`, replacing any older local image with that tag. Set
 `CI_PLATFORM=linux/arm64` on an ARM64 Docker host when a native build is
 preferred. The script reports build and validation phases and retries a
@@ -303,7 +304,7 @@ Docker Desktop, QEMU/binfmt, runc, libseccomp, or Codex CLI, run the real local
 AMD64 validation:
 
 ```sh
-PERL_VERSION=5.45.3 CI_PLATFORM=linux/amd64 scripts/ci-build.sh codex
+PERL_VERSION=5.45.4 CI_PLATFORM=linux/amd64 scripts/ci-build.sh codex
 ```
 
 The workaround is still needed if the `codex-sandbox` step prints
@@ -438,15 +439,15 @@ Show full logs and disable the build cache:
 
 ```sh
 docker build --progress=plain --no-cache \
-  --build-arg PERL_VERSION=5.45.3 \
-  -t perl-essentials:5.45.3 .
+  --build-arg PERL_VERSION=5.45.4 \
+  -t perl-essentials:5.45.4 .
 ```
 
 Build and enter the pre-CPAN debug target:
 
 ```sh
 docker build --target debug-base \
-  --build-arg PERL_VERSION=5.45.3 \
+  --build-arg PERL_VERSION=5.45.4 \
   -t perl-essentials:debug-base .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug-base
 ```
@@ -460,7 +461,7 @@ Build and enter the complete debug target:
 
 ```sh
 docker build --target debug \
-  --build-arg PERL_VERSION=5.45.3 \
+  --build-arg PERL_VERSION=5.45.4 \
   -t perl-essentials:debug .
 docker run --rm -it -v "$PWD":/work perl-essentials:debug
 ```
@@ -582,22 +583,24 @@ uses the protected GitHub environment `dockerhub-production`, with
 `DOCKERHUB_USERNAME` as an environment variable and `DOCKERHUB_TOKEN` as an
 environment secret.
 
-For a release such as `vX.Y.Z`, Perl 5.45.3 receives:
+For a release such as `vX.Y.Z`, Perl 5.45.4 receives:
 
-- `5.45.3-YYYY-MM-DD_HHmmss`, identifying the publication run;
-- `5.45.3`, the exact-version alias;
+- `5.45.4-YYYY-MM-DD_HHmmss`, identifying the publication run;
+- `5.45.4`, the exact-version alias;
 - `5.45`, the series alias;
-- `vX.Y.Z-5.45.3`, the release-specific alias.
+- `vX.Y.Z-5.45.4`, the release-specific alias.
 
 The configured default Perl version also updates `latest`. Codex, built on
-Perl 5.45.3 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
-`vX.Y.Z-codex`. It never updates `latest`. Rerunning failed jobs for the same
+stable Perl 5.44.0 without cache, receives `codex-YYYY-MM-DD_HHmmss`, `codex`, and
+`vX.Y.Z-codex`. Development Perl 5.45.4 updates `dev`; its Codex variant
+uses `codex-dev-YYYY-MM-DD_HHmmss`, `codex-dev`, and `vX.Y.Z-codex-dev`.
+Neither Codex variant updates `latest`. Rerunning failed jobs for the same
 release keeps its shared timestamp when GitHub reuses the workflow run.
 
 Inspect either manifest before use:
 
 ```sh
-docker buildx imagetools inspect perlessentials/perl-essentials:5.45.3
+docker buildx imagetools inspect perlessentials/perl-essentials:5.45.4
 docker buildx imagetools inspect perlessentials/perl-essentials:codex
 ```
 
@@ -672,3 +675,11 @@ used by CI while making the legacy build reproducible.
 All image builds configure APT with five fetch retries and 120-second HTTP and
 HTTPS timeouts. This absorbs transient mirror timeouts without hiding persistent
 package or repository errors.
+
+Stable aliases `latest` and `codex` follow the latest configured stable Perl
+(currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
+configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.
+
+Local full-matrix validation includes both Codex variants on AMD64 and ARM64.
+`--perl-version` restricts validation to that Perl version and its matching Codex
+variant. Development builds use the separate local tag `perl-essentials:codex-dev`.

@@ -11,7 +11,7 @@ else
     documents=README.md:DOCKERHUB.md
 fi
 version=$(
-    awk -F'|' '!/^#/ && NF { value=$1 } END { print value }' "$config"
+    awk -F'|' '$2 == "stable" { value=$1 } END { print value }' "$config"
 )
 image=${IMAGE:-perl-essentials:${version}}
 capture_timestamp=${MODULE_VERSIONS_TIMESTAMP:-$(date -u '+%F %T')}
@@ -51,6 +51,13 @@ cat > "$codex_table" <<MARKDOWN
 | --- | --- | --- | --- | --- |
 | \`codex\` | $version | Latest at no-cache build; $codex_version observed $codex_timestamp | Latest at no-cache build; $rtk_version observed $codex_timestamp | \`codex\`, release, and timestamp tags |
 MARKDOWN
+
+dev_version=$(awk -F'|' '$2 == "development" { value=$1 } END { print value }' "$config")
+dev_image=${CODEX_DEV_IMAGE:-perl-essentials:codex-dev}
+dev_codex=$(docker run --rm "$dev_image" codex --version | awk '{ print $2 }')
+dev_rtk=$(docker run --rm "$dev_image" rtk --version | awk '{ print $2 }')
+printf '| `codex-dev` | %s | Latest at no-cache build; %s observed %s | Latest at no-cache build; %s observed %s | `codex-dev`, release, and timestamp tags |\n' \
+    "$dev_version" "$dev_codex" "$codex_timestamp" "$dev_rtk" "$codex_timestamp" >> "$codex_table"
 
 replace_section()
 {

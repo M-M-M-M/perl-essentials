@@ -321,7 +321,11 @@ perl)
     ;;
 codex)
     target="codex"
-    image="${CI_IMAGE:-perl-essentials:codex}"
+    codex_flavor=codex
+    if awk -F'|' -v version="${PERL_VERSION}" '$1 == version && $2 == "development" { found=1 } END { exit !found }' perl-versions.conf; then
+        codex_flavor=codex-dev
+    fi
+    image="${CI_IMAGE:-perl-essentials:${codex_flavor}}"
     no_cache="--no-cache"
     validate="validate_codex"
     ;;

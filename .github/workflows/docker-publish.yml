@@ -115,25 +115,37 @@ jobs:
             runner: ubuntu-26.04-arm
           - key: perl-545
             mode: perl
-            perl-version: 5.45.3
+            perl-version: 5.45.4
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-26.04
           - key: perl-545
             mode: perl
-            perl-version: 5.45.3
+            perl-version: 5.45.4
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-26.04-arm
           - key: codex
             mode: codex
-            perl-version: 5.45.3
+            perl-version: 5.44.0
+            platform: linux/amd64
+            architecture: amd64
+            runner: ubuntu-26.04
+          - key: codex-dev
+            mode: codex
+            perl-version: 5.45.4
             platform: linux/amd64
             architecture: amd64
             runner: ubuntu-26.04
           - key: codex
             mode: codex
-            perl-version: 5.45.3
+            perl-version: 5.44.0
+            platform: linux/arm64
+            architecture: arm64
+            runner: ubuntu-26.04-arm
+          - key: codex-dev
+            mode: codex
+            perl-version: 5.45.4
             platform: linux/arm64
             architecture: arm64
             runner: ubuntu-26.04-arm
@@ -192,10 +204,13 @@ jobs:
             perl-version: 5.44.0
           - key: perl-545
             mode: perl
-            perl-version: 5.45.3
+            perl-version: 5.45.4
           - key: codex
             mode: codex
-            perl-version: 5.45.3
+            perl-version: 5.44.0
+          - key: codex-dev
+            mode: codex
+            perl-version: 5.45.4
     steps:
       - uses: actions/checkout@v6
       - uses: docker/login-action@v4

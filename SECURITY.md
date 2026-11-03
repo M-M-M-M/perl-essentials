@@ -23,11 +23,15 @@ as current again.
 
 The scan used Docker Scout CVE reports:
 
+<!-- markdownlint-disable MD013 -->
+
 ```sh
 docker scout cves --platform PLATFORM --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
 docker scout cves --platform PLATFORM --only-base --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
 docker scout cves --platform PLATFORM --ignore-base --format sarif --output FILE registry://perlessentials/perl-essentials:TAG
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 When a Scout registry scan failed, the scan was resumed by pulling the platform
 explicitly with Docker and scanning
@@ -41,26 +45,26 @@ local tags remained: `v0.7.1-5.44.0`, `codex-2026-06-19_172956`, and
 Counts are Docker Scout SARIF rule counts. `Base` is `--only-base`; `Final` is
 `--ignore-base`.
 
-| Tag | Platform | All | Base | Final | Final packages |
-| --- | --- | ---: | ---: | ---: | --- |
-| `5.26.3` | `linux/amd64` | 18 | 18 | 0 | none |
-| `5.26.3` | `linux/arm64` | 18 | 18 | 0 | none |
-| `5.32.1` | `linux/amd64` | 1002 | 831 | 171 | `vim` |
-| `5.32.1` | `linux/arm64` | 1002 | 831 | 171 | `vim` |
-| `5.36.3` | `linux/amd64` | 644 | 584 | 60 | `vim` |
-| `5.36.3` | `linux/arm64` | 644 | 584 | 60 | `vim` |
-| `5.38.5` | `linux/amd64` | 304 | 271 | 33 | `vim` |
-| `5.38.5` | `linux/arm64` | 304 | 271 | 33 | `vim` |
-| `5.40.4` | `linux/amd64` | 304 | 271 | 33 | `vim` |
-| `5.40.4` | `linux/arm64` | 304 | 271 | 33 | `vim` |
-| `5.42.2` | `linux/amd64` | 304 | 271 | 33 | `vim` |
-| `5.42.2` | `linux/arm64` | 304 | 271 | 33 | `vim` |
-| `5.43.9` | `linux/amd64` | 304 | 271 | 33 | `vim` |
-| `5.43.9` | `linux/arm64` | 304 | 271 | 33 | `vim` |
-| `5.44.0` | `linux/amd64` | 304 | 271 | 33 | `vim` |
-| `5.44.0` | `linux/arm64` | 304 | 271 | 33 | `vim` |
-| `codex` | `linux/amd64` | 308 | 271 | 37 | `vim`, `gawk` |
-| `codex` | `linux/arm64` | 308 | 271 | 37 | `vim`, `gawk` |
+| Tag      | Platform      |  All | Base | Final | Final packages |
+| -------- | ------------- | ---: | ---: | ----: | -------------- |
+| `5.26.3` | `linux/amd64` |   18 |   18 |     0 | none           |
+| `5.26.3` | `linux/arm64` |   18 |   18 |     0 | none           |
+| `5.32.1` | `linux/amd64` | 1002 |  831 |   171 | `vim`          |
+| `5.32.1` | `linux/arm64` | 1002 |  831 |   171 | `vim`          |
+| `5.36.3` | `linux/amd64` |  644 |  584 |    60 | `vim`          |
+| `5.36.3` | `linux/arm64` |  644 |  584 |    60 | `vim`          |
+| `5.38.5` | `linux/amd64` |  304 |  271 |    33 | `vim`          |
+| `5.38.5` | `linux/arm64` |  304 |  271 |    33 | `vim`          |
+| `5.40.4` | `linux/amd64` |  304 |  271 |    33 | `vim`          |
+| `5.40.4` | `linux/arm64` |  304 |  271 |    33 | `vim`          |
+| `5.42.2` | `linux/amd64` |  304 |  271 |    33 | `vim`          |
+| `5.42.2` | `linux/arm64` |  304 |  271 |    33 | `vim`          |
+| `5.43.9` | `linux/amd64` |  304 |  271 |    33 | `vim`          |
+| `5.43.9` | `linux/arm64` |  304 |  271 |    33 | `vim`          |
+| `5.44.0` | `linux/amd64` |  304 |  271 |    33 | `vim`          |
+| `5.44.0` | `linux/arm64` |  304 |  271 |    33 | `vim`          |
+| `codex`  | `linux/amd64` |  308 |  271 |    37 | `vim`, `gawk`  |
+| `codex`  | `linux/arm64` |  308 |  271 |    37 | `vim`, `gawk`  |
 
 The architectures produced identical counts for each tag. No final-layer CVE
 reported a fixed package version in Docker Scout.

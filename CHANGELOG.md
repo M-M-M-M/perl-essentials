@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-03
+
+### Changed
+
+- Update the Perl development and codex-dev variants to Perl 5.45.4.
+- Use stable Perl for `latest` and `codex`; add `dev` and `codex-dev` aliases.
+- Include JSON::SIMD in the tested CPAN modules.
+
 ## [0.10.0] - 2026-10-05
 
 ### Changed
@@ -376,7 +384,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.7...v0.10.0
 [0.9.7]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.5...v0.9.6

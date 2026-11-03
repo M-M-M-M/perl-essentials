@@ -28,13 +28,15 @@ fi
 
 grep -q 'UPDATE: 5.42.3 -> 5.42.4' "$output"
 grep -q 'UPDATE: 5.44.0 -> 5.44.1' "$output"
-grep -q 'UPDATE: 5.45.3 -> 5.45.4' "$output"
+grep -q 'UPDATE: 5.45.4 -> 5.45.5' "$output"
 grep -q 'ADD: 5.46.0' "$output"
 
 cat > "${temp_dir}/drift.conf" <<'EOF'
+9.98.1|stable|Synthetic stable drift test
 9.99.1|development|Synthetic drift test
 EOF
 cat > "${temp_dir}/drift-tags.txt" <<'EOF'
+9.98.1-threaded
 9.99.1-threaded
 EOF
 
@@ -47,7 +49,15 @@ if perl "$script" --check \
 fi
 
 grep -q 'DRIFT: 9.99.1 is missing from README.md' "$output"
-grep -q 'DRIFT: Dockerfile default is not 9.99.1' "$output"
+grep -q 'DRIFT: Dockerfile default is not 9.98.1' "$output"
+
+printf '%s\n' '9.99.1|development|No stable version' > "${temp_dir}/no-stable.conf"
+if perl "$script" --check --config "${temp_dir}/no-stable.conf" \
+    --tags-file "${temp_dir}/drift-tags.txt" > "$output" 2>&1; then
+    echo "ERROR: missing stable version should require action" >&2
+    exit 1
+fi
+grep -q 'DRIFT: configuration has no stable Perl version' "$output"
 
 if [ "${PERL_ESSENTIALS_NESTED_PUBLIC_TEST:-0}" != 1 ]; then
     public_dir="${temp_dir}/public"

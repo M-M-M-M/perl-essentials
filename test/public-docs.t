@@ -37,7 +37,7 @@ like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
 like $readme, qr{\[SECURITY\.md\]\(SECURITY\.md\)},
   'README links to the Docker Scout security audit' ;
-like $readme, qr/`Mojolicious::Lite` \| `9\.49`/,
+like $readme, qr/`Mojolicious::Lite`\s+\| `9\.49`/,
   'README reports the installed Mojolicious distribution version' ;
 like $dockerhub,
   qr{/etc/perltidyrc.*project-local `.perltidyrc`.*-pro=/work/custom\.perltidyrc.*-npro}s,
@@ -45,7 +45,7 @@ like $dockerhub,
 like $dockerhub,
   qr{--user "\$\(id -u\):\$\(id -g\)".*perltidy -b -bext='/'}s,
   'Docker Hub in-place formatting example preserves host ownership' ;
-like $dockerhub, qr/based on the Perl 5\.45\.3 image/,
+like $dockerhub, qr/based on the Perl 5\.44\.0 image/,
   'Docker Hub identifies the exact Codex Perl image' ;
 unlike $dockerhub, qr/based on the latest development Perl target/,
   'Docker Hub does not describe the Codex base as an unstable latest target' ;
@@ -54,15 +54,17 @@ unlike $dockerhub, qr/based on the Perl 5\.43 development target/,
 
 my $latest_perl_version  = _latest_perl_version() ;
 my $latest_release_date  = _latest_release_date($changelog) ;
-my $documented_codex_row = qr/\| `codex` \| \Q$latest_perl_version\E \|/ ;
+my $documented_codex_row = qr/\| `codex`\s+\| \Q$latest_perl_version\E\s+\|/ ;
 
 for my $document ( [ 'README.md', $readme ], [ 'DOCKERHUB.md', $dockerhub ], )
 {
   my ( $name, $content ) = @{$document} ;
   like $content, $documented_codex_row,
     "$name documents Codex on the latest Perl target" ;
-  cmp_ok _module_capture_date($content), 'ge', $latest_release_date,
-    "$name module inventory was captured for the current release" ;
+  cmp_ok _module_capture_date($content), 'le', $latest_release_date,
+    "$name module inventory date does not postdate the release" ;
+  like $content, qr/Historical inventory from the Perl 5\.45\.3 image/,
+    "$name identifies the historical inventory rather than claiming a fresh capture" ;
 }
 
 like _read_text('.public-files'), qr/^DOCKERHUB\.md$/m,
@@ -93,8 +95,8 @@ sub _latest_perl_version {
   for my $line ( split /\n/, $content )
   {
     next if $line =~ /\A\s*(?:#|\z)/ ;
-    my ($version) = split /\|/, $line ;
-    push @versions, $version ;
+    my ( $version, $role ) = split /\|/, $line ;
+    push @versions, $version if $role eq 'stable' ;
   }
 
   return $versions[-1] ;

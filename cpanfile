@@ -35,6 +35,7 @@ requires 'JSON';
 requires 'JSON::Lines';
 requires 'JSON::MaybeXS';
 requires 'JSON::PP';
+requires 'JSON::SIMD';
 requires 'JSON::XS';
 requires 'LWP::UserAgent';
 requires 'List::MoreUtils';

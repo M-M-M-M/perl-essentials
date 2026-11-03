@@ -62,7 +62,7 @@ my %base_env = (
   DOCKER_TEST_LOG           => $log,
   DOCKER_TEST_INSPECT_STATE => $inspect_state,
   PATH                      => "$bin:$ENV{PATH}",
-  PERL_VERSION              => '5.44.0',
+  PERL_VERSION              => '5.42.3',
   PUBLISH_TIMESTAMP         => '2026-06-19_142233',
   RELEASE_TAG               => 'v0.5.1',
 ) ;
@@ -119,23 +119,23 @@ is $status, 0, 'Perl manifest publication succeeds' or diag $output ;
 my $perl_log = _read_text($log) ;
 like $perl_log, qr/buildx imagetools create/,
   'manifest publication uses Docker Buildx imagetools' ;
-like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.44\.0-2026-06-19_142233/,
+like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.42\.3-2026-06-19_142233/,
   'Perl manifest creates an immutable timestamp tag' ;
-like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.44\.0(?:\s|$)/,
+like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.42\.3(?:\s|$)/,
   'Perl manifest creates an exact version alias' ;
-like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.44(?:\s|$)/,
+like $perl_log, qr/--tag perlessentials\/perl-essentials:5\.42(?:\s|$)/,
   'Perl manifest creates a series alias' ;
-like $perl_log, qr/--tag perlessentials\/perl-essentials:v0\.5\.1-5\.44\.0/,
+like $perl_log, qr/--tag perlessentials\/perl-essentials:v0\.5\.1-5\.42\.3/,
   'Perl manifest creates a release-specific alias' ;
 unlike $perl_log, qr/perl-essentials:latest/,
   'non-default Perl does not update latest' ;
 like $perl_log, qr/perl-essentials\@sha256:/,
   'manifest publication combines canonical architecture digests' ;
-like $perl_log, qr/buildx imagetools inspect.*5\.44\.0/,
+like $perl_log, qr/buildx imagetools inspect.*5\.42\.3/,
   'manifest publication verifies the exact-version alias' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;
-my %default_env = ( %base_env, PERL_VERSION => '5.45.3' ) ;
+my %default_env = ( %base_env, PERL_VERSION => '5.44.0' ) ;
 ( $status, $output )
   = _run_with_env( \%default_env, $publish, 'manifest', 'perl',
   $amd64_digest, $arm64_digest ) ;
@@ -161,7 +161,7 @@ is $status, 0, 'default Perl latest verification succeeds'
 like $output, qr/Docker Hub latest digest matches/,
   'default Perl latest verification reports the matching digest' ;
 like _read_text($log),
-  qr/imagetools inspect perlessentials\/perl-essentials:5\.45\.3.*imagetools inspect perlessentials\/perl-essentials:latest/s,
+  qr/imagetools inspect perlessentials\/perl-essentials:5\.44\.0.*imagetools inspect perlessentials\/perl-essentials:latest/s,
   'default Perl latest verification inspects version and latest tags' ;
 
 unlink $log or die "Cannot reset fake Docker log: $!" ;
@@ -185,12 +185,12 @@ unlink $log or die "Cannot reset fake Docker log: $!" ;
   = _run_with_env( \%base_env, $publish, 'verify-latest', 'perl' ) ;
 is $status, 0, 'non-default Perl latest verification is skipped'
   or diag $output ;
-like $output, qr/Skipping latest verification for non-default Perl 5\.44\.0/,
+like $output, qr/Skipping latest verification for non-default Perl 5\.42\.3/,
   'non-default Perl latest verification explains why it is skipped' ;
 
 unlink $log if -f $log ;
 ( $status, $output )
-  = _run_with_env( \%base_env, $publish, 'manifest', 'codex',
+  = _run_with_env( \%default_env, $publish, 'manifest', 'codex',
   $amd64_digest, $arm64_digest ) ;
 is $status, 0, 'Codex manifest publication succeeds' or diag $output ;
 
@@ -203,6 +203,21 @@ like $codex_log, qr/--tag perlessentials\/perl-essentials:v0\.5\.1-codex/,
   'Codex manifest creates a release-specific alias' ;
 unlike $codex_log, qr/perl-essentials:latest/,
   'Codex manifest does not replace latest' ;
+
+my %dev_env = ( %base_env, PERL_VERSION => '5.45.4' ) ;
+for my $mode (qw(perl codex)) {
+  unlink $log if -f $log ;
+  ( $status, $output ) = _run_with_env( \%dev_env, $publish, 'manifest', $mode, $amd64_digest, $arm64_digest ) ;
+  is $status, 0, "$mode development manifest succeeds" or diag $output ;
+  my $tags  = _read_text($log) ;
+  my $alias = $mode eq 'perl' ? 'dev' : 'codex-dev' ;
+  like $tags,   qr/--tag perlessentials\/perl-essentials:\Q$alias\E(?:\s|$)/,       "$mode development alias is published" ;
+  unlike $tags, qr/--tag perlessentials\/perl-essentials:(?:latest|codex)(?:\s|$)/, 'development does not replace stable aliases' ;
+  if ( $mode eq 'codex' ) {
+    like $tags, qr/:codex-dev-2026-06-19_142233/, 'dev timestamp is distinct' ;
+    like $tags, qr/:v0\.5\.1-codex-dev/,          'dev release tag is distinct' ;
+  }
+}
 
 ( $status, $output )
   = _run_with_env( \%base_env, $publish, 'build', 'unknown',

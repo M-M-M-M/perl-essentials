@@ -22,10 +22,10 @@ results and risk decisions.
 
 ## Build
 
-The default is Perl 5.45.3:
+The default is Perl 5.44.0:
 
 ```sh
-docker build -t perl-essentials:5.45.3 .
+docker build -t perl-essentials:5.44.0 .
 ```
 
 Select another official threaded Perl image:
@@ -40,31 +40,33 @@ docker build \
 Supported CI matrix:
 
 <!-- PERL_TARGETS_START -->
-| Perl series | Image version | Role |
-| --- | --- | --- |
-| 5.26 | 5.26.3 | Legacy baseline |
-| 5.32 | 5.32.1 | Broad legacy compatibility |
-| 5.36 | 5.36.3 | Common LTS distributions |
-| 5.38 | 5.38.5 | Established production series |
-| 5.40 | 5.40.5 | Maintained stable series |
-| 5.42 | 5.42.3 | Previous stable series |
-| 5.44 | 5.44.0 | Latest stable series |
-| 5.45 | 5.45.3 | Development compatibility |
+
+| Perl series | Image version | Role                          |
+| ----------- | ------------- | ----------------------------- |
+| 5.26        | 5.26.3        | Legacy baseline               |
+| 5.32        | 5.32.1        | Broad legacy compatibility    |
+| 5.36        | 5.36.3        | Common LTS distributions      |
+| 5.38        | 5.38.5        | Established production series |
+| 5.40        | 5.40.5        | Maintained stable series      |
+| 5.42        | 5.42.3        | Previous stable series        |
+| 5.44        | 5.44.0        | Latest stable series          |
+| 5.45        | 5.45.4        | Development compatibility     |
+
 <!-- PERL_TARGETS_END -->
 
 Published GitHub Releases create multi-architecture images on Docker Hub:
 
 ```sh
-docker pull perlessentials/perl-essentials:5.45.3
+docker pull perlessentials/perl-essentials:5.45.4
 docker pull perlessentials/perl-essentials:5.45
 docker pull perlessentials/perl-essentials:latest
-docker pull perlessentials/perl-essentials:vX.Y.Z-5.45.3
-docker pull perlessentials/perl-essentials:5.45.3-YYYY-MM-DD_HHmmss
+docker pull perlessentials/perl-essentials:vX.Y.Z-5.45.4
+docker pull perlessentials/perl-essentials:5.45.4-YYYY-MM-DD_HHmmss
 ```
 
 Exact-version, series, release, and `latest` tags are mutable aliases.
 Timestamped tags identify one publication run. `latest` follows the configured
-default Perl release, currently 5.45.3.
+default Perl release, currently 5.44.0.
 Replace `vX.Y.Z` and `YYYY-MM-DD_HHmmss` with tags from the published GitHub
 Release or Docker Hub tag list.
 
@@ -98,9 +100,12 @@ installation and test policy.
 The optional development target is validated separately:
 
 <!-- CODEX_TARGET_START -->
-| Target | Perl base | Codex CLI | RTK | Publication |
-| --- | --- | --- | --- | --- |
-| `codex` | 5.45.3 | Latest at no-cache build; 0.160.0 observed 2026-10-05 15:02:34 | Latest at no-cache build; 0.51.0 observed 2026-10-05 15:02:34 | `codex`, release, and timestamp tags |
+
+| Target      | Perl base | Codex CLI                | RTK                      | Publication                              |
+| ----------- | --------- | ------------------------ | ------------------------ | ---------------------------------------- |
+| `codex`     | 5.44.0    | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags     |
+| `codex-dev` | 5.45.4    | Latest at no-cache build | Latest at no-cache build | `codex-dev`, release, and timestamp tags |
+
 <!-- CODEX_TARGET_END -->
 
 Codex CLI and RTK versions are not pinned. CI prints both resolved versions on
@@ -126,7 +131,7 @@ Mount the current directory and run a script:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.45.3 \
+  perl-essentials:5.45.4 \
   perl /work/script.pl
 ```
 
@@ -136,7 +141,7 @@ Mount separate script and data directories:
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD/scripts":/work/scripts:ro \
   -v "$PWD/data":/work/data \
-  perl-essentials:5.45.3 \
+  perl-essentials:5.45.4 \
   perl /work/scripts/report.pl /work/data/input.csv
 ```
 
@@ -144,7 +149,7 @@ Open an interactive shell:
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.45.3 zsh -l
+  -v "$PWD":/work perl-essentials:5.45.4 zsh -l
 ```
 
 Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
@@ -154,7 +159,8 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 ## Optional Codex target
 
 Codex CLI and RTK are available in a separate development target. GitHub
-Actions validates this target with Perl 5.45.3. GitHub Release
+Actions validates this target with stable Perl 5.44.0 and development Perl 5.45.4.
+GitHub Release
 publication also publishes it separately as `codex`,
 `vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
 and `latest` select the Perl-only `final` stage; RTK is installed only by the
@@ -163,11 +169,11 @@ Build without the cache to retrieve the latest versions available from their
 official installers:
 
 ```sh
-PERL_VERSION=5.45.3 scripts/ci-build.sh codex
+PERL_VERSION=5.44.0 scripts/ci-build.sh codex
 mkdir -p codex-auth
 ```
 
-The script builds, tags, and validates the single local Codex flavor as
+The script builds, tags, and validates the stable local Codex flavor as
 `perl-essentials:codex`. It replaces any older image under that tag, reports
 each build phase, and retries transient Buildx bootstrap failures up to six
 times.
@@ -247,15 +253,15 @@ See [DOCUMENTATION.md](DOCUMENTATION.md) for validation and cleanup details.
 A targeted local validation of Perl 5.45.3 on 2026-10-05 completed
 successfully in `8415s (2h 20m 15s)`:
 
-| Mode | Platform | Duration |
-| --- | --- | --- |
-| Perl | `linux/amd64` | `3481s (58m 1s)` |
-| Perl | `linux/arm64` | `869s (14m 29s)` |
+| Mode  | Platform      | Duration          |
+| ----- | ------------- | ----------------- |
+| Perl  | `linux/amd64` | `3481s (58m 1s)`  |
+| Perl  | `linux/arm64` | `869s (14m 29s)`  |
 | Codex | `linux/amd64` | `3232s (53m 52s)` |
-| Codex | `linux/arm64` | `829s (13m 49s)` |
+| Codex | `linux/arm64` | `829s (13m 49s)`  |
 
-The run used `scripts/validate-all-images-local.sh --perl-version 5.45.3`
-and wrote its report under `local/validate-images/perl-5.45.3`. Treat these
+The run used `scripts/validate-all-images-local.sh --perl-version 5.45.4`
+and wrote its report under `local/validate-images/perl-5.45.4`. Treat these
 numbers as local observations, not CI thresholds: Docker cache state, CPU,
 memory, network speed, and AMD64 emulation on Apple Silicon can change them
 substantially.
@@ -298,7 +304,7 @@ Copy the references into a project without replacing existing files:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.45.3 sh -c \
+  -v "$PWD":/work perl-essentials:5.45.4 sh -c \
   'cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
    cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc'
 ```
@@ -310,14 +316,14 @@ Run the quick backward-compatible validation:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.45.3 \
+  perl-essentials:5.45.4 \
   perl /work/test.pl
 ```
 
 Run the smoke test in a built image:
 
 ```sh
-docker run --rm perl-essentials:5.45.3 \
+docker run --rm perl-essentials:5.45.4 \
   /opt/perl-essentials/scripts/smoke-test.pl \
   /opt/perl-essentials/cpanfile \
   /opt/perl-essentials/cpanfile-bootstrap-notest \
@@ -327,7 +333,7 @@ docker run --rm perl-essentials:5.45.3 \
 Display the versions captured during the build:
 
 ```sh
-docker run --rm perl-essentials:5.45.3 \
+docker run --rm perl-essentials:5.45.4 \
   cat /opt/perl-essentials/module-versions.txt
 ```
 
@@ -356,82 +362,89 @@ test runs as `test/check-perl-versions.sh public`; before the live Docker Hub
 query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
+
 Versions captured on 2026-10-05 15:02:34 (UTC).
 
-This inventory was captured from the default image at the timestamp above. Module versions may differ between publication runs. For an exact image, see `/opt/perl-essentials/module-versions.txt`.
+Historical inventory from the Perl 5.45.3 image; it predates the stable/dev
+split and the addition of JSON::SIMD. See the image inventory for current versions.
 
-| Module | Version |
-| --- | --- |
-| `Archive::Zip` | `1.68` |
-| `Archive::Zip::MemberRead` | `1.68` |
-| `Array::Compare` | `3.0.8` |
-| `Cpanel::JSON::XS` | `4.53` |
-| `Cwd` | `3.95` |
-| `DBD::SQLite` | `1.78` |
-| `DBI` | `1.655` |
-| `Data::Dumper` | `2.192` |
-| `Data::Peek` | `0.54` |
-| `Date::Calc` | `6.4` |
-| `DateTime` | `1.67` |
-| `DateTime::Format::Excel` | `0.31` |
-| `DateTime::Format::ISO8601` | `0.19` |
-| `Devel::NYTProf` | `6.15` |
-| `Digest::SHA` | `6.04` |
-| `Encode` | `3.24` |
-| `Excel::Writer::XLSX` | `1.15` |
-| `Excel::Writer::XLSX::Utility` | `1.15` |
-| `File::Copy` | `2.43` |
-| `File::Path` | `2.18` |
-| `File::Spec` | `3.95` |
-| `File::Temp` | `0.2312` |
-| `File::Which` | `1.27` |
-| `Getopt::Long` | `2.58` |
-| `HTTP::Cookies` | `6.12` |
-| `HTTP::Request::Common` | `7.04` |
-| `I18N::Langinfo` | `0.24` |
-| `IO::Pty` | `1.31` |
-| `Imager` | `1.037` |
-| `JSON` | `4.11` |
-| `JSON::Lines` | `1.11` |
-| `JSON::MaybeXS` | `1.004008` |
-| `JSON::PP` | `4.18` |
-| `JSON::XS` | `4.04` |
-| `LWP::UserAgent` | `6.83` |
-| `List::MoreUtils` | `0.430` |
-| `List::Util` | `1.70` |
-| `MIME::Base64` | `3.16_01` |
-| `MIME::Lite` | `3.038` |
-| `MIME::Parser` | `5.519` |
-| `Math::Units` | `1.3` |
-| `Mojolicious::Lite` | `9.49` |
-| `Net::LDAP` | `0.68` |
-| `Net::SFTP::Foreign` | `1.93` |
-| `Perl::Critic` | `1.156` |
-| `Perl::Tidy` | `20260826` |
-| `Scalar::Util` | `1.70` |
-| `Schedule::RateLimiter` | `0.01` |
-| `Sort::Key` | `1.33` |
-| `Spreadsheet::XLSX` | `0.18` |
-| `Test::MockModule` | `0.185.3` |
-| `Test::More` | `1.302225` |
-| `Text::CSV` | `2.06` |
-| `Text::Iconv` | `1.7` |
-| `Thread::Queue` | `3.14` |
-| `Time::Duration` | `1.21` |
-| `Time::HiRes` | `1.9781` |
-| `Time::Limit` | `0.003` |
-| `URI::Escape` | `5.37` |
-| `XML::Hash` | `0.95` |
-| `XML::LibXML` | `2.0213` |
-| `XML::LibXML::XPathContext` | `2.0213` |
-| `threads` | `2.47` |
-| `threads::shared` | `1.74` |
-| `utf8` | `1.29` |
-| `utf8::all` | `0.026` |
-| `DateTime::Locale` | `1.46` |
-| `DBD::Pg` | `3.21.2` |
-| `REST::Client` | `281` |
-| `XML::XML2JSON` | `0.06` |
+This inventory was captured from the default image at the timestamp above.
+Module versions may differ between publication runs. For an exact image, see
+`/opt/perl-essentials/module-versions.txt`.
+
+| Module                         | Version    |
+| ------------------------------ | ---------- |
+| `Archive::Zip`                 | `1.68`     |
+| `Archive::Zip::MemberRead`     | `1.68`     |
+| `Array::Compare`               | `3.0.8`    |
+| `Cpanel::JSON::XS`             | `4.53`     |
+| `Cwd`                          | `3.95`     |
+| `DBD::SQLite`                  | `1.78`     |
+| `DBI`                          | `1.655`    |
+| `Data::Dumper`                 | `2.192`    |
+| `Data::Peek`                   | `0.54`     |
+| `Date::Calc`                   | `6.4`      |
+| `DateTime`                     | `1.67`     |
+| `DateTime::Format::Excel`      | `0.31`     |
+| `DateTime::Format::ISO8601`    | `0.19`     |
+| `Devel::NYTProf`               | `6.15`     |
+| `Digest::SHA`                  | `6.04`     |
+| `Encode`                       | `3.24`     |
+| `Excel::Writer::XLSX`          | `1.15`     |
+| `Excel::Writer::XLSX::Utility` | `1.15`     |
+| `File::Copy`                   | `2.43`     |
+| `File::Path`                   | `2.18`     |
+| `File::Spec`                   | `3.95`     |
+| `File::Temp`                   | `0.2312`   |
+| `File::Which`                  | `1.27`     |
+| `Getopt::Long`                 | `2.58`     |
+| `HTTP::Cookies`                | `6.12`     |
+| `HTTP::Request::Common`        | `7.04`     |
+| `I18N::Langinfo`               | `0.24`     |
+| `IO::Pty`                      | `1.31`     |
+| `Imager`                       | `1.037`    |
+| `JSON`                         | `4.11`     |
+| `JSON::Lines`                  | `1.11`     |
+| `JSON::MaybeXS`                | `1.004008` |
+| `JSON::PP`                     | `4.18`     |
+| `JSON::XS`                     | `4.04`     |
+| `LWP::UserAgent`               | `6.83`     |
+| `List::MoreUtils`              | `0.430`    |
+| `List::Util`                   | `1.70`     |
+| `MIME::Base64`                 | `3.16_01`  |
+| `MIME::Lite`                   | `3.038`    |
+| `MIME::Parser`                 | `5.519`    |
+| `Math::Units`                  | `1.3`      |
+| `Mojolicious::Lite`            | `9.49`     |
+| `Net::LDAP`                    | `0.68`     |
+| `Net::SFTP::Foreign`           | `1.93`     |
+| `Perl::Critic`                 | `1.156`    |
+| `Perl::Tidy`                   | `20260826` |
+| `Scalar::Util`                 | `1.70`     |
+| `Schedule::RateLimiter`        | `0.01`     |
+| `Sort::Key`                    | `1.33`     |
+| `Spreadsheet::XLSX`            | `0.18`     |
+| `Test::MockModule`             | `0.185.3`  |
+| `Test::More`                   | `1.302225` |
+| `Text::CSV`                    | `2.06`     |
+| `Text::Iconv`                  | `1.7`      |
+| `Thread::Queue`                | `3.14`     |
+| `Time::Duration`               | `1.21`     |
+| `Time::HiRes`                  | `1.9781`   |
+| `Time::Limit`                  | `0.003`    |
+| `URI::Escape`                  | `5.37`     |
+| `XML::Hash`                    | `0.95`     |
+| `XML::LibXML`                  | `2.0213`   |
+| `XML::LibXML::XPathContext`    | `2.0213`   |
+| `threads`                      | `2.47`     |
+| `threads::shared`              | `1.74`     |
+| `utf8`                         | `1.29`     |
+| `utf8::all`                    | `0.026`    |
+| `DateTime::Locale`             | `1.46`     |
+| `DBD::Pg`                      | `3.21.2`   |
+| `REST::Client`                 | `281`      |
+| `XML::XML2JSON`                | `0.06`     |
+
 <!-- MODULE_VERSIONS_END -->
 
 The PostgreSQL integration test is optional:
@@ -442,7 +455,7 @@ docker run --rm \
   -e TEST_PG_USER='postgres' \
   -e TEST_PG_PASSWORD='secret' \
   -v "$PWD":/work:ro \
-  perl-essentials:5.45.3 \
+  perl-essentials:5.45.4 \
   perl /work/test/integration-postgres.pl
 ```
 
@@ -471,3 +484,11 @@ machine-readable license metadata. CI reports the count without failing the
 build, while still requiring every referenced license file to exist. The OCI
 `org.opencontainers.image.licenses=MIT` label describes this repository's own
 code, not every bundled component.
+
+Stable aliases `latest` and `codex` follow the latest configured stable Perl
+(currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
+configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.
+
+For a local development Codex build, run
+`PERL_VERSION=5.45.4 scripts/ci-build.sh codex`; it uses `perl-essentials:codex-dev`.
+Full local matrix validation tests both variants on both architectures.

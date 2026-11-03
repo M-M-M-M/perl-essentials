@@ -6,12 +6,12 @@ processing, reporting, database access, testing, profiling, and web
 integrations.
 
 Source and complete documentation:
-https://github.com/M-M-M-M/perl-essentials
+<https://github.com/M-M-M-M/perl-essentials>
 
 ## Included module families
 
 - Database: DBI, DBD::Pg, DBD::SQLite
-- JSON: JSON, JSON::XS, Cpanel::JSON::XS, JSON::MaybeXS
+- JSON: JSON, JSON::SIMD, JSON::XS, Cpanel::JSON::XS, JSON::MaybeXS
 - XML: XML::LibXML, XML::Hash, XML::XML2JSON
 - HTTP/Web: LWP::UserAgent, REST::Client, HTTP::Cookies
 - Spreadsheet: Excel::Writer::XLSX, Spreadsheet::XLSX
@@ -94,105 +94,121 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 ## Available targets
 
 <!-- PERL_TARGETS_START -->
-| Perl series | Image version | Role |
-| --- | --- | --- |
-| 5.26 | 5.26.3 | Legacy baseline |
-| 5.32 | 5.32.1 | Broad legacy compatibility |
-| 5.36 | 5.36.3 | Common LTS distributions |
-| 5.38 | 5.38.5 | Established production series |
-| 5.40 | 5.40.5 | Maintained stable series |
-| 5.42 | 5.42.3 | Previous stable series |
-| 5.44 | 5.44.0 | Latest stable series |
-| 5.45 | 5.45.3 | Development compatibility |
+
+| Perl series | Image version | Role                          |
+| ----------- | ------------- | ----------------------------- |
+| 5.26        | 5.26.3        | Legacy baseline               |
+| 5.32        | 5.32.1        | Broad legacy compatibility    |
+| 5.36        | 5.36.3        | Common LTS distributions      |
+| 5.38        | 5.38.5        | Established production series |
+| 5.40        | 5.40.5        | Maintained stable series      |
+| 5.42        | 5.42.3        | Previous stable series        |
+| 5.44        | 5.44.0        | Latest stable series          |
+| 5.45        | 5.45.4        | Development compatibility     |
+
 <!-- PERL_TARGETS_END -->
 
 ## Codex target
 
-A `codex` target is also available, based on the Perl 5.45.3 image:
+A `codex` target is also available, based on the Perl 5.44.0 image:
 
 <!-- CODEX_TARGET_START -->
-| Target | Perl base | Codex CLI | RTK | Publication |
-| --- | --- | --- | --- | --- |
-| `codex` | 5.45.3 | Latest at no-cache build; 0.160.0 observed 2026-10-05 15:02:34 | Latest at no-cache build; 0.51.0 observed 2026-10-05 15:02:34 | `codex`, release, and timestamp tags |
+
+| Target      | Perl base | Codex CLI                | RTK                      | Publication                              |
+| ----------- | --------- | ------------------------ | ------------------------ | ---------------------------------------- |
+| `codex`     | 5.44.0    | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags     |
+| `codex-dev` | 5.45.4    | Latest at no-cache build | Latest at no-cache build | `codex-dev`, release, and timestamp tags |
+
 <!-- CODEX_TARGET_END -->
 
 ## Included Perl modules
 
 <!-- MODULE_VERSIONS_START -->
+
 Versions captured on 2026-10-05 15:02:34 (UTC).
 
-This inventory was captured from the default image at the timestamp above. Module versions may differ between publication runs. For an exact image, see `/opt/perl-essentials/module-versions.txt`.
+Historical inventory from the Perl 5.45.3 image; it predates the stable/dev
+split and the addition of JSON::SIMD. See the image inventory for current versions.
 
-| Module | Version |
-| --- | --- |
-| `Archive::Zip` | `1.68` |
-| `Archive::Zip::MemberRead` | `1.68` |
-| `Array::Compare` | `3.0.8` |
-| `Cpanel::JSON::XS` | `4.53` |
-| `Cwd` | `3.95` |
-| `DBD::SQLite` | `1.78` |
-| `DBI` | `1.655` |
-| `Data::Dumper` | `2.192` |
-| `Data::Peek` | `0.54` |
-| `Date::Calc` | `6.4` |
-| `DateTime` | `1.67` |
-| `DateTime::Format::Excel` | `0.31` |
-| `DateTime::Format::ISO8601` | `0.19` |
-| `Devel::NYTProf` | `6.15` |
-| `Digest::SHA` | `6.04` |
-| `Encode` | `3.24` |
-| `Excel::Writer::XLSX` | `1.15` |
-| `Excel::Writer::XLSX::Utility` | `1.15` |
-| `File::Copy` | `2.43` |
-| `File::Path` | `2.18` |
-| `File::Spec` | `3.95` |
-| `File::Temp` | `0.2312` |
-| `File::Which` | `1.27` |
-| `Getopt::Long` | `2.58` |
-| `HTTP::Cookies` | `6.12` |
-| `HTTP::Request::Common` | `7.04` |
-| `I18N::Langinfo` | `0.24` |
-| `IO::Pty` | `1.31` |
-| `Imager` | `1.037` |
-| `JSON` | `4.11` |
-| `JSON::Lines` | `1.11` |
-| `JSON::MaybeXS` | `1.004008` |
-| `JSON::PP` | `4.18` |
-| `JSON::XS` | `4.04` |
-| `LWP::UserAgent` | `6.83` |
-| `List::MoreUtils` | `0.430` |
-| `List::Util` | `1.70` |
-| `MIME::Base64` | `3.16_01` |
-| `MIME::Lite` | `3.038` |
-| `MIME::Parser` | `5.519` |
-| `Math::Units` | `1.3` |
-| `Mojolicious::Lite` | `9.49` |
-| `Net::LDAP` | `0.68` |
-| `Net::SFTP::Foreign` | `1.93` |
-| `Perl::Critic` | `1.156` |
-| `Perl::Tidy` | `20260826` |
-| `Scalar::Util` | `1.70` |
-| `Schedule::RateLimiter` | `0.01` |
-| `Sort::Key` | `1.33` |
-| `Spreadsheet::XLSX` | `0.18` |
-| `Test::MockModule` | `0.185.3` |
-| `Test::More` | `1.302225` |
-| `Text::CSV` | `2.06` |
-| `Text::Iconv` | `1.7` |
-| `Thread::Queue` | `3.14` |
-| `Time::Duration` | `1.21` |
-| `Time::HiRes` | `1.9781` |
-| `Time::Limit` | `0.003` |
-| `URI::Escape` | `5.37` |
-| `XML::Hash` | `0.95` |
-| `XML::LibXML` | `2.0213` |
-| `XML::LibXML::XPathContext` | `2.0213` |
-| `threads` | `2.47` |
-| `threads::shared` | `1.74` |
-| `utf8` | `1.29` |
-| `utf8::all` | `0.026` |
-| `DateTime::Locale` | `1.46` |
-| `DBD::Pg` | `3.21.2` |
-| `REST::Client` | `281` |
-| `XML::XML2JSON` | `0.06` |
+This inventory was captured from the default image at the timestamp above.
+Module versions may differ between publication runs. For an exact image, see
+`/opt/perl-essentials/module-versions.txt`.
+
+| Module                         | Version    |
+| ------------------------------ | ---------- |
+| `Archive::Zip`                 | `1.68`     |
+| `Archive::Zip::MemberRead`     | `1.68`     |
+| `Array::Compare`               | `3.0.8`    |
+| `Cpanel::JSON::XS`             | `4.53`     |
+| `Cwd`                          | `3.95`     |
+| `DBD::SQLite`                  | `1.78`     |
+| `DBI`                          | `1.655`    |
+| `Data::Dumper`                 | `2.192`    |
+| `Data::Peek`                   | `0.54`     |
+| `Date::Calc`                   | `6.4`      |
+| `DateTime`                     | `1.67`     |
+| `DateTime::Format::Excel`      | `0.31`     |
+| `DateTime::Format::ISO8601`    | `0.19`     |
+| `Devel::NYTProf`               | `6.15`     |
+| `Digest::SHA`                  | `6.04`     |
+| `Encode`                       | `3.24`     |
+| `Excel::Writer::XLSX`          | `1.15`     |
+| `Excel::Writer::XLSX::Utility` | `1.15`     |
+| `File::Copy`                   | `2.43`     |
+| `File::Path`                   | `2.18`     |
+| `File::Spec`                   | `3.95`     |
+| `File::Temp`                   | `0.2312`   |
+| `File::Which`                  | `1.27`     |
+| `Getopt::Long`                 | `2.58`     |
+| `HTTP::Cookies`                | `6.12`     |
+| `HTTP::Request::Common`        | `7.04`     |
+| `I18N::Langinfo`               | `0.24`     |
+| `IO::Pty`                      | `1.31`     |
+| `Imager`                       | `1.037`    |
+| `JSON`                         | `4.11`     |
+| `JSON::Lines`                  | `1.11`     |
+| `JSON::MaybeXS`                | `1.004008` |
+| `JSON::PP`                     | `4.18`     |
+| `JSON::XS`                     | `4.04`     |
+| `LWP::UserAgent`               | `6.83`     |
+| `List::MoreUtils`              | `0.430`    |
+| `List::Util`                   | `1.70`     |
+| `MIME::Base64`                 | `3.16_01`  |
+| `MIME::Lite`                   | `3.038`    |
+| `MIME::Parser`                 | `5.519`    |
+| `Math::Units`                  | `1.3`      |
+| `Mojolicious::Lite`            | `9.49`     |
+| `Net::LDAP`                    | `0.68`     |
+| `Net::SFTP::Foreign`           | `1.93`     |
+| `Perl::Critic`                 | `1.156`    |
+| `Perl::Tidy`                   | `20260826` |
+| `Scalar::Util`                 | `1.70`     |
+| `Schedule::RateLimiter`        | `0.01`     |
+| `Sort::Key`                    | `1.33`     |
+| `Spreadsheet::XLSX`            | `0.18`     |
+| `Test::MockModule`             | `0.185.3`  |
+| `Test::More`                   | `1.302225` |
+| `Text::CSV`                    | `2.06`     |
+| `Text::Iconv`                  | `1.7`      |
+| `Thread::Queue`                | `3.14`     |
+| `Time::Duration`               | `1.21`     |
+| `Time::HiRes`                  | `1.9781`   |
+| `Time::Limit`                  | `0.003`    |
+| `URI::Escape`                  | `5.37`     |
+| `XML::Hash`                    | `0.95`     |
+| `XML::LibXML`                  | `2.0213`   |
+| `XML::LibXML::XPathContext`    | `2.0213`   |
+| `threads`                      | `2.47`     |
+| `threads::shared`              | `1.74`     |
+| `utf8`                         | `1.29`     |
+| `utf8::all`                    | `0.026`    |
+| `DateTime::Locale`             | `1.46`     |
+| `DBD::Pg`                      | `3.21.2`   |
+| `REST::Client`                 | `281`      |
+| `XML::XML2JSON`                | `0.06`     |
+
 <!-- MODULE_VERSIONS_END -->
+
+Stable aliases `latest` and `codex` follow the latest configured stable Perl
+(currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
+configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.

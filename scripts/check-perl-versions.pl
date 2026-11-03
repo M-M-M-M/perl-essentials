@@ -156,7 +156,11 @@ sub check_repository_drift {
     }
   }
 
-  my $default = $entries[-1]{version} ;
+  my @stable = grep { $_->{role} eq 'stable' } @entries ;
+  if ( !@stable ) {
+    return ( @errors, 'configuration has no stable Perl version' ) ;
+  }
+  my $default = $stable[-1]{version} ;
   open my $dockerfile, '<', 'Dockerfile'
     or return ( @errors, 'cannot read Dockerfile default' ) ;
   my $first = <$dockerfile> // '' ;
