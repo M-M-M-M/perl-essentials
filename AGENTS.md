@@ -206,3 +206,16 @@ For GitHub public publication, do not use `gh release create` from this private
 checkout. First publish the filtered public snapshot with `./publish-public.zsh`;
 then the GitHub Release is created manually in the public GitHub repository.
 Publishing that GitHub Release triggers the Docker Hub workflow.
+
+# Local image inventories
+
+<!-- Project-specific: perl-essentials -->
+
+After relevant validated local builds and before releases affecting Perl, CPAN,
+Codex, or RTK, run `scripts/refresh-local-inventory.sh` before removing images.
+Use `--build` to build both Codex variants under temporary tags, capture their
+inventories, and clean up those temporary images. This requires no published
+project image. Review and commit README.md and DOCKERHUB.md together.
+Do not refresh dates for documentation-only commits. Never invent capture dates.
+The publication workflow refreshes Docker Hub separately; its generated artifact
+is not automatically committed to Bitbucket or GitHub.

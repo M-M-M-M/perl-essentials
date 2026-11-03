@@ -690,3 +690,16 @@ and captures Codex/RTK versions from both published Codex variants. Capture runs
 on AMD64. The regenerated README and Docker Hub source are available for 30 days
 as the `published-documentation-RELEASE_TAG` workflow artifact. The job updates
 Docker Hub without automatically committing generated tables to Git.
+
+## Local inventories before publication
+
+Run `scripts/refresh-local-inventory.sh` after validated local Codex stable and
+dev builds, before deleting them. Override `IMAGE`, `CODEX_IMAGE`, and
+`CODEX_DEV_IMAGE` for custom local tags. The command checks actual Perl versions
+before rewriting README and DOCKERHUB and runs Prettier afterwards.
+
+Use `scripts/refresh-local-inventory.sh --build` when local images are missing.
+It builds and validates both Codex variants for the native architecture, uses
+unique temporary tags, captures their inventories, and cleans up those tags.
+No published project image is required. Review and commit both documents before
+exporting the public snapshot. Documentation-only commits need no new capture.

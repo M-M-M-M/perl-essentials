@@ -24,6 +24,10 @@ _write_text(
 set -eu
 
 printf '%s\n' "$*" >> "$DOCKER_TEST_LOG"
+if [ "$1" = run ]; then
+    printf '%s' "${DOCKER_TEST_PERL_VERSION:-$PERL_VERSION}"
+    exit 0
+fi
 
 if [ "$1" = "buildx" ] && [ "$2" = "imagetools" ] && [ "$3" = "inspect" ]; then
     if [ -n "${DOCKER_TEST_INSPECT_DIGESTS:-}" ]; then
@@ -233,6 +237,11 @@ unlike $publish_script, qr/print\s+default\b/,
   'publication script avoids printing awk default keyword variables' ;
 unlike $publish_script, qr/setup-qemu|tonistiigi\/binfmt/,
   'publication script contains no QEMU setup path' ;
+
+my %wrong_base_env = ( %base_env, DOCKER_TEST_PERL_VERSION => '5.45.4' ) ;
+( $status, $output ) = _run_with_env( \%wrong_base_env, $publish, 'build', 'codex', 'linux/amd64', $amd64_digest ) ;
+isnt $status, 0, 'a wrong Perl runtime blocks digest handoff' ;
+ok !-f $amd64_digest, 'wrong-base digest cannot be uploaded as an artifact' ;
 
 done_testing ;
 

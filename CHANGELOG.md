@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-11-03
+
+### Fixed
+
+- Isolate publication digest artifacts by exact flavor and architecture so
+  Codex dev digests cannot replace stable Codex digests.
+- Verify the Perl runtime of each pushed digest before manifest assembly and
+  check the published Codex bases before capturing inventories.
+- Repair the mutable Docker Hub Codex stable alias to Perl 5.44.0 on AMD64 and
+  ARM64 while preserving historical release tags.
+- Refresh the versioned README and Docker Hub inventories from published images
+  and document their synchronization with Git.
+
+### Added
+
+- Local inventory capture with optional validated Codex builds, temporary-image
+  cleanup, and project guidance to capture inventories before relevant releases.
+
 ## [0.11.1] - 2026-11-03
 
 ### Fixed
@@ -392,7 +410,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.2...HEAD
+[0.11.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.9.7...v0.10.0

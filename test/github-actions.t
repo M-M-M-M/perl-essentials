@@ -108,6 +108,16 @@ like $publication, qr/CODEX_DEV_IMAGE:.*codex-dev-\$\{\{ needs\.prepare\.outputs
 like $publication, qr/name: Upload published documentation.*actions\/upload-artifact\@v7/s,
   'generated documentation is retained as an artifact' ;
 
+for my $arch (qw(amd64 arm64)) {
+  like $publication,
+    qr/actions\/download-artifact\@v8\s+with:\s+name: digest-\$\{\{ matrix\.key \}\}-\Q$arch\E\s+path: \/tmp\/digests/,
+    "$arch digest download selects the exact flavor instead of matching codex-dev" ;
+}
+unlike $publication, qr/pattern: digest-\$\{\{ matrix\.key \}\}-\*/,
+  'stable and development digests cannot be merged by a shared prefix' ;
+like $publication, qr/stable_codex_perl=\$\(docker run --rm "\$CODEX_IMAGE".*dev_codex_perl=\$\(docker run --rm "\$CODEX_DEV_IMAGE".*test "\$stable_codex_perl" = "\$version".*test "\$dev_codex_perl" = "\$dev_version".*scripts\/update-readme-module-versions\.sh/s,
+  'publication verifies both Codex runtimes before capturing versions' ;
+
 done_testing ;
 
 sub _read_text {

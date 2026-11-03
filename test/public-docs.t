@@ -37,7 +37,7 @@ like $readme, qr/cron `17 6 \* \* 1`.*Monday at 06:17 UTC/s,
   'README explains the weekly GitHub schedule precisely' ;
 like $readme, qr{\[SECURITY\.md\]\(SECURITY\.md\)},
   'README links to the Docker Scout security audit' ;
-like $readme, qr/`Mojolicious::Lite`\s+\| `9\.49`/,
+like $readme, qr/`Mojolicious::Lite`\s+\| `[1-9][0-9]*\.[0-9]+`/,
   'README reports the installed Mojolicious distribution version' ;
 like $dockerhub,
   qr{/etc/perltidyrc.*project-local `.perltidyrc`.*-pro=/work/custom\.perltidyrc.*-npro}s,
@@ -61,10 +61,12 @@ for my $document ( [ 'README.md', $readme ], [ 'DOCKERHUB.md', $dockerhub ], )
   my ( $name, $content ) = @{$document} ;
   like $content, $documented_codex_row,
     "$name documents Codex on the latest Perl target" ;
-  cmp_ok _module_capture_date($content), 'le', $latest_release_date,
-    "$name module inventory date does not postdate the release" ;
-  like $content, qr/Historical inventory from the Perl 5\.45\.3 image/,
-    "$name identifies the historical inventory rather than claiming a fresh capture" ;
+  cmp_ok _module_capture_date($content), 'ge', $latest_release_date,
+    "$name module inventory was refreshed for the current release" ;
+  unlike $content, qr/Historical inventory from the Perl 5\.45\.3 image/,
+    "$name no longer presents the obsolete inventory" ;
+  like $content, qr/\| `JSON::SIMD`\s+\| `[^`]+`/,
+    "$name reports the installed JSON::SIMD version" ;
 }
 
 like _read_text('.public-files'), qr/^DOCKERHUB\.md$/m,

@@ -220,9 +220,12 @@ jobs:
       - uses: docker/setup-buildx-action@v4
       - uses: actions/download-artifact@v8
         with:
-          pattern: digest-${{ matrix.key }}-*
+          name: digest-${{ matrix.key }}-amd64
           path: /tmp/digests
-          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: digest-${{ matrix.key }}-arm64
+          path: /tmp/digests
       - name: Publish multi-architecture manifest
         env:
           DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
@@ -264,6 +267,13 @@ jobs:
           docker pull "$IMAGE"
           docker pull "$CODEX_IMAGE"
           docker pull "$CODEX_DEV_IMAGE"
+          dev_version=$(awk -F'|' '$2 == "development" { version=$1 } END { print version }' perl-versions.conf)
+          stable_codex_perl=$(docker run --rm "$CODEX_IMAGE" perl -MConfig -e 'print $Config{version}')
+          dev_codex_perl=$(docker run --rm "$CODEX_DEV_IMAGE" perl -MConfig -e 'print $Config{version}')
+          printf 'Codex stable Perl: expected=%s actual=%s\n' "$version" "$stable_codex_perl"
+          printf 'Codex dev Perl: expected=%s actual=%s\n' "$dev_version" "$dev_codex_perl"
+          test "$stable_codex_perl" = "$version"
+          test "$dev_codex_perl" = "$dev_version"
           scripts/update-readme-module-versions.sh
       - name: Upload published documentation
         uses: actions/upload-artifact@v7

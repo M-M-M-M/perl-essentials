@@ -67,6 +67,15 @@ build_digest()
             if !defined $digest || $digest !~ /\Asha256:[0-9a-f]{64}\z/;
         print "$digest\n";
     ' < "${metadata_file}" > "${digest_file}"
+    digest=$(cat "${digest_file}")
+    actual_perl=$(docker run --rm --platform "${platform}" --entrypoint perl \
+        "${repository}@${digest}" -MConfig -e 'print $Config{version}')
+    if [ "${actual_perl}" != "${PERL_VERSION}" ]; then
+        rm -f "${digest_file}" "${metadata_file}"
+        printf 'Published digest has unexpected Perl: expected %s, got %s\n' \
+            "${PERL_VERSION}" "${actual_perl}" >&2
+        exit 1
+    fi
     rm -f "${metadata_file}"
 }
 

@@ -101,12 +101,18 @@ The optional development target is validated separately:
 
 <!-- CODEX_TARGET_START -->
 
-| Target      | Perl base | Codex CLI                | RTK                      | Publication                              |
-| ----------- | --------- | ------------------------ | ------------------------ | ---------------------------------------- |
-| `codex`     | 5.44.0    | Latest at no-cache build | Latest at no-cache build | `codex`, release, and timestamp tags     |
-| `codex-dev` | 5.45.4    | Latest at no-cache build | Latest at no-cache build | `codex-dev`, release, and timestamp tags |
+| Target      | Perl base | Codex CLI                                                      | RTK                                                          | Publication                              |
+| ----------- | --------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
+| `codex`     | 5.44.0    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex`, release, and timestamp tags     |
+| `codex-dev` | 5.45.4    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex-dev`, release, and timestamp tags |
 
 <!-- CODEX_TARGET_END -->
+
+The Perl bases above are the configured targets. Inspection of the published
+`v0.11.0-codex` and `v0.11.0-codex-dev` images found that both actually run
+Perl 5.45.4 and share a digest. The mutable `codex` alias has since been
+repaired and verified on both
+architectures with Perl 5.44.0; the historical release tags remain unchanged.
 
 Codex CLI and RTK versions are not pinned. CI prints both resolved versions on
 every build.
@@ -337,11 +343,24 @@ docker run --rm perl-essentials:5.45.4 \
   cat /opt/perl-essentials/module-versions.txt
 ```
 
-Regenerate the following table from the default image:
+The script `scripts/update-readme-module-versions.sh` refreshes the module
+inventory, capture date, and Codex/RTK versions in both `README.md` and
+`DOCKERHUB.md`. To capture the published images rather than local builds:
 
 ```sh
-scripts/update-readme-module-versions.sh
+docker pull perlessentials/perl-essentials:latest
+docker pull perlessentials/perl-essentials:codex
+docker pull perlessentials/perl-essentials:codex-dev
+IMAGE=perlessentials/perl-essentials:latest \
+  CODEX_IMAGE=perlessentials/perl-essentials:codex \
+  CODEX_DEV_IMAGE=perlessentials/perl-essentials:codex-dev \
+  scripts/update-readme-module-versions.sh
 ```
+
+The GitHub Release workflow runs this script before updating Docker Hub and
+keeps the generated documents in its `published-documentation-RELEASE_TAG`
+artifact for 30 days. It does not commit them back to Git: the README displayed
+on GitHub changes only after the refreshed document is committed and published.
 
 Check repository Perl formatting without modifying files:
 
@@ -363,33 +382,30 @@ query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
 
-Versions captured on 2026-10-05 15:02:34 (UTC).
+Versions captured on 2026-11-03 16:43:23 (UTC).
 
-Historical inventory from the Perl 5.45.3 image; it predates the stable/dev
-split and the addition of JSON::SIMD. See the image inventory for current versions.
-
-This inventory was captured from the default image at the timestamp above.
-Module versions may differ between publication runs. For an exact image, see
-`/opt/perl-essentials/module-versions.txt`.
+This inventory was captured from the default image at the
+timestamp above. Module versions may differ between publication runs. For an
+exact image, see `/opt/perl-essentials/module-versions.txt`.
 
 | Module                         | Version    |
 | ------------------------------ | ---------- |
 | `Archive::Zip`                 | `1.68`     |
 | `Archive::Zip::MemberRead`     | `1.68`     |
 | `Array::Compare`               | `3.0.8`    |
-| `Cpanel::JSON::XS`             | `4.53`     |
+| `Cpanel::JSON::XS`             | `4.80`     |
 | `Cwd`                          | `3.95`     |
 | `DBD::SQLite`                  | `1.78`     |
-| `DBI`                          | `1.655`    |
+| `DBI`                          | `1.656`    |
 | `Data::Dumper`                 | `2.192`    |
 | `Data::Peek`                   | `0.54`     |
 | `Date::Calc`                   | `6.4`      |
-| `DateTime`                     | `1.67`     |
+| `DateTime`                     | `1.68`     |
 | `DateTime::Format::Excel`      | `0.31`     |
 | `DateTime::Format::ISO8601`    | `0.19`     |
-| `Devel::NYTProf`               | `6.15`     |
+| `Devel::NYTProf`               | `6.16`     |
 | `Digest::SHA`                  | `6.04`     |
-| `Encode`                       | `3.24`     |
+| `Encode`                       | `3.25`     |
 | `Excel::Writer::XLSX`          | `1.15`     |
 | `Excel::Writer::XLSX::Utility` | `1.15`     |
 | `File::Copy`                   | `2.43`     |
@@ -402,20 +418,21 @@ Module versions may differ between publication runs. For an exact image, see
 | `HTTP::Request::Common`        | `7.04`     |
 | `I18N::Langinfo`               | `0.24`     |
 | `IO::Pty`                      | `1.31`     |
-| `Imager`                       | `1.037`    |
+| `Imager`                       | `1.040`    |
 | `JSON`                         | `4.11`     |
-| `JSON::Lines`                  | `1.11`     |
+| `JSON::Lines`                  | `1.12`     |
 | `JSON::MaybeXS`                | `1.004008` |
 | `JSON::PP`                     | `4.18`     |
+| `JSON::SIMD`                   | `1.08`     |
 | `JSON::XS`                     | `4.04`     |
 | `LWP::UserAgent`               | `6.83`     |
 | `List::MoreUtils`              | `0.430`    |
 | `List::Util`                   | `1.70`     |
 | `MIME::Base64`                 | `3.16_01`  |
 | `MIME::Lite`                   | `3.038`    |
-| `MIME::Parser`                 | `5.519`    |
+| `MIME::Parser`                 | `5.522`    |
 | `Math::Units`                  | `1.3`      |
-| `Mojolicious::Lite`            | `9.49`     |
+| `Mojolicious::Lite`            | `9.53`     |
 | `Net::LDAP`                    | `0.68`     |
 | `Net::SFTP::Foreign`           | `1.93`     |
 | `Perl::Critic`                 | `1.156`    |
@@ -423,24 +440,24 @@ Module versions may differ between publication runs. For an exact image, see
 | `Scalar::Util`                 | `1.70`     |
 | `Schedule::RateLimiter`        | `0.01`     |
 | `Sort::Key`                    | `1.33`     |
-| `Spreadsheet::XLSX`            | `0.18`     |
+| `Spreadsheet::XLSX`            | `0.20`     |
 | `Test::MockModule`             | `0.185.3`  |
-| `Test::More`                   | `1.302225` |
+| `Test::More`                   | `1.302226` |
 | `Text::CSV`                    | `2.06`     |
 | `Text::Iconv`                  | `1.7`      |
 | `Thread::Queue`                | `3.14`     |
 | `Time::Duration`               | `1.21`     |
-| `Time::HiRes`                  | `1.9781`   |
+| `Time::HiRes`                  | `1.9780`   |
 | `Time::Limit`                  | `0.003`    |
-| `URI::Escape`                  | `5.37`     |
+| `URI::Escape`                  | `5.40`     |
 | `XML::Hash`                    | `0.95`     |
 | `XML::LibXML`                  | `2.0213`   |
 | `XML::LibXML::XPathContext`    | `2.0213`   |
-| `threads`                      | `2.47`     |
-| `threads::shared`              | `1.74`     |
+| `threads`                      | `2.45`     |
+| `threads::shared`              | `1.73`     |
 | `utf8`                         | `1.29`     |
 | `utf8::all`                    | `0.026`    |
-| `DateTime::Locale`             | `1.46`     |
+| `DateTime::Locale`             | `1.47`     |
 | `DBD::Pg`                      | `3.21.2`   |
 | `REST::Client`                 | `281`      |
 | `XML::XML2JSON`                | `0.06`     |
