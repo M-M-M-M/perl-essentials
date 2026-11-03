@@ -25,6 +25,7 @@ _write_text(
 #!/bin/sh
 case "$*" in
 *" codex --version")
+  if [ "${FAIL_CODEX:-0}" = 1 ]; then exit 23; fi
   printf '%s\n' 'codex-cli 9.87.0'
   exit 0
   ;;
@@ -84,6 +85,14 @@ qr/\| `codex` \| 5\.44\.0 \| Latest at no-cache build; 9\.87\.0 observed 2026-06
     "$path receives the generated Codex target table" ;
   like $content, qr/\| `codex-dev` \| 5\.45\.4 \|/, "$path includes development Codex" ;
 }
+
+my $before = _read_text($readme) ;
+( $status, $output ) = _run_with_env(
+  { DOCUMENT_FILES => "$readme:$dockerhub", FAIL_CODEX => 1, PATH => "$bin:$ENV{PATH}" },
+  '/bin/sh', $script,
+) ;
+isnt $status,           0,       'failed image inspection prevents publishing a fabricated capture' ;
+is _read_text($readme), $before, 'failed inspection leaves existing documentation intact' ;
 
 done_testing ;
 

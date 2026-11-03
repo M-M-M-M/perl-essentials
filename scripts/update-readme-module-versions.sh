@@ -39,12 +39,21 @@ docker run --rm "$image" \
     /opt/perl-essentials/cpanfile-bootstrap-notest \
     /opt/perl-essentials/cpanfile-notest >> "$module_table"
 
-codex_version=$(
-    docker run --rm "$codex_image" codex --version | awk '{ print $2 }'
-)
-rtk_version=$(
-    docker run --rm "$codex_image" rtk --version | awk '{ print $2 }'
-)
+tool_version()
+{
+    tool_image=$1
+    tool=$2
+    output=$(docker run --rm "$tool_image" "$tool" --version) || return $?
+    resolved=$(printf '%s\n' "$output" | awk 'NR == 1 { print $2 }')
+    if [ -z "$resolved" ]; then
+        printf 'Cannot read %s version from %s\n' "$tool" "$tool_image" >&2
+        return 1
+    fi
+    printf '%s\n' "$resolved"
+}
+
+codex_version=$(tool_version "$codex_image" codex)
+rtk_version=$(tool_version "$codex_image" rtk)
 
 cat > "$codex_table" <<MARKDOWN
 | Target | Perl base | Codex CLI | RTK | Publication |
@@ -54,8 +63,8 @@ MARKDOWN
 
 dev_version=$(awk -F'|' '$2 == "development" { value=$1 } END { print value }' "$config")
 dev_image=${CODEX_DEV_IMAGE:-perl-essentials:codex-dev}
-dev_codex=$(docker run --rm "$dev_image" codex --version | awk '{ print $2 }')
-dev_rtk=$(docker run --rm "$dev_image" rtk --version | awk '{ print $2 }')
+dev_codex=$(tool_version "$dev_image" codex)
+dev_rtk=$(tool_version "$dev_image" rtk)
 printf '| `codex-dev` | %s | Latest at no-cache build; %s observed %s | Latest at no-cache build; %s observed %s | `codex-dev`, release, and timestamp tags |\n' \
     "$dev_version" "$dev_codex" "$codex_timestamp" "$dev_rtk" "$codex_timestamp" >> "$codex_table"
 

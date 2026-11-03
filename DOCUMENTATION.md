@@ -678,8 +678,15 @@ package or repository errors.
 
 Stable aliases `latest` and `codex` follow the latest configured stable Perl
 (currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
-configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.
+configured development Perl (currently 5.45.4).
 
 Local full-matrix validation includes both Codex variants on AMD64 and ARM64.
 `--perl-version` restricts validation to that Perl version and its matching Codex
 variant. Development builds use the separate local tag `perl-essentials:codex-dev`.
+
+At each GitHub Release publication, the Docker Hub description job refreshes the
+module inventory and capture date from that publication's stable Perl image,
+and captures Codex/RTK versions from both published Codex variants. Capture runs
+on AMD64. The regenerated README and Docker Hub source are available for 30 days
+as the `published-documentation-RELEASE_TAG` workflow artifact. The job updates
+Docker Hub without automatically committing generated tables to Git.

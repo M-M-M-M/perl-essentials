@@ -487,7 +487,7 @@ code, not every bundled component.
 
 Stable aliases `latest` and `codex` follow the latest configured stable Perl
 (currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
-configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.
+configured development Perl (currently 5.45.4).
 
 For a local development Codex build, run
 `PERL_VERSION=5.45.4 scripts/ci-build.sh codex`; it uses `perl-essentials:codex-dev`.

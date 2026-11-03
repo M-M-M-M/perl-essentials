@@ -89,7 +89,7 @@ like $publication, qr/vars\.DOCKERHUB_USERNAME/,
   'Docker publication reads the Docker Hub username from an environment variable' ;
 like $publication, qr/secrets\.DOCKERHUB_TOKEN/,
   'Docker publication reads the Docker Hub PAT from an environment secret' ;
-unlike $publication, qr/SOPS|AGE|1Password|setup-qemu/,
+unlike $publication, qr/SOPS|\bAGE\b|1Password|setup-qemu/,
   'Docker publication does not expose private secret tooling or QEMU' ;
 like $publication, qr/scripts\/publish\.sh build/,
   'Docker publication builds architecture-specific digests through the public script' ;
@@ -97,8 +97,16 @@ like $publication, qr/scripts\/publish\.sh manifest/,
   'Docker publication assembles final manifests through the public script' ;
 like $publication, qr/scripts\/publish\.sh verify-latest/,
   'Docker publication verifies that latest follows the default Perl image' ;
-like $publication, qr/needs:\s+\[manifest\].*scripts\/update-dockerhub-description\.pl/s,
+like $publication, qr/needs:\s+\[prepare, manifest\].*scripts\/update-dockerhub-description\.pl/s,
   'Docker publication updates the Docker Hub description after manifests' ;
+
+like $publication,
+  qr/name: Capture published image inventories.*docker pull.*scripts\/update-readme-module-versions\.sh.*name: Update Docker Hub description/s,
+  'publication captures the published modules before sending the description' ;
+like $publication, qr/CODEX_DEV_IMAGE:.*codex-dev-\$\{\{ needs\.prepare\.outputs\.timestamp \}\}/,
+  'development inventory uses the current publication timestamp' ;
+like $publication, qr/name: Upload published documentation.*actions\/upload-artifact\@v7/s,
+  'generated documentation is retained as an artifact' ;
 
 done_testing ;
 

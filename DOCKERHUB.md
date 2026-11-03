@@ -211,4 +211,4 @@ Module versions may differ between publication runs. For an exact image, see
 
 Stable aliases `latest` and `codex` follow the latest configured stable Perl
 (currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
-configured development Perl (currently 5.45.4). JSON::SIMD is included and tested.
+configured development Perl (currently 5.45.4).
