@@ -24,7 +24,7 @@ my $publication   = _read_text('.github/workflows/docker-publish.yml') ;
 
 like $ci, qr/timeout-minutes:\s+360/,
   'GitHub image validation has an explicit timeout' ;
-like $ci, qr/perl-version:.*5\.26\.3.*5\.45\.4/s,
+like $ci, qr/perl-version:.*5\.26\.3.*5\.45\.5/s,
   'GitHub image validation covers all configured Perl versions' ;
 like $ci, qr/platform:.*linux\/amd64.*linux\/arm64/s,
   'GitHub image validation covers both Docker platforms' ;

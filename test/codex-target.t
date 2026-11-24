@@ -174,10 +174,10 @@ unlike $github, qr/ci-build-codex/,
 
 my $bitbucket = _read_text('bitbucket-pipelines.yml') ;
 like $bitbucket,
-  qr/PERL_VERSION=5\.45\.4 CI_PLATFORM=linux\/amd64 scripts\/ci-build\.sh codex/,
+  qr/PERL_VERSION=5\.45\.5 CI_PLATFORM=linux\/amd64 scripts\/ci-build\.sh codex/,
   'Bitbucket CI validates Codex for linux/amd64 with the configured Codex Perl version' ;
 like $bitbucket,
-  qr/PERL_VERSION=5\.45\.4 CI_PLATFORM=linux\/arm64 scripts\/ci-build\.sh codex/,
+  qr/PERL_VERSION=5\.45\.5 CI_PLATFORM=linux\/arm64 scripts\/ci-build\.sh codex/,
   'Bitbucket CI validates Codex for linux/arm64 with the configured Codex Perl version' ;
 unlike $bitbucket, qr/ci-build-codex/,
   'Bitbucket CI uses only the unified build script' ;

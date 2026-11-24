@@ -21,15 +21,15 @@ sub read_file {
   local $/ ;
   return <$fh> ;
 }
-write_file( "$tmp/perl-versions.conf", "5.44.0|stable|Stable\n5.45.4|development|Dev\n" ) ;
+write_file( "$tmp/perl-versions.conf", "5.44.0|stable|Stable\n5.45.5|development|Dev\n" ) ;
 write_file( "$tmp/bin/docker",         <<'SH' ) ;
 #!/bin/sh
 printf '%s\n' "$*" >> "$TEST_LOG"
 case "$*" in
   info*) echo aarch64 ;;
   run*)
-    if [ "${BAD_VERSION:-0}" = 1 ]; then echo 5.45.4
-    else case "$*" in *dev*) echo 5.45.4 ;; *) echo 5.44.0 ;; esac; fi ;;
+    if [ "${BAD_VERSION:-0}" = 1 ]; then echo 5.45.5
+    else case "$*" in *dev*) echo 5.45.5 ;; *) echo 5.44.0 ;; esac; fi ;;
 esac
 SH
 write_file( "$tmp/bin/prettier", <<'SH' ) ;
@@ -78,7 +78,7 @@ unlike read_file("$tmp/log"), qr/build |image rm/, 'reuse does not build or dele
 }
 is run_capture('--build'), 0, 'builds and captures native Codex variants' ;
 like read_file("$tmp/log"), qr/build 5\.44\.0 linux\/arm64 perl-essentials:inventory-stable-/,   'builds stable under a temporary tag' ;
-like read_file("$tmp/log"), qr/build 5\.45\.4 linux\/arm64 perl-essentials:inventory-dev-/,      'builds development under a temporary tag' ;
+like read_file("$tmp/log"), qr/build 5\.45\.5 linux\/arm64 perl-essentials:inventory-dev-/,      'builds development under a temporary tag' ;
 like read_file("$tmp/log"), qr/capture .*\nformat\nimage rm perl-essentials:inventory-stable-/s, 'cleans temporary tags after capture and formatting' ;
 {
   local $ENV{BUILD_FAIL} = 1 ;

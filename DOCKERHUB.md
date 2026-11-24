@@ -104,7 +104,7 @@ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/work \
 | 5.40        | 5.40.5        | Maintained stable series      |
 | 5.42        | 5.42.3        | Previous stable series        |
 | 5.44        | 5.44.0        | Latest stable series          |
-| 5.45        | 5.45.4        | Development compatibility     |
+| 5.45        | 5.45.5        | Development compatibility     |
 
 <!-- PERL_TARGETS_END -->
 
@@ -116,8 +116,8 @@ A `codex` target is also available, based on the Perl 5.44.0 image:
 
 | Target      | Perl base | Codex CLI                                                      | RTK                                                          | Publication                              |
 | ----------- | --------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
-| `codex`     | 5.44.0    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex`, release, and timestamp tags     |
-| `codex-dev` | 5.45.4    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex-dev`, release, and timestamp tags |
+| `codex`     | 5.44.0    | Latest at no-cache build; 0.172.0 observed 2026-11-24 08:33:21 | Latest at no-cache build; 1.2.1 observed 2026-11-24 08:33:21 | `codex`, release, and timestamp tags     |
+| `codex-dev` | 5.45.5    | Latest at no-cache build; 0.172.0 observed 2026-11-24 08:33:21 | Latest at no-cache build; 1.2.1 observed 2026-11-24 08:33:21 | `codex-dev`, release, and timestamp tags |
 
 <!-- CODEX_TARGET_END -->
 
@@ -131,7 +131,7 @@ architectures with Perl 5.44.0; the historical release tags remain unchanged.
 
 <!-- MODULE_VERSIONS_START -->
 
-Versions captured on 2026-11-03 16:43:23 (UTC).
+Versions captured on 2026-11-24 08:33:21 (UTC).
 
 This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
@@ -142,7 +142,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Archive::Zip`                 | `1.68`     |
 | `Archive::Zip::MemberRead`     | `1.68`     |
 | `Array::Compare`               | `3.0.8`    |
-| `Cpanel::JSON::XS`             | `4.80`     |
+| `Cpanel::JSON::XS`             | `4.83`     |
 | `Cwd`                          | `3.95`     |
 | `DBD::SQLite`                  | `1.78`     |
 | `DBI`                          | `1.656`    |
@@ -155,8 +155,8 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Devel::NYTProf`               | `6.16`     |
 | `Digest::SHA`                  | `6.04`     |
 | `Encode`                       | `3.25`     |
-| `Excel::Writer::XLSX`          | `1.15`     |
-| `Excel::Writer::XLSX::Utility` | `1.15`     |
+| `Excel::Writer::XLSX`          | `1.16`     |
+| `Excel::Writer::XLSX::Utility` | `1.16`     |
 | `File::Copy`                   | `2.43`     |
 | `File::Path`                   | `2.18`     |
 | `File::Spec`                   | `3.95`     |
@@ -167,21 +167,21 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `HTTP::Request::Common`        | `7.04`     |
 | `I18N::Langinfo`               | `0.24`     |
 | `IO::Pty`                      | `1.31`     |
-| `Imager`                       | `1.040`    |
+| `Imager`                       | `1.041`    |
 | `JSON`                         | `4.11`     |
 | `JSON::Lines`                  | `1.12`     |
 | `JSON::MaybeXS`                | `1.004008` |
 | `JSON::PP`                     | `4.18`     |
 | `JSON::SIMD`                   | `1.08`     |
-| `JSON::XS`                     | `4.04`     |
+| `JSON::XS`                     | `4.06`     |
 | `LWP::UserAgent`               | `6.83`     |
 | `List::MoreUtils`              | `0.430`    |
 | `List::Util`                   | `1.70`     |
 | `MIME::Base64`                 | `3.16_01`  |
 | `MIME::Lite`                   | `3.038`    |
-| `MIME::Parser`                 | `5.522`    |
+| `MIME::Parser`                 | `5.523`    |
 | `Math::Units`                  | `1.3`      |
-| `Mojolicious::Lite`            | `9.53`     |
+| `Mojolicious::Lite`            | `9.54`     |
 | `Net::LDAP`                    | `0.68`     |
 | `Net::SFTP::Foreign`           | `1.93`     |
 | `Perl::Critic`                 | `1.156`    |
@@ -189,7 +189,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Scalar::Util`                 | `1.70`     |
 | `Schedule::RateLimiter`        | `0.01`     |
 | `Sort::Key`                    | `1.33`     |
-| `Spreadsheet::XLSX`            | `0.20`     |
+| `Spreadsheet::XLSX`            | `0.21`     |
 | `Test::MockModule`             | `0.185.3`  |
 | `Test::More`                   | `1.302226` |
 | `Text::CSV`                    | `2.06`     |
@@ -215,4 +215,4 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 
 Stable aliases `latest` and `codex` follow the latest configured stable Perl
 (currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
-configured development Perl (currently 5.45.4).
+configured development Perl (currently 5.45.5).

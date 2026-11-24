@@ -50,18 +50,18 @@ Supported CI matrix:
 | 5.40        | 5.40.5        | Maintained stable series      |
 | 5.42        | 5.42.3        | Previous stable series        |
 | 5.44        | 5.44.0        | Latest stable series          |
-| 5.45        | 5.45.4        | Development compatibility     |
+| 5.45        | 5.45.5        | Development compatibility     |
 
 <!-- PERL_TARGETS_END -->
 
 Published GitHub Releases create multi-architecture images on Docker Hub:
 
 ```sh
-docker pull perlessentials/perl-essentials:5.45.4
+docker pull perlessentials/perl-essentials:5.45.5
 docker pull perlessentials/perl-essentials:5.45
 docker pull perlessentials/perl-essentials:latest
-docker pull perlessentials/perl-essentials:vX.Y.Z-5.45.4
-docker pull perlessentials/perl-essentials:5.45.4-YYYY-MM-DD_HHmmss
+docker pull perlessentials/perl-essentials:vX.Y.Z-5.45.5
+docker pull perlessentials/perl-essentials:5.45.5-YYYY-MM-DD_HHmmss
 ```
 
 Exact-version, series, release, and `latest` tags are mutable aliases.
@@ -103,8 +103,8 @@ The optional development target is validated separately:
 
 | Target      | Perl base | Codex CLI                                                      | RTK                                                          | Publication                              |
 | ----------- | --------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
-| `codex`     | 5.44.0    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex`, release, and timestamp tags     |
-| `codex-dev` | 5.45.4    | Latest at no-cache build; 0.166.0 observed 2026-11-03 16:43:23 | Latest at no-cache build; 1.1.0 observed 2026-11-03 16:43:23 | `codex-dev`, release, and timestamp tags |
+| `codex`     | 5.44.0    | Latest at no-cache build; 0.172.0 observed 2026-11-24 08:33:21 | Latest at no-cache build; 1.2.1 observed 2026-11-24 08:33:21 | `codex`, release, and timestamp tags     |
+| `codex-dev` | 5.45.5    | Latest at no-cache build; 0.172.0 observed 2026-11-24 08:33:21 | Latest at no-cache build; 1.2.1 observed 2026-11-24 08:33:21 | `codex-dev`, release, and timestamp tags |
 
 <!-- CODEX_TARGET_END -->
 
@@ -137,7 +137,7 @@ Mount the current directory and run a script:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.45.4 \
+  perl-essentials:5.45.5 \
   perl /work/script.pl
 ```
 
@@ -147,7 +147,7 @@ Mount separate script and data directories:
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD/scripts":/work/scripts:ro \
   -v "$PWD/data":/work/data \
-  perl-essentials:5.45.4 \
+  perl-essentials:5.45.5 \
   perl /work/scripts/report.pl /work/data/input.csv
 ```
 
@@ -155,7 +155,7 @@ Open an interactive shell:
 
 ```sh
 docker run --rm -it --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.45.4 zsh -l
+  -v "$PWD":/work perl-essentials:5.45.5 zsh -l
 ```
 
 Zsh and Oh My Zsh are installed in every target. The prompt displays the user,
@@ -165,7 +165,7 @@ host, history event, and current directory; aliases `ls`, `l`, `ll`, `d`, and
 ## Optional Codex target
 
 Codex CLI and RTK are available in a separate development target. GitHub
-Actions validates this target with stable Perl 5.44.0 and development Perl 5.45.4.
+Actions validates this target with stable Perl 5.44.0 and development Perl 5.45.5.
 GitHub Release
 publication also publishes it separately as `codex`,
 `vX.Y.Z-codex`, and `codex-YYYY-MM-DD_HHmmss`. Unqualified builds, Perl tags,
@@ -310,7 +310,7 @@ Copy the references into a project without replacing existing files:
 
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
-  -v "$PWD":/work perl-essentials:5.45.4 sh -c \
+  -v "$PWD":/work perl-essentials:5.45.5 sh -c \
   'cp -n /opt/perl-essentials/AGENTS.md /work/AGENTS.md
    cp -n /opt/perl-essentials/.perltidyrc /work/.perltidyrc'
 ```
@@ -322,14 +322,14 @@ Run the quick backward-compatible validation:
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" \
   -v "$PWD":/work \
-  perl-essentials:5.45.4 \
+  perl-essentials:5.45.5 \
   perl /work/test.pl
 ```
 
 Run the smoke test in a built image:
 
 ```sh
-docker run --rm perl-essentials:5.45.4 \
+docker run --rm perl-essentials:5.45.5 \
   /opt/perl-essentials/scripts/smoke-test.pl \
   /opt/perl-essentials/cpanfile \
   /opt/perl-essentials/cpanfile-bootstrap-notest \
@@ -339,7 +339,7 @@ docker run --rm perl-essentials:5.45.4 \
 Display the versions captured during the build:
 
 ```sh
-docker run --rm perl-essentials:5.45.4 \
+docker run --rm perl-essentials:5.45.5 \
   cat /opt/perl-essentials/module-versions.txt
 ```
 
@@ -382,7 +382,7 @@ query, GitHub installs the TLS modules required by Ubuntu's system Perl.
 
 <!-- MODULE_VERSIONS_START -->
 
-Versions captured on 2026-11-03 16:43:23 (UTC).
+Versions captured on 2026-11-24 08:33:21 (UTC).
 
 This inventory was captured from the default image at the
 timestamp above. Module versions may differ between publication runs. For an
@@ -393,7 +393,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Archive::Zip`                 | `1.68`     |
 | `Archive::Zip::MemberRead`     | `1.68`     |
 | `Array::Compare`               | `3.0.8`    |
-| `Cpanel::JSON::XS`             | `4.80`     |
+| `Cpanel::JSON::XS`             | `4.83`     |
 | `Cwd`                          | `3.95`     |
 | `DBD::SQLite`                  | `1.78`     |
 | `DBI`                          | `1.656`    |
@@ -406,8 +406,8 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Devel::NYTProf`               | `6.16`     |
 | `Digest::SHA`                  | `6.04`     |
 | `Encode`                       | `3.25`     |
-| `Excel::Writer::XLSX`          | `1.15`     |
-| `Excel::Writer::XLSX::Utility` | `1.15`     |
+| `Excel::Writer::XLSX`          | `1.16`     |
+| `Excel::Writer::XLSX::Utility` | `1.16`     |
 | `File::Copy`                   | `2.43`     |
 | `File::Path`                   | `2.18`     |
 | `File::Spec`                   | `3.95`     |
@@ -418,21 +418,21 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `HTTP::Request::Common`        | `7.04`     |
 | `I18N::Langinfo`               | `0.24`     |
 | `IO::Pty`                      | `1.31`     |
-| `Imager`                       | `1.040`    |
+| `Imager`                       | `1.041`    |
 | `JSON`                         | `4.11`     |
 | `JSON::Lines`                  | `1.12`     |
 | `JSON::MaybeXS`                | `1.004008` |
 | `JSON::PP`                     | `4.18`     |
 | `JSON::SIMD`                   | `1.08`     |
-| `JSON::XS`                     | `4.04`     |
+| `JSON::XS`                     | `4.06`     |
 | `LWP::UserAgent`               | `6.83`     |
 | `List::MoreUtils`              | `0.430`    |
 | `List::Util`                   | `1.70`     |
 | `MIME::Base64`                 | `3.16_01`  |
 | `MIME::Lite`                   | `3.038`    |
-| `MIME::Parser`                 | `5.522`    |
+| `MIME::Parser`                 | `5.523`    |
 | `Math::Units`                  | `1.3`      |
-| `Mojolicious::Lite`            | `9.53`     |
+| `Mojolicious::Lite`            | `9.54`     |
 | `Net::LDAP`                    | `0.68`     |
 | `Net::SFTP::Foreign`           | `1.93`     |
 | `Perl::Critic`                 | `1.156`    |
@@ -440,7 +440,7 @@ exact image, see `/opt/perl-essentials/module-versions.txt`.
 | `Scalar::Util`                 | `1.70`     |
 | `Schedule::RateLimiter`        | `0.01`     |
 | `Sort::Key`                    | `1.33`     |
-| `Spreadsheet::XLSX`            | `0.20`     |
+| `Spreadsheet::XLSX`            | `0.21`     |
 | `Test::MockModule`             | `0.185.3`  |
 | `Test::More`                   | `1.302226` |
 | `Text::CSV`                    | `2.06`     |
@@ -472,7 +472,7 @@ docker run --rm \
   -e TEST_PG_USER='postgres' \
   -e TEST_PG_PASSWORD='secret' \
   -v "$PWD":/work:ro \
-  perl-essentials:5.45.4 \
+  perl-essentials:5.45.5 \
   perl /work/test/integration-postgres.pl
 ```
 
@@ -504,8 +504,8 @@ code, not every bundled component.
 
 Stable aliases `latest` and `codex` follow the latest configured stable Perl
 (currently 5.44.0). Development aliases `dev` and `codex-dev` follow the
-configured development Perl (currently 5.45.4).
+configured development Perl (currently 5.45.5).
 
 For a local development Codex build, run
-`PERL_VERSION=5.45.4 scripts/ci-build.sh codex`; it uses `perl-essentials:codex-dev`.
+`PERL_VERSION=5.45.5 scripts/ci-build.sh codex`; it uses `perl-essentials:codex-dev`.
 Full local matrix validation tests both variants on both architectures.

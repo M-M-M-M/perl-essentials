@@ -83,7 +83,7 @@ for my $path ( $readme, $dockerhub ) {
   like $content,
 qr/\| `codex` \| 5\.44\.0 \| Latest at no-cache build; 9\.87\.0 observed 2026-06-19 12:34:56 \| Latest at no-cache build; 6\.54\.0 observed 2026-06-19 12:34:56 \| `codex`, release, and timestamp tags \|/,
     "$path receives the generated Codex target table" ;
-  like $content, qr/\| `codex-dev` \| 5\.45\.4 \|/, "$path includes development Codex" ;
+  like $content, qr/\| `codex-dev` \| 5\.45\.5 \|/, "$path includes development Codex" ;
 }
 
 my $before = _read_text($readme) ;

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-11-24
+
+### Changed
+
+- Update the development Perl and codex-dev targets to Perl 5.45.5.
+
 ## [0.11.2] - 2026-11-03
 
 ### Fixed
@@ -410,7 +416,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shell configuration for interactive container use.
 - MIT licensing and third-party notices.
 
-[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.2...HEAD
+[Unreleased]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.3...HEAD
+[0.11.3]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/M-M-M-M/perl-essentials/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/M-M-M-M/perl-essentials/compare/v0.10.0...v0.11.0

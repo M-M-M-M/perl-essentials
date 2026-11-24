@@ -208,7 +208,7 @@ like $codex_log, qr/--tag perlessentials\/perl-essentials:v0\.5\.1-codex/,
 unlike $codex_log, qr/perl-essentials:latest/,
   'Codex manifest does not replace latest' ;
 
-my %dev_env = ( %base_env, PERL_VERSION => '5.45.4' ) ;
+my %dev_env = ( %base_env, PERL_VERSION => '5.45.5' ) ;
 for my $mode (qw(perl codex)) {
   unlink $log if -f $log ;
   ( $status, $output ) = _run_with_env( \%dev_env, $publish, 'manifest', $mode, $amd64_digest, $arm64_digest ) ;
@@ -238,7 +238,7 @@ unlike $publish_script, qr/print\s+default\b/,
 unlike $publish_script, qr/setup-qemu|tonistiigi\/binfmt/,
   'publication script contains no QEMU setup path' ;
 
-my %wrong_base_env = ( %base_env, DOCKER_TEST_PERL_VERSION => '5.45.4' ) ;
+my %wrong_base_env = ( %base_env, DOCKER_TEST_PERL_VERSION => '5.45.5' ) ;
 ( $status, $output ) = _run_with_env( \%wrong_base_env, $publish, 'build', 'codex', 'linux/amd64', $amd64_digest ) ;
 isnt $status, 0, 'a wrong Perl runtime blocks digest handoff' ;
 ok !-f $amd64_digest, 'wrong-base digest cannot be uploaded as an artifact' ;
